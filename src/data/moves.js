@@ -1,256 +1,153 @@
-// Move definitions — all learnable moves.
-// Exports: MOVES
-// Schema: { id, name, type, power, accuracy, pp, category, description, effect? }
-// category: 'physical' | 'special' | 'status'
-// effect: { kind, chance }  kinds: burn|poison|paralyse|sleep|freeze|confuse|flinch|heal
+// Every move in Tiamat. All names are original to this game.
+// m(id, name, type, category, power, accuracy, pp, fx, desc)
+//   category: phys | spec | status      accuracy: null = never misses
+//   fx: status/chance, confuse, flinch, stat (+target), multi, charge, recoil,
+//       drain, heal, highCrit, fixed, seed, protect, selfStat, prio
 
-export const MOVES = {
-  // ── Plain (Normal-analogue) ───────────────────────────────────────────────
-  tackle: {
-    id: "tackle", name: "Tackle", type: "Plain", power: 35, accuracy: 100, pp: 35,
-    category: "physical",
-    description: "A straightforward body-check. Reliable and always available.",
-  },
-  scratch: {
-    id: "scratch", name: "Scratch", type: "Plain", power: 40, accuracy: 100, pp: 35,
-    category: "physical",
-    description: "Sharp claws rake across the foe. Slightly stronger than a tackle.",
-  },
-  quick_jab: {
-    id: "quick_jab", name: "Quick Jab", type: "Plain", power: 40, accuracy: 100, pp: 30,
-    category: "physical",
-    description: "A lightning-fast strike that always goes first.",
-    effect: { kind: "priority", value: 1 },
-  },
-  body_slam: {
-    id: "body_slam", name: "Body Slam", type: "Plain", power: 75, accuracy: 100, pp: 15,
-    category: "physical",
-    description: "A full-body crash into the foe. 30% chance to paralyse.",
-    effect: { kind: "paralyse", chance: 0.30 },
-  },
-  hyper_voice: {
-    id: "hyper_voice", name: "Hyper Voice", type: "Plain", power: 90, accuracy: 100, pp: 5,
-    category: "special",
-    description: "A piercing sonic blast. High power but limited uses.",
-  },
+export const MOVES = {};
+function m(id, name, type, cat, power, acc, pp, fx = {}, desc = '') {
+  MOVES[id] = { id, name, type, cat, power, acc, pp, fx, prio: fx.prio || 0, desc };
+}
 
-  // ── Ember (Fire-analogue) ─────────────────────────────────────────────────
-  ember_spark: {
-    id: "ember_spark", name: "Ember Spark", type: "Ember", power: 40, accuracy: 100, pp: 25,
-    category: "special",
-    description: "A small jet of flame. 10% chance to burn the target.",
-    effect: { kind: "burn", chance: 0.10 },
-  },
-  flare_bite: {
-    id: "flare_bite", name: "Flare Bite", type: "Ember", power: 65, accuracy: 100, pp: 15,
-    category: "physical",
-    description: "A blazing chomp that can leave a lingering burn. 10% chance.",
-    effect: { kind: "burn", chance: 0.10 },
-  },
-  inferno_lash: {
-    id: "inferno_lash", name: "Inferno Lash", type: "Ember", power: 90, accuracy: 85, pp: 5,
-    category: "special",
-    description: "A massive wave of flame. High power but lower accuracy. 10% burn.",
-    effect: { kind: "burn", chance: 0.10 },
-  },
+// ── Plain ───────────────────────────────────────────────────────────────────
+m('bump', 'Bump', 'Plain', 'phys', 40, 100, 35, {}, 'A clumsy but honest shove.');
+m('nip', 'Nip', 'Plain', 'phys', 35, 100, 35, { flinch: 0.1 }, 'A quick nip. May make the foe flinch.');
+m('flit_strike', 'Flit Strike', 'Plain', 'phys', 40, 100, 30, { prio: 1 }, 'Darts in before the foe can react. Always strikes first.');
+m('gruff_bark', 'Gruff Bark', 'Plain', 'status', 0, 100, 40, { stat: { atk: -1 }, target: 'foe' }, 'A rough bark that lowers the foe\'s Attack.');
+m('stern_look', 'Stern Look', 'Plain', 'status', 0, 100, 30, { stat: { def: -1 }, target: 'foe' }, 'An unnerving stare that lowers the foe\'s Defense.');
+m('ram_charge', 'Ram Charge', 'Plain', 'phys', 85, 100, 15, { recoil: 0.25 }, 'A headlong charge. The user takes some recoil.');
+m('clamor', 'Clamor', 'Plain', 'spec', 90, 100, 10, {}, 'A deafening shout that rattles the foe.');
+m('pummel', 'Pummel', 'Plain', 'phys', 18, 95, 20, { multi: [2, 5] }, 'A flurry of blows that hits 2-5 times.');
+m('rally_cry', 'Rally Cry', 'Plain', 'status', 0, null, 30, { stat: { atk: 1, spe: 1 }, target: 'self' }, 'A rousing cry that raises Attack and Speed.');
+m('mend', 'Mend', 'Plain', 'status', 0, null, 10, { heal: 0.5 }, 'Rests a moment to recover half its max HP.');
+m('brace', 'Brace', 'Plain', 'status', 0, null, 20, { stat: { def: 2 }, target: 'self' }, 'Tenses every muscle, sharply raising Defense.');
+m('lullaby', 'Lullaby', 'Plain', 'status', 0, 60, 15, { status: 'sleep', chance: 1 }, 'A soft song that lulls the foe to sleep.');
+m('grand_slam', 'Grand Slam', 'Plain', 'phys', 110, 85, 5, {}, 'A full-body smash with enormous force.');
+m('guard_up', 'Guard Up', 'Plain', 'status', 0, null, 10, { protect: true, prio: 4 }, 'Blocks every attack this turn. Fails if used twice in a row.');
 
-  // ── Tide (Water-analogue) ─────────────────────────────────────────────────
-  splash_drop: {
-    id: "splash_drop", name: "Splash Drop", type: "Tide", power: 40, accuracy: 100, pp: 25,
-    category: "special",
-    description: "A focused drop of pressurised water. Fast and accurate.",
-  },
-  tide_pulse: {
-    id: "tide_pulse", name: "Tide Pulse", type: "Tide", power: 60, accuracy: 100, pp: 20,
-    category: "special",
-    description: "A surging pulse of water that hits with steady force.",
-  },
-  hydro_burst: {
-    id: "hydro_burst", name: "Hydro Burst", type: "Tide", power: 90, accuracy: 85, pp: 5,
-    category: "special",
-    description: "A torrent of water released at full pressure. Devastatingly powerful.",
-  },
+// ── Nature ─────────────────────────────────────────────────────────────────
+m('leaf_nick', 'Leaf Nick', 'Nature', 'phys', 40, 100, 25, {}, 'Slices with a sharp-edged leaf.');
+m('vine_lash', 'Vine Lash', 'Nature', 'phys', 50, 100, 25, {}, 'Whips the foe with a springy vine.');
+m('seed_volley', 'Seed Volley', 'Nature', 'phys', 25, 100, 30, { multi: [2, 5] }, 'Fires hard seeds 2-5 times in a row.');
+m('heal_bud', 'Heal Bud', 'Nature', 'status', 0, null, 10, { heal: 0.5 }, 'A restorative bloom that recovers half its max HP.');
+m('root_snare', 'Root Snare', 'Nature', 'status', 0, 90, 10, { seed: true }, 'Roots burrow into the foe, draining HP every turn.');
+m('drowse_pollen', 'Drowse Pollen', 'Nature', 'status', 0, 75, 15, { status: 'sleep', chance: 1 }, 'Heavy golden pollen that makes the foe doze off.');
+m('sap_drain', 'Sap Drain', 'Nature', 'spec', 60, 100, 15, { drain: 0.5 }, 'Siphons the foe\'s vigour, healing half the damage dealt.');
+m('bloom_blast', 'Bloom Blast', 'Nature', 'spec', 90, 100, 10, { stat: { spd: -1 }, target: 'foe', chance: 0.1 }, 'A burst of living energy. May lower Sp. Def.');
+m('timber_crash', 'Timber Crash', 'Nature', 'phys', 110, 95, 5, { recoil: 0.33 }, 'Slams like a falling tree. Heavy recoil.');
+m('moss_shield', 'Moss Shield', 'Nature', 'status', 0, null, 20, { stat: { def: 1, spd: 1 }, target: 'self' }, 'Grows a coat of moss that raises Defense and Sp. Def.');
 
-  // ── Nature (Grass-analogue) ───────────────────────────────────────────────
-  vine_lash: {
-    id: "vine_lash", name: "Vine Lash", type: "Nature", power: 45, accuracy: 100, pp: 25,
-    category: "physical",
-    description: "A whip-like vine strike. Reliable with no side effects.",
-  },
-  seed_volley: {
-    id: "seed_volley", name: "Seed Volley", type: "Nature", power: 25, accuracy: 100, pp: 30,
-    category: "physical",
-    description: "Launches 2–5 seeds in rapid succession. Each hit counts separately.",
-    effect: { kind: "multi_hit", minHits: 2, maxHits: 5 },
-  },
-  heal_bud: {
-    id: "heal_bud", name: "Heal Bud", type: "Nature", power: 0, accuracy: 100, pp: 10,
-    category: "status",
-    description: "A restorative bloom restores 50% of the user's max HP.",
-    effect: { kind: "heal", fraction: 0.5 },
-  },
+// ── Ember ──────────────────────────────────────────────────────────────────
+m('ember_spark', 'Ember Spark', 'Ember', 'spec', 40, 100, 25, { status: 'burn', chance: 0.1 }, 'A jet of sparks. May burn.');
+m('flare_bite', 'Flare Bite', 'Ember', 'phys', 65, 95, 15, { status: 'burn', chance: 0.1, flinch: 0.1 }, 'A blazing chomp. May burn or cause flinching.');
+m('cinder_claw', 'Cinder Claw', 'Ember', 'phys', 55, 100, 25, { highCrit: true }, 'Glowing claws. High critical-hit ratio.');
+m('blaze_ring', 'Blaze Ring', 'Ember', 'spec', 75, 100, 15, { status: 'burn', chance: 0.1 }, 'A ring of fire that closes on the foe. May burn.');
+m('inferno_lash', 'Inferno Lash', 'Ember', 'spec', 100, 85, 5, { status: 'burn', chance: 0.2 }, 'A whip of white-hot flame. May burn.');
+m('smoke_veil', 'Smoke Veil', 'Ember', 'status', 0, 100, 20, { stat: { acc: -1 }, target: 'foe' }, 'Billowing smoke that lowers the foe\'s accuracy.');
+m('kindle', 'Kindle', 'Ember', 'status', 0, 85, 15, { status: 'burn', chance: 1 }, 'Ghostly embers that burn the foe.');
+m('pyre_rush', 'Pyre Rush', 'Ember', 'phys', 115, 100, 10, { recoil: 0.33, status: 'burn', chance: 0.1 }, 'A blazing tackle. Heavy recoil.');
 
-  // ── Umbra (Dark-analogue) ─────────────────────────────────────────────────
-  bite: {
-    id: "bite", name: "Bite", type: "Umbra", power: 60, accuracy: 100, pp: 25,
-    category: "physical",
-    description: "A fearsome bite that may make the foe flinch. 30% flinch chance.",
-    effect: { kind: "flinch", chance: 0.30 },
-  },
-  shadow_creep: {
-    id: "shadow_creep", name: "Shadow Creep", type: "Umbra", power: 80, accuracy: 100, pp: 15,
-    category: "special",
-    description: "Tendrils of shadow engulf the foe. No secondary effect.",
-  },
+// ── Tide ───────────────────────────────────────────────────────────────────
+m('splash_drop', 'Splash Drop', 'Tide', 'spec', 40, 100, 25, {}, 'A pressurised droplet fired at the foe.');
+m('rip_current', 'Rip Current', 'Tide', 'phys', 40, 100, 20, { prio: 1 }, 'Rides a current into the foe. Always strikes first.');
+m('tide_pulse', 'Tide Pulse', 'Tide', 'spec', 60, 100, 20, { confuse: 0.2 }, 'A throbbing wave. May confuse.');
+m('brine_fang', 'Brine Fang', 'Tide', 'phys', 65, 95, 15, { flinch: 0.2 }, 'Salt-slick fangs. May cause flinching.');
+m('undertow', 'Undertow', 'Tide', 'phys', 85, 90, 10, { stat: { spe: -1 }, target: 'foe', chance: 1 }, 'Drags the foe under, lowering its Speed.');
+m('hydro_burst', 'Hydro Burst', 'Tide', 'spec', 100, 85, 5, {}, 'A thunderous blast of water.');
+m('tidal_guard', 'Tidal Guard', 'Tide', 'status', 0, null, 20, { stat: { def: 1, spd: 1 }, target: 'self' }, 'Wraps itself in water, raising Defense and Sp. Def.');
+m('primordial_tide', 'Primordial Tide', 'Tide', 'spec', 120, 90, 5, { stat: { spd: -1 }, target: 'foe', chance: 0.3 }, 'The first sea rises at its call. Tiamat\'s signature move.');
 
-  // ── Wing (Flying-analogue) ────────────────────────────────────────────────
-  peck: {
-    id: "peck", name: "Peck", type: "Wing", power: 35, accuracy: 100, pp: 35,
-    category: "physical",
-    description: "A sharp beak jab. Simple and consistent.",
-  },
-  gust: {
-    id: "gust", name: "Gust", type: "Wing", power: 40, accuracy: 100, pp: 35,
-    category: "special",
-    description: "A burst of wind that buffets the target.",
-  },
-  wing_strike: {
-    id: "wing_strike", name: "Wing Strike", type: "Wing", power: 60, accuracy: 100, pp: 25,
-    category: "physical",
-    description: "A diving wing-buffet that hits hard and fast.",
-  },
-  sky_dive: {
-    id: "sky_dive", name: "Sky Dive", type: "Wing", power: 90, accuracy: 90, pp: 5,
-    category: "physical",
-    description: "Soars high then crashes down on the second turn. Huge damage.",
-    effect: { kind: "two_turn", chargeMsg: "soared into the sky!" },
-  },
+// ── Static ─────────────────────────────────────────────────────────────────
+m('static_jolt', 'Static Jolt', 'Static', 'spec', 40, 100, 30, { status: 'paralyze', chance: 0.1 }, 'A crackling jolt. May paralyse.');
+m('charge_ram', 'Charge Ram', 'Static', 'phys', 65, 100, 20, { status: 'paralyze', chance: 0.3 }, 'A charged body-check. May paralyse.');
+m('volt_needle', 'Volt Needle', 'Static', 'phys', 20, 95, 20, { multi: [2, 5] }, 'Fires charged quills 2-5 times.');
+m('numb_pulse', 'Numb Pulse', 'Static', 'status', 0, 90, 20, { status: 'paralyze', chance: 1 }, 'A weak current that paralyses the foe.');
+m('thunder_arc', 'Thunder Arc', 'Static', 'spec', 90, 100, 15, { status: 'paralyze', chance: 0.1 }, 'An arc of lightning. May paralyse.');
+m('skybolt', 'Skybolt', 'Static', 'spec', 115, 75, 5, { status: 'paralyze', chance: 0.3 }, 'Calls a bolt down from the sky. May paralyse.');
+m('overcharge', 'Overcharge', 'Static', 'status', 0, null, 20, { stat: { spa: 2 }, target: 'self' }, 'Builds up current, sharply raising Sp. Atk.');
 
-  // ── Sprout (Bug-analogue) ─────────────────────────────────────────────────
-  bug_bite: {
-    id: "bug_bite", name: "Bug Bite", type: "Sprout", power: 40, accuracy: 100, pp: 30,
-    category: "physical",
-    description: "A mandible-driven chomp. Steady damage with no frills.",
-  },
-  spore_cloud: {
-    id: "spore_cloud", name: "Spore Cloud", type: "Sprout", power: 0, accuracy: 75, pp: 15,
-    category: "status",
-    description: "Releases sleep-inducing spores. Unreliable but devastating when it hits.",
-    effect: { kind: "sleep", chance: 1.0 },
-  },
-  pin_volley: {
-    id: "pin_volley", name: "Pin Volley", type: "Sprout", power: 25, accuracy: 100, pp: 30,
-    category: "physical",
-    description: "Fires 2–5 sharp pins. Each hit counts.",
-    effect: { kind: "multi_hit", minHits: 2, maxHits: 5 },
-  },
+// ── Stone ──────────────────────────────────────────────────────────────────
+m('stone_toss', 'Stone Toss', 'Stone', 'phys', 50, 90, 15, {}, 'Hurls a jagged stone.');
+m('grit_spray', 'Grit Spray', 'Stone', 'status', 0, 100, 15, { stat: { acc: -1 }, target: 'foe' }, 'Kicks up grit, lowering the foe\'s accuracy.');
+m('mud_lob', 'Mud Lob', 'Stone', 'spec', 55, 95, 15, { stat: { acc: -1 }, target: 'foe', chance: 0.3 }, 'A clod of mud. May lower accuracy.');
+m('rubble_fall', 'Rubble Fall', 'Stone', 'phys', 75, 90, 10, { flinch: 0.3 }, 'Brings down rubble. May cause flinching.');
+m('quake_stomp', 'Quake Stomp', 'Stone', 'phys', 90, 100, 10, {}, 'A stomp that shakes the ground itself.');
+m('boulder_drop', 'Boulder Drop', 'Stone', 'phys', 110, 80, 5, {}, 'Drops a boulder on the foe.');
+m('stoneskin', 'Stoneskin', 'Stone', 'status', 0, null, 15, { stat: { def: 2 }, target: 'self' }, 'Hardens its hide like stone, sharply raising Defense.');
 
-  // ── Static (Electric-analogue) ────────────────────────────────────────────
-  static_jolt: {
-    id: "static_jolt", name: "Static Jolt", type: "Static", power: 40, accuracy: 100, pp: 30,
-    category: "special",
-    description: "A crackling jolt of electricity. 10% chance to paralyse.",
-    effect: { kind: "paralyse", chance: 0.10 },
-  },
-  spark: {
-    id: "spark", name: "Spark", type: "Static", power: 65, accuracy: 100, pp: 20,
-    category: "physical",
-    description: "A charged body tackle that can paralyse on contact. 30% chance.",
-    effect: { kind: "paralyse", chance: 0.30 },
-  },
-  thunder_arc: {
-    id: "thunder_arc", name: "Thunder Arc", type: "Static", power: 95, accuracy: 100, pp: 10,
-    category: "special",
-    description: "A wide arc of lightning that never misses. 10% paralyse.",
-    effect: { kind: "paralyse", chance: 0.10 },
-  },
+// ── Frost ──────────────────────────────────────────────────────────────────
+m('chill_nip', 'Chill Nip', 'Frost', 'spec', 40, 100, 25, { status: 'freeze', chance: 0.1 }, 'A biting cold. May freeze.');
+m('icicle_jab', 'Icicle Jab', 'Frost', 'phys', 65, 100, 20, { status: 'freeze', chance: 0.1 }, 'Stabs with an icicle. May freeze.');
+m('hail_volley', 'Hail Volley', 'Frost', 'phys', 25, 100, 30, { multi: [2, 5] }, 'Pelts the foe with hailstones 2-5 times.');
+m('rime_ray', 'Rime Ray', 'Frost', 'spec', 90, 100, 10, { status: 'freeze', chance: 0.1 }, 'A freezing ray. May freeze.');
+m('whiteout_gale', 'Whiteout Gale', 'Frost', 'spec', 110, 70, 5, { status: 'freeze', chance: 0.1 }, 'A howling storm of snow. May freeze.');
+m('frost_armor', 'Frost Armor', 'Frost', 'status', 0, null, 20, { stat: { def: 1, spd: 1 }, target: 'self' }, 'Coats itself in ice, raising Defense and Sp. Def.');
 
-  // ── Stone (Rock-analogue) ─────────────────────────────────────────────────
-  stone_toss: {
-    id: "stone_toss", name: "Stone Toss", type: "Stone", power: 50, accuracy: 90, pp: 15,
-    category: "physical",
-    description: "Hurls a jagged rock at the target. Decent power but slightly inaccurate.",
-  },
-  rock_slide: {
-    id: "rock_slide", name: "Rock Slide", type: "Stone", power: 75, accuracy: 90, pp: 10,
-    category: "physical",
-    description: "A cascade of boulders. 30% chance to make the target flinch.",
-    effect: { kind: "flinch", chance: 0.30 },
-  },
+// ── Wing ───────────────────────────────────────────────────────────────────
+m('beak_jab', 'Beak Jab', 'Wing', 'phys', 35, 100, 35, {}, 'A sharp jab of the beak.');
+m('breeze_cut', 'Breeze Cut', 'Wing', 'spec', 40, 100, 35, {}, 'A cutting gust of wind.');
+m('wing_strike', 'Wing Strike', 'Wing', 'phys', 60, 100, 25, {}, 'Strikes with outstretched wings.');
+m('gale_slice', 'Gale Slice', 'Wing', 'spec', 75, 95, 15, { highCrit: true }, 'A blade of wind. High critical-hit ratio.');
+m('sky_dive', 'Sky Dive', 'Wing', 'phys', 90, 95, 15, { charge: 'soared high into the sky!' }, 'Flies up on turn one, dives on turn two.');
+m('updraft', 'Updraft', 'Wing', 'status', 0, null, 20, { stat: { spe: 2 }, target: 'self' }, 'Catches a rising wind, sharply raising Speed.');
+m('tempest_wing', 'Tempest Wing', 'Wing', 'spec', 110, 80, 5, {}, 'A wingbeat that whips up a tempest.');
 
-  // ── Mist (Ice-analogue) ───────────────────────────────────────────────────
-  frost_bite: {
-    id: "frost_bite", name: "Frost Bite", type: "Mist", power: 40, accuracy: 100, pp: 25,
-    category: "special",
-    description: "A chilling blast of frozen mist. 10% chance to freeze.",
-    effect: { kind: "freeze", chance: 0.10 },
-  },
-  icicle_jab: {
-    id: "icicle_jab", name: "Icicle Jab", type: "Mist", power: 65, accuracy: 100, pp: 20,
-    category: "physical",
-    description: "Strikes with a sharpened spike of ice. 10% chance to freeze.",
-    effect: { kind: "freeze", chance: 0.10 },
-  },
+// ── Swarm ──────────────────────────────────────────────────────────────────
+m('mandible_nip', 'Mandible Nip', 'Swarm', 'phys', 40, 100, 30, {}, 'Pinches with clacking mandibles.');
+m('pin_volley', 'Pin Volley', 'Swarm', 'phys', 25, 95, 20, { multi: [2, 5] }, 'Fires sharp pins 2-5 times.');
+m('silk_snare', 'Silk Snare', 'Swarm', 'status', 0, 95, 40, { stat: { spe: -2 }, target: 'foe' }, 'Sticky silk that sharply lowers the foe\'s Speed.');
+m('sap_sting', 'Sap Sting', 'Swarm', 'phys', 60, 100, 15, { drain: 0.5 }, 'A draining sting that heals half the damage dealt.');
+m('swarm_strike', 'Swarm Strike', 'Swarm', 'phys', 80, 100, 15, {}, 'Attacks as if backed by a whole swarm.');
+m('drone_hum', 'Drone Hum', 'Swarm', 'spec', 90, 100, 10, { stat: { spd: -1 }, target: 'foe', chance: 0.1 }, 'A droning buzz. May lower Sp. Def.');
+m('chitin_guard', 'Chitin Guard', 'Swarm', 'status', 0, null, 20, { stat: { def: 1, atk: 1 }, target: 'self' }, 'Hardens its shell, raising Attack and Defense.');
 
-  // ── Toxin (Poison-analogue) ───────────────────────────────────────────────
-  acid_spit: {
-    id: "acid_spit", name: "Acid Spit", type: "Toxin", power: 40, accuracy: 100, pp: 30,
-    category: "special",
-    description: "Spews corrosive acid. 30% chance to poison the target.",
-    effect: { kind: "poison", chance: 0.30 },
-  },
-  toxic_fang: {
-    id: "toxic_fang", name: "Toxic Fang", type: "Toxin", power: 50, accuracy: 100, pp: 15,
-    category: "physical",
-    description: "A venom-laced bite. 50% chance to badly poison the target.",
-    effect: { kind: "poison", chance: 0.50 },
-  },
+// ── Toxin ──────────────────────────────────────────────────────────────────
+m('acid_spit', 'Acid Spit', 'Toxin', 'spec', 40, 100, 30, { status: 'poison', chance: 0.3 }, 'Spits acid. May poison.');
+m('toxic_fang', 'Toxic Fang', 'Toxin', 'phys', 55, 100, 15, { status: 'poison', chance: 0.4 }, 'A venom-laced bite. May poison.');
+m('corrode', 'Corrode', 'Toxin', 'status', 0, 100, 20, { stat: { def: -2 }, target: 'foe' }, 'Eats at the foe\'s armour, sharply lowering Defense.');
+m('blight_cloud', 'Blight Cloud', 'Toxin', 'status', 0, 90, 10, { status: 'toxic', chance: 1 }, 'A foul cloud that badly poisons the foe.');
+m('noxious_jab', 'Noxious Jab', 'Toxin', 'phys', 80, 100, 15, { status: 'poison', chance: 0.3 }, 'A dripping stab. May poison.');
+m('mire_blast', 'Mire Blast', 'Toxin', 'spec', 90, 100, 10, { status: 'poison', chance: 0.3 }, 'A wave of toxic sludge. May poison.');
 
-  // ── Mind (Psychic-analogue) ───────────────────────────────────────────────
-  confuse_ray: {
-    id: "confuse_ray", name: "Confuse Ray", type: "Mind", power: 0, accuracy: 100, pp: 10,
-    category: "status",
-    description: "Bewilders the target with a dazzling ray. Always confuses.",
-    effect: { kind: "confuse", chance: 1.0 },
-  },
-  psy_blast: {
-    id: "psy_blast", name: "Psy Blast", type: "Mind", power: 65, accuracy: 100, pp: 20,
-    category: "special",
-    description: "A focused burst of psychic energy. No secondary effects.",
-  },
+// ── Brawl ──────────────────────────────────────────────────────────────────
+m('palm_strike', 'Palm Strike', 'Brawl', 'phys', 50, 100, 25, { highCrit: true }, 'A precise open-palm strike. High critical-hit ratio.');
+m('counterblow', 'Counterblow', 'Brawl', 'phys', 40, 100, 30, { prio: 1 }, 'A lightning-fast jab. Always strikes first.');
+m('knuckle_barrage', 'Knuckle Barrage', 'Brawl', 'phys', 18, 100, 20, { multi: [2, 5] }, 'Rapid punches that hit 2-5 times.');
+m('power_kick', 'Power Kick', 'Brawl', 'phys', 75, 90, 15, {}, 'A heavy roundhouse kick.');
+m('all_out_slam', 'All-Out Slam', 'Brawl', 'phys', 120, 100, 5, { selfStat: { def: -1, spd: -1 } }, 'Holds nothing back. Lowers the user\'s defences.');
+m('battle_stance', 'Battle Stance', 'Brawl', 'status', 0, null, 20, { stat: { atk: 2 }, target: 'self' }, 'Takes a fighting stance, sharply raising Attack.');
 
-  // ── Brawl (Fighting-analogue) ─────────────────────────────────────────────
-  karate_chop: {
-    id: "karate_chop", name: "Karate Chop", type: "Brawl", power: 50, accuracy: 100, pp: 25,
-    category: "physical",
-    description: "A precise hand-strike with a boosted critical hit rate.",
-    effect: { kind: "high_crit" },
-  },
-  power_kick: {
-    id: "power_kick", name: "Power Kick", type: "Brawl", power: 75, accuracy: 90, pp: 15,
-    category: "physical",
-    description: "A heavy roundhouse kick. Powerful but slightly inaccurate.",
-  },
+// ── Mind ───────────────────────────────────────────────────────────────────
+m('psy_blast', 'Psy Blast', 'Mind', 'spec', 65, 100, 20, { confuse: 0.1 }, 'A burst of psychic force. May confuse.');
+m('daze_beam', 'Daze Beam', 'Mind', 'status', 0, 100, 10, { confuse: 1 }, 'A shimmering beam that confuses the foe.');
+m('trance', 'Trance', 'Mind', 'status', 0, 60, 20, { status: 'sleep', chance: 1 }, 'A swaying pattern that sends the foe to sleep.');
+m('mind_spike', 'Mind Spike', 'Mind', 'spec', 90, 100, 10, { stat: { spd: -1 }, target: 'foe', chance: 0.1 }, 'Drives a spike of thought into the foe.');
+m('psi_horn', 'Psi Horn', 'Mind', 'phys', 80, 90, 15, { flinch: 0.2 }, 'A horn charged with psychic power.');
+m('clear_thought', 'Clear Thought', 'Mind', 'status', 0, null, 20, { stat: { spa: 1, spd: 1 }, target: 'self' }, 'Stills the mind, raising Sp. Atk and Sp. Def.');
 
-  // ── Iron (Steel-analogue) ─────────────────────────────────────────────────
-  iron_tail: {
-    id: "iron_tail", name: "Iron Tail", type: "Iron", power: 80, accuracy: 85, pp: 15,
-    category: "physical",
-    description: "Slams the foe with a metal-hard tail. 30% chance to lower defence.",
-    effect: { kind: "def_down", chance: 0.30 },
-  },
-  metal_claw: {
-    id: "metal_claw", name: "Metal Claw", type: "Iron", power: 50, accuracy: 95, pp: 35,
-    category: "physical",
-    description: "Rakes with hardened claws. 10% chance to raise the user's attack.",
-    effect: { kind: "atk_up_self", chance: 0.10 },
-  },
+// ── Umbra ──────────────────────────────────────────────────────────────────
+m('shade_fang', 'Shade Fang', 'Umbra', 'phys', 60, 100, 25, { flinch: 0.3 }, 'A bite from the shadows. May cause flinching.');
+m('night_tremor', 'Night Tremor', 'Umbra', 'spec', 1, 100, 15, { fixed: 'level' }, 'Deals damage equal to the user\'s level.');
+m('ambush', 'Ambush', 'Umbra', 'phys', 70, 100, 10, { prio: 1 }, 'Strikes from hiding. Always goes first.');
+m('shadow_creep', 'Shadow Creep', 'Umbra', 'spec', 80, 100, 15, {}, 'Tendrils of shadow engulf the foe.');
+m('hex_mist', 'Hex Mist', 'Umbra', 'spec', 65, 100, 15, { confuse: 0.2 }, 'A cursed mist. May confuse.');
+m('dread_gaze', 'Dread Gaze', 'Umbra', 'status', 0, 100, 15, { stat: { spa: -2 }, target: 'foe' }, 'A terrifying gaze that sharply lowers Sp. Atk.');
+m('nightrend', 'Nightrend', 'Umbra', 'phys', 90, 100, 10, { highCrit: true }, 'Tears through the dark. High critical-hit ratio.');
 
-  // ── Drake (Dragon-analogue) ───────────────────────────────────────────────
-  dragon_breath: {
-    id: "dragon_breath", name: "Dragon Breath", type: "Drake", power: 60, accuracy: 100, pp: 20,
-    category: "special",
-    description: "A gale of draconic energy. 30% chance to paralyse the target.",
-    effect: { kind: "paralyse", chance: 0.30 },
-  },
-};
+// ── Iron ───────────────────────────────────────────────────────────────────
+m('chrome_claw', 'Chrome Claw', 'Iron', 'phys', 50, 95, 35, { stat: { atk: 1 }, target: 'self', chance: 0.1 }, 'Metal claws. May raise the user\'s Attack.');
+m('cog_strike', 'Cog Strike', 'Iron', 'phys', 20, 95, 20, { multi: [2, 5] }, 'Spinning cogs strike 2-5 times.');
+m('alloy_lash', 'Alloy Lash', 'Iron', 'phys', 80, 90, 15, { stat: { def: -1 }, target: 'foe', chance: 0.3 }, 'A whip of hard metal. May lower Defense.');
+m('gleam_cannon', 'Gleam Cannon', 'Iron', 'spec', 80, 100, 10, { stat: { spd: -1 }, target: 'foe', chance: 0.1 }, 'A beam of reflected light. May lower Sp. Def.');
+m('plate_up', 'Plate Up', 'Iron', 'status', 0, null, 15, { stat: { def: 2 }, target: 'self' }, 'Locks metal plates into place, sharply raising Defense.');
+m('anvil_drop', 'Anvil Drop', 'Iron', 'phys', 100, 90, 5, {}, 'Crashes down like an anvil.');
+
+// ── Drake ──────────────────────────────────────────────────────────────────
+m('wyrm_breath', 'Wyrm Breath', 'Drake', 'spec', 60, 100, 20, { status: 'paralyze', chance: 0.3 }, 'Ancient breath. May paralyse.');
+m('scale_rake', 'Scale Rake', 'Drake', 'phys', 80, 100, 15, {}, 'Rakes with razor-edged scales.');
+m('coil_whip', 'Coil Whip', 'Drake', 'phys', 60, 100, 20, { stat: { atk: -1 }, target: 'foe', chance: 0.3 }, 'Lashes with a long tail. May lower Attack.');
+m('draconic_surge', 'Draconic Surge', 'Drake', 'status', 0, null, 20, { stat: { atk: 1, spe: 1 }, target: 'self' }, 'Old blood surges, raising Attack and Speed.');
+m('rift_nova', 'Rift Nova', 'Drake', 'spec', 120, 90, 5, { selfStat: { spa: -2 } }, 'A burst of rift-light. Sharply lowers the user\'s Sp. Atk.');
+
+// Used automatically when a Morph has no PP left.
+m('flail_out', 'Flail Out', 'Plain', 'phys', 50, null, 1, { recoil: 0.25 }, 'Thrashes about desperately.');

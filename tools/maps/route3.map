@@ -1,0 +1,52 @@
+id: route3
+kind: route
+name: Route 3 · Gullcliff Road
+base: grass
+music: route
+battle: coast
+west: saltreach 0
+
+layout:
+TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
+TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
+TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
+TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
+TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
+TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
+TTRRRRRRTTTTTTTTTTRRRRRRRRTTTTTTRRRRRRRRRRRRRRRRRRTT
+TTRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRTT
+TTPPPP..RRRRRRRRRR........RRRRRR....::........RRRRTT
+TTPPPP............GGGGGGGG.......o..::...F....RRRRTT
+TT.F........o.....GGGGGGGG.........F::.........o..TT
+TT..............F.GGGGGGGG..........::........o.o.TT
+::::::::::::::::::::::::::::::::::::::::::::::ooo.TT
+::::::::::::::::::::::::::::::::::::::::::::::ooo.TT
+RR..GGGGGGGGGGvvvvvvvvGGGGGGGGGGGG....GGGGGGG.ooo.TT
+RR..GGGGGGGGGG......F.GGGGGGGGGGGG....GGGGGGG.....TT
+RR..GGGGGGGGGG........GGGGGGGGGGGG....GGGGGGGTTTTTTT
+RR..GGGGGGGGGG........GGGGGGGGGGGG....GGGGGGGTTTTTTT
+RRssssssssssssssssssssssssssssssssssssssssssssssssTT
+RRssssssssssssssssssssssssssssssssssssssssssssssssTT
+RRssssssssssssssssssssssssssssssssssssssssssssssssTT
+RR~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RR~~~~~~~~~~~~~~~~~~~~~~~~~~o~~~~~~~~~~~~ss~~~~~~~~~
+RR~~~~~~~~~~~~~~~~~~~~~~~~~~~o~~~~~~~~~~ssss~~~~~~~~
+RR~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ss~~~~~~~~~
+RR~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RR~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RR~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+end
+
+objects:
+cave 36 6 to=coldforge_mines:4,31
+prop 3 11 sign text="ROUTE 3 · GULLCLIFF ROAD|West: Saltreach   East: Gearhollow"
+prop 43 11 sign text="ROCKFALL! Road closed.|Travellers to Gearhollow: go through the Coldforge Mines."
+npc 10 11 id=r3_hiker sprite=hiker face=down move=still trainer=r3_hiker sight=2
+npc 24 18 id=r3_sailor sprite=sailor face=up move=still trainer=r3_sailor sight=4
+npc 30 14 id=r3_twin sprite=twin face=left move=still trainer=r3_twin sight=4
+npc 41 18 id=r3_fisher sprite=fisher face=left move=still trainer=r3_fisher sight=3
+npc 20 10 id=r3_ace sprite=ace face=down move=still trainer=r3_ace sight=2
+item 41 23 item=star_shard qty=1 flag=item_route3_41_23
+item 4 16 item=strong_tonic qty=1 flag=item_route3_4_16
+item 48 19 item=prime_capsule qty=1 flag=item_route3_48_19 hidden=1
+item 22 9 item=nerve_balm qty=1 flag=item_route3_22_9

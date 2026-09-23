@@ -1,0 +1,53 @@
+id: gearhollow_trial
+kind: interior
+name: Gearhollow Trial Hall
+floor: lab
+wall: white
+music: trial
+battle: arena
+
+layout:
+WWWWWWWWWWWWWW
+WWWwWWWWWWwWWW
+..............
+..............
+......__......
+......__......
+......__......
+......__......
+......__......
+......__......
+......__......
+......__......
+......__......
+......__......
+......__......
+......__......
+......__......
+......mm......
+end
+
+objects:
+furn 1 2 banner
+furn 12 2 banner
+furn 5 2 statue
+furn 8 2 statue
+furn 3 6 machine
+furn 10 6 machine
+furn 3 10 machine
+furn 10 10 machine
+furn 3 14 machine
+furn 10 14 machine
+furn 0 16 plant
+furn 13 16 plant
+npc 4 12 id=gh_adept_1 sprite=engineer face=right move=still trainer=gh_adept_1 sight=3
+npc 9 8 id=gh_adept_2 sprite=scholar face=left move=still trainer=gh_adept_2 sight=3
+npc 4 5 id=gh_adept_3 sprite=engineer face=right move=still trainer=gh_adept_3 sight=3
+npc 6 3 id=iskra sprite=iskra face=down move=still script=gearhollow_trial.warden
+npc 9 15 id=gearhollow_trial_guide sprite=ace face=down move=still text="Hey hey! Iskra's Morphs are Static type — but half of them are armoured in Iron too. Stone Morphs shrug off lightning. Bring one!"
+furn 1 8 machine
+furn 12 8 machine
+furn 1 12 machine
+furn 12 12 machine
+furn 0 4 machine
+furn 13 4 machine

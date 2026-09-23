@@ -1,0 +1,59 @@
+id: rootmere
+kind: town
+name: Rootmere
+base: grass
+music: rootmere
+weather: none
+battle: meadow
+north: route1 0
+fly: 6,7
+
+layout:
+TTTTTTTTTTTTTTTT::TTTTTTTTTTTTTTTT
+TTTTTTTTTTTTTTTT::TTTTTTTTTTTTTTTT
+TT..............::..............TT
+TT..........bb..::..............TT
+TT..........bb..::..............TT
+TT..............::........FF....TT
+TT..............::..............TT
+TT..::::::::::::::::::::::::::..TT
+TT..............::..............TT
+TT..F....F......::......F....F..TT
+TT..............::..............TT
+TT...F...L......::......L.......TT
+TT..............::..............TT
+TT..............::..............TT
+TT..............::..............TT
+TT..............::..............TT
+TT..............::..............TT
+TT....::::::::::::::::::::::....TT
+TT..............................TT
+TT.......ss~~~~ss.....ffffffff..TT
+TT......s~~~~~~~s.....fFFFFFFf..TT
+TT......s~~~~~~~s.....fFFFFFFf..TT
+TT.......ss~~~ss......ffff.fff..TT
+TT..............................TT
+TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
+TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
+end
+
+objects:
+building 4 3 house w=5 h=4 roof=red variant=0 to=home_1f
+building 21 2 lab w=7 h=5 roof=slate wall=white label=LAB to=marsh_lab
+building 5 13 house w=4 h=4 roof=blue wall=wood variant=1 to=wren_house
+building 24 13 house w=4 h=4 roof=green wall=timber variant=2 to=rootmere_cottage
+prop 15 5 sign text="ROOTMERE|Where every journey takes root."
+prop 20 7 sign text="MARSH MORPH LAB|Dr. Ione Marsh, Morph Researcher"
+prop 10 6 sign text="{PLAYER}'S HOUSE"
+prop 18 22 sign text="ROOTMERE POND|Please do not feed the Puddlets."
+prop 9 6 mailbox
+prop 30 20 hay
+prop 30 21 hay
+prop 19 19 hay
+npc 11 22 id=rm_kid sprite=kid face=down move=wander text="When I'm older I'm going to be a Tamer too! I'll catch a Puddlet from the pond... once they stop splashing me." radius=2
+npc 25 20 id=rm_farmer sprite=farmer face=down move=still text="The Nibbits keep nibbling my carrots. Can't stay cross at them, though. Look at their little faces!"
+npc 21 11 id=rm_woman sprite=woman face=down move=wander radius=2 script=rootmere.woman
+npc 13 17 id=rm_man sprite=man_b face=left move=still text="Route 1 is north of the village. Tall grass means wild Morphs — never go in without one of your own!"
+npc 22 9 id=rm_mum sprite=mum face=down move=still show=got_starter&!mum_boots
+trigger 16 1 script=rootmere.north w=2 h=2 cond=!got_starter
+item 31 3 item=tonic qty=1 flag=item_rootmere_31_3 hidden=1

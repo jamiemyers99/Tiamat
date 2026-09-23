@@ -1,0 +1,70 @@
+id: hollowmere
+kind: town
+name: Hollowmere
+base: moor
+music: hollowmere
+battle: moor
+weather: fog
+south: route4 -4
+west: route5 0
+fly: 25,12
+
+layout:
+YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY
+YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY
+YYYY......................................YY
+YYYYssssssssss............................YY
+YY~~~~~~~~~~~~s...........................YY
+YY~~~~~~~~~~~~s.......................o...YY
+YY~~~~~~~~~~~~s...........................YY
+YY~~~~~~~~~~~~s...........................YY
+YY~~~~~~~~~~~~s...........................YY
+YY~~~~~~~~~~~~s.........................o.YY
+YY~~~~~~~~~~~~s...........................YY
+YY~~~~~~~~~~~~s...........................YY
+~~~~~~~~~~~~~~s..........:.........F......YY
+~~~~~~~~~~~~~~s....L.....:...L...:......L.YY
+~~~~~~~~~~~~~~s:::::::::::::::::::::::::::YY
+~~~~~~~~~~~~~~s:::::::::::::::::::::::::::YY
+~~~~~~~~kkkkkkk:....::....................YY
+~~~~~~~~kkkkkkk:....::F...................YY
+~~~~~~~~~~~~~~s.....::....................YY
+~~~~~~~~~~~~~~s.....::....................YY
+YY~~~~~~~~~~~~s....F::....................YY
+YY~~~~~~~~~~~~s.....::....................YY
+YY~~~~~~~~~~~~s.....::..L...:.......:.....YY
+YY~~~~~~~~~~~~s.:::::::::::::::::::::::::.YY
+YY~~~~~~~~~~~~s.:::::::::::::::::::::::::.YY
+YY~~~~~~~~~~~~s.....::...........L........YY
+YY~~~~~~~~~~~~s..o..::..................F.YY
+YY~~~~~~~~~~~~s.....::.........F..........YY
+YY~~~~~~~~~~~~s.....::..o.............o...YY
+YY~~~~~~~~~~~~s.....::....................YY
+YYsssssssssssss.....::........o...........YY
+YY..................::....................YY
+YYYYYYYYYYYYYYYYYYYY::YYYYYYYYYYYYYYYYYYYYYY
+YYYYYYYYYYYYYYYYYYYY::YYYYYYYYYYYYYYYYYYYYYY
+end
+
+objects:
+building 22 8 haven w=6 h=4 roof=red wall=white to=hollowmere_haven
+building 30 8 arena w=7 h=5 roof=purple wall=dark emblem=moon type=Umbra label="VEIL TRIAL" to=hollowmere_trial
+building 26 18 house w=5 h=4 roof=plum wall=stone variant=2 to=hollowmere_archive
+building 34 18 house w=4 h=4 roof=slate wall=timber variant=0 to=hollowmere_house
+prop 16 5 stone
+prop 19 4 stone
+prop 18 8 stone
+prop 17 7 stone script=hollowmere.seal
+prop 22 30 sign text="HOLLOWMERE|The fog lifts for those who listen."
+prop 37 13 sign text="VEIL TRIAL · Warden Morrow|\"Every story is true somewhere.\""
+prop 15 18 sign text="GLASSLAKE|Boats launch from the pier."
+npc 39 20 id=hm_elder sprite=elder_b face=left move=still text="The fog comes in off Glasslake every evening. My grandmother said it was Tiamat breathing in her sleep."
+npc 18 28 id=hm_fisher sprite=fisher face=left move=still script=hollowmere.fisher
+npc 30 16 id=hm_kid sprite=kid face=down move=wander text="Umbra Morphs come out at night! Mum says if I'm good I can stay up late and watch the Nyxens glow." radius=2
+npc 11 16 id=hm_wren sprite=wren_dark face=right move=still show=never
+npc 10 17 id=hm_maren sprite=maren face=right move=still show=never
+trigger 14 4 script=hollowmere.shore w=1 h=26 once=maren1_done cond=sigil_veil
+trigger 2 30 script=hollowmere.shore w=12 h=1 once=maren1_done cond=sigil_veil
+trigger 1 12 script=hollowmere.lakegate w=1 h=8 cond=!maren1_done
+item 40 31 item=rekindle_seed qty=1 flag=item_hollowmere_40_31 hidden=1
+item 3 31 item=dusk_capsule qty=1 flag=item_hollowmere_3_31

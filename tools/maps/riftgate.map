@@ -1,0 +1,82 @@
+id: riftgate
+kind: town
+name: Riftgate
+base: ash
+music: riftgate
+battle: rift
+west: route6 -4
+fly: 11,10
+
+layout:
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXRR~~~~~~~~~~
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXRR~~~~~~~~~~
+XX..................................RR~~~~~~~~~~
+XX..................................RR~~~~~~~~~~
+XX..................................RR~~~~~~~~~~
+XX..................................RR~~~~~~~~~~
+XX..................................RR~~~~~~~~~~
+XX..................................RR~~~~~~~~~~
+XX..................................RR~~~~~~~~~~
+XX.....................;............RR~~~~~~~~~~
+XX.........;...........;........;;..RR~~~~~~~~~~
+XX.........;....;;;;;;;;;;;;....;;..RR~~~~~~~~~~
+XX.........;....;;;;;;;;;;;;....;;..RR~~~~~~~~~~
+XX.........;....;;;;;;;;;;;;....;;..RR~~~~~~~~~~
+XX.........;....;;;;;;;;;;;;....;;..RR~~~~~~~~~~
+XX.........;....;;;;;;;;;;;;....;;..RR~~~~~~~~~~
+XX.........;....;;;;;;;;;;;;....;;..RR~~~~~~~~~~
+XX.....L...;...L;;;;;;;;;;;;L...;;..RR~~~~~~~~~~
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;RR~~~~~~~~~~
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;RR~~~~~~~~~~
+XX................;;................RR~~~~~~~~~~
+XX................;;................RR~~~~~~~~~~
+XX................;;................RR~~~~~~~~~~
+XX................;;................RR~~~~~~~~~~
+XX................;;................RR~~~~~~~~~~
+XX................;;................RR~~~~~~~~~~
+XX................;;................RR~~~~~~~~~~
+XX................;;................RR~~~~~~~~~~
+XX........;.......;;................RR~~~~~~~~~~
+XX........;.......;;.L.......;...L..RR~~~~~~~~~~
+XX..;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;..RR~~~~~~~~~~
+XX..;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;..RR~~~~~~~~~~
+XX..................................RR~~~~~~~~~~
+XX..................................RR~~~~~~~~~~
+XX..................................RR~~~~~~~~~~
+XX..................................RR~~~~~~~~~~
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXRR~~~~~~~~~~
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXRR~~~~~~~~~~
+end
+
+objects:
+building 8 6 haven w=6 h=4 roof=red wall=white to=riftgate_haven
+building 20 4 arena w=7 h=5 roof=red wall=stone emblem=claw type=Drake label="WYRM TRIAL" to=riftgate_trial
+building 30 3 hall w=6 h=7 roof=black wall=stone label=SPIRE door=3 to=spire_crown cond=cradle_done locked="The Spire door is barred. Only Wardens may climb to the Crown."
+building 7 24 house w=5 h=4 roof=slate wall=dark variant=2 to=riftgate_house
+building 25 24 chapel w=8 h=5 roof=black wall=dark label=CHAPEL door=4 to=sunken_chapel cond=has:rift_key locked="The chapel doors are locked with a heavy iron lock shaped like a wave."
+prop 21 14 stone script=riftgate.seal
+prop 18 12 crystal
+prop 25 12 crystal
+prop 18 16 crystal
+prop 25 16 crystal
+prop 14 22 rift_rock
+prop 4 12 rift_rock
+prop 34 21 rift_rock
+prop 22 34 rift_rock
+prop 3 34 rift_rock
+prop 15 3 rift_rock
+prop 5 17 sign text="RIFTGATE|City on the lip of the Riven."
+prop 35 18 sign text="THE RIVEN|Do not climb the railings."
+prop 26 9 sign text="WYRM TRIAL · Warden Seren|\"Stand at the edge. Do not flinch.\""
+npc 33 11 id=rg_spireguard sprite=guard face=down move=still script=riftgate.spireguard hide=cradle_done
+npc 30 30 id=rg_chapelguard sprite=guard face=up move=still script=riftgate.chapelguard hide=oriel_reveal
+npc 27 20 id=rg_man sprite=man face=down move=wander text="On a still night you can hear the sea at the bottom of the Riven, breathing in and out. My kids think it's snoring." radius=2
+npc 12 21 id=rg_woman sprite=woman_b face=down move=wander text="The Deepcall used to hold services at the old chapel. Then they started locking the doors." radius=2
+npc 21 10 id=rg_oriel sprite=oriel face=down move=still show=never
+npc 20 11 id=rg_acolyte_a sprite=acolyte face=down move=still show=never
+npc 22 11 id=rg_acolyte_b sprite=acolyte_b face=down move=still show=never
+npc 20 22 id=rg_wren sprite=wren_dark face=up move=still show=never
+npc 24 13 id=rg_seren sprite=seren face=down move=still show=never
+trigger 19 9 script=riftgate.oriel w=9 h=2 once=oriel_reveal cond=sigil_wyrm
+item 3 3 item=full_tonic qty=1 flag=item_riftgate_3_3 hidden=1
+item 34 35 item=apex_capsule qty=1 flag=item_riftgate_34_35

@@ -1,0 +1,89 @@
+id: route4
+kind: route
+name: Route 4 · Moorwind Way
+base: moor
+music: moor
+battle: moor
+weather: fog
+south: gearhollow 4
+north: hollowmere 4
+
+layout:
+YYYYYYYYYYYYYYYY::YYYYYYYYYYYYYYYYYY
+YYYYYYYYYYYYYYYY::YYYYYYYYYYYYYYYYYY
+YY..............::................YY
+YY..............::................YY
+YY..GGGGGGGG....::..GGGGGGGGGGGG..YY
+YY..GGGGGGGG....::..GGGGGGGGGGoG..YY
+YY..GGGGGGGG....::..GGGGGGGGGGGG..YY
+YY..GGGGGGGG....::..GGGGGGGGGGGG..YY
+YY..GGGGGGGG....::..GGGGGGGGGGGG..YY
+YY..GGGGGGGG....::..GGGGGGGGGGGG..YY
+YY..............::..GGGGGGGGGGGG..YY
+YY..............::................YY
+YY.b.........o..::o.......YYYY....YY
+YY..............::....F...YYYY....YY
+YY...o........F.::........YYYYo...YY
+YY..............::........YYYY....YY
+YY........::::::::................YY
+YY........:::::::.................YY
+YY.GGGGGG.::......................YY
+YY.GGGGGG.::......................YY
+YY.GGGGGG.::YYYY......,,,,,.......YY
+YY.GGGGGG.::YYYY......,,,,,.......YY
+YY.GGGGGG.::YYYY......,,,,,.......YY
+YY.GGGGGG.::YYYY......,,,,,.......YY
+YY.GGGGGG.::YYYY......,,,,,.......YY
+YY.GGGGGG.::YYYY..................YY
+YY.GGGGGG.::......................YY
+YY.GGGGGG.::......................YY
+YY........::.................o....YY
+YY........::......................YY
+YYYYYYYY..::::::::::::::::......o.YY
+YYYYYYYY..::::::::::::::::........YY
+YYYYYYYY....GGGGGGGGGG..::........YY
+YYYYYYYY....GGGGGGGGGG..::........YY
+YY..........GGGGGGGGGG..::..ss....YY
+YY..........GGGGGGGGGG..::.s~~s...YY
+YY....b.....GGGGGGGGGG..::s~~~~s..YY
+YY..........GGGGGGGGGG..::.s~~s...YY
+YY......................::..ss....YY
+YY......................::........YY
+YYvvvvvFvvvvvvvvvvvvvv..::.o......YY
+YY......................::........YY
+YY..o..............F....::........YY
+YY......................::........YY
+YY..............::::::::::....F...YY
+YY..............:::::::::.........YY
+YY..GGGGGGGGGG..::..GGGGGGGGGGGG..YY
+YY..GGGGGGGGGG..::..GGGGGGGGGGGG..YY
+YY..GGGGGGGGGG..::..GGGGGGGGGGGG..YY
+YY..GGGGGGGGGG..::..GGGGGGGGGGGG..YY
+YY..GGGGGGGGGG..::..GGGGGGGGGGGG..YY
+YY..GGGGGGGGGG..::................YY
+YYYYYYYYYYYYYYYY::YYYYYYYYYYYYYYYYYY
+YYYYYYYYYYYYYYYY::YYYYYYYYYYYYYYYYYY
+end
+
+objects:
+prop 24 18 stone
+prop 28 19 stone
+prop 30 22 stone
+prop 28 25 stone
+prop 24 26 stone
+prop 20 25 stone
+prop 18 22 stone
+prop 20 19 stone
+prop 24 22 stone script=route4.circle
+prop 18 51 sign text="ROUTE 4 · MOORWIND WAY|South: Gearhollow   North: Hollowmere"
+prop 18 2 sign text="HOLLOWMERE|Mind the fog."
+npc 14 34 id=r4_mystic sprite=mystic face=left move=still trainer=r4_mystic sight=3
+npc 26 38 id=r4_ranger sprite=ranger face=left move=still trainer=r4_ranger sight=2
+npc 12 22 id=r4_scholar sprite=scholar face=left move=still trainer=r4_scholar sight=2
+npc 20 7 id=r4_hiker sprite=hiker face=left move=still trainer=r4_hiker sight=3
+npc 6 28 id=r4_lady sprite=lady face=right move=still trainer=r4_lady sight=4
+item 24 21 item=td10 qty=1 flag=item_route4_24_21
+item 5 5 item=dusk_capsule qty=2 flag=item_route4_5_5
+item 31 48 item=strong_tonic qty=1 flag=item_route4_31_48
+item 28 36 item=star_shard qty=1 flag=item_route4_28_36 hidden=1
+item 3 20 item=clarity_leaf qty=1 flag=item_route4_3_20

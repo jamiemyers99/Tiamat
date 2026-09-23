@@ -1,0 +1,65 @@
+id: frostspire
+kind: town
+name: Frostspire
+base: snow
+music: frostspire
+battle: snow
+weather: snow
+south: route5 -8
+east: route6 0
+fly: 11,16
+
+layout:
+NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN
+NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN
+NN................................NNNNNN
+NN..ssss..........................NNNNNN
+NN.s~~~~s.NNNNNN..................NNNNNN
+NN.s~~~~s.NNNNNN..................NNNNNN
+NN..ssss..........................NNNNNN
+NN................................NNNNNN
+NN....................................NN
+NN...........................wwwwwww..NN
+NN...........................w.....w..NN
+NN.....................::....w.....w..NN
+NN.....................::....w.....w..NN
+NN.....................::.............NN
+NN.....................::.............NN
+NN.............L.......::..L.......L..NN
+NN.:::::::::::::::::::::::::::::::::::::
+NN.:::::::::::::::::::::::::::::::::::::
+NN................::..................NN
+NN................::..................NN
+NN................::..................NN
+NN................::..................NN
+NN................::..................NN
+NN................::..................NN
+NN........:.....L.::..........:.......NN
+NN..:::::::::::::::::::::::::::::::...NN
+NN..:::::::::::::::::::::::::::::::...NN
+NN................::....L.............NN
+NNNNNNNNNNNNNN....::..NNNNNNNNNNNN....NN
+NNNNNNNNNNNNNN....::..NNNNNNNNNNNN....NN
+NN................::..................NN
+NN................::..................NN
+NNNNNNNNNNNNNNNNNN::NNNNNNNNNNNNNNNNNNNN
+NNNNNNNNNNNNNNNNNN::NNNNNNNNNNNNNNNNNNNN
+end
+
+objects:
+building 8 12 haven w=6 h=4 roof=red wall=white snow=1 to=frostspire_haven
+building 20 6 arena w=7 h=5 roof=white wall=stone snow=1 emblem=flake type=Frost label="RIME TRIAL" to=frostspire_trial
+building 8 21 house w=5 h=4 roof=navy wall=log snow=1 variant=1 to=frostspire_lodge
+building 28 21 house w=5 h=4 roof=teal wall=stone snow=1 variant=0 to=frostspire_house
+prop 32 11 stone script=frostspire.seal
+prop 14 20 snowman
+prop 24 20 snowman
+prop 36 28 snowman
+prop 16 30 sign text="FROSTSPIRE|The last warm fire before the Riven."
+prop 26 11 sign text="RIME TRIAL · Warden Hale|\"Every summit starts at the bottom.\""
+npc 37 15 id=fs_guide sprite=hiker face=down move=still script=frostspire.eastguide hide=sigil_rime
+trigger 37 16 script=frostspire.eastgate w=1 h=2 cond=!sigil_rime
+npc 20 22 id=fs_skier sprite=skier face=down move=wander text="Frost Morphs can't stand fire, and Brawl fists crack their ice. Stone? Stone's fine. Stone's always fine." radius=2
+npc 6 18 id=fs_elder sprite=elder face=right move=still text="From the top of the Spire in Riftgate you can see all six Seals at once. Or so the Wardens say. Nobody else is allowed up."
+item 37 30 item=rekindle_seed qty=1 flag=item_frostspire_37_30
+item 2 10 item=thaw_draught qty=2 flag=item_frostspire_2_10 hidden=1

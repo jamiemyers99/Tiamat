@@ -1,0 +1,23 @@
+id: rootmere_cottage
+name: Rootmere Cottage
+kind: interior
+floor: wood
+wall: pink
+music: house
+
+layout:
+WWwWWWWwWW
+WWwWWWWwWW
+..........
+..........
+..........
+..........
+......m...
+end
+
+objects:
+mat 6 6
+furn 1 2 bookshelf v=6
+furn 4 3 table v=1
+furn 9 2 plant
+furn 0 2 plant

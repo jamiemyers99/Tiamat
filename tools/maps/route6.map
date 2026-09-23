@@ -1,0 +1,58 @@
+id: route6
+kind: route
+name: Route 6 · Rimepass
+base: snow
+music: route_b
+battle: snow
+weather: snow
+west: frostspire 0
+east: riftgate 4
+
+layout:
+NNNNNNNNNNNNNNNNNNNNNNNNNNNNXXXXXXXXXXXXXXXXXXXXXXXXXX
+NNNNNNNNNNNNNNNNNNNNNNNNNNNNXXXXXXXXXXXXXXXXXXXXXXXXXX
+NNRRRRRRRR..................aaRRRRRRRRRRRRRRRRaaaaaaXX
+NNRRRRRRRR..................aaRRRRRRRRRRRRRRRRaaaaaaXX
+NNRRRRRRRR..................aaRRRRRRRRRRRRRRRRaaaaaaXX
+NNRRRRRRRR..................aaRRRRRRRRRRRRRRRRaaaaaaXX
+NN..........................aaaaaaaaaaaaaaaaaaaaaaaaXX
+NN..........................aaaaaaaaaaaaaaaaaaaaaaaaXX
+NNNNNNNN....::::::::::::::..aaaaaa>aaaaaaaaaoaaaaaaaXX
+NNNNNNNN....::::::::::::::..aaaaaa>aaaaaaaaaaaaaaaaaXX
+NNNNNNNN....::......>...::GGGGGGaa>aoaaaaaaaaaaaaaaaXX
+NNNNNNNN....::......>...::GGGGGGaa>aaaaaaaaaaaaaaaaaXX
+NN..........::NNNN..>...::GGGGGGaa>aaaaaaaaaaaaaaaaaXX
+NN..........::NNNN..>...::GGGGGGaa>aaaaaaaaaaaaaaaaaXX
+NN..........::NNNN..>...::GGGGGGaa>aaa::::::::::::::::
+NN..........::NNNN..>...::GGGGGGaa>aaa::::::::::::::::
+::::::::::::::......>...::GGGGGGaa>aaa::GGGGGGGGaaaaXX
+:::::::::::::.......>...::..aaaaaa>aaa::GGGGGGGGaaaaXX
+NN..................>...::..aaaaaa>aaa::GGGGGGGGaaaaXX
+NN......................::..aaaaaaaaaa::GGGGGGGGaaaaXX
+NN..GGGGGG..............::::::o:::::::::GGGGGGGGaaaaXX
+NN..GGGGGG..............:::::::::::::::aGGGGGGGGaaaaXX
+NN..GGGGGG....GGGGGGGG......aaaaaaaaaaaaaaaaaaaaoaaaXX
+NN..GGGGGG....GGGGGGGG......aaaaaaaaaaaaaaaaaaaaaaaaXX
+NN..GGGGGG....GGGGGGGG......aaRRRRRRRRRRRRRRRRRRRRaaXX
+NN..GGGGGG....GGGGGGGG......aaRRRRRRRRRRRoRRRRRRRRaaXX
+NN............GGGGGGGG......aaaaaaaaaaaaaaaaaaaaaaaaXX
+NN..........................aaaaaaaaaaaaaaaaaaaaaaaaXX
+NNNNNNNNNNNNNNNNNNNNNNNNNNNNXXXXXXXXXXXXXXXXXXXXXXXXXX
+NNNNNNNNNNNNNNNNNNNNNNNNNNNNXXXXXXXXXXXXXXXXXXXXXXXXXX
+end
+
+objects:
+prop 39 7 rift_rock
+prop 47 11 rift_rock
+prop 32 22 rift_rock
+prop 3 15 sign text="ROUTE 6 · RIMEPASS|West: Frostspire   East: Riftgate"
+prop 49 13 sign text="RIFTGATE|City on the edge of the world."
+npc 14 9 id=r6_skier_1 sprite=skier face=down move=still trainer=r6_skier_1 sight=3
+npc 22 18 id=r6_skier_2 sprite=skier face=left move=still trainer=r6_skier_2 sight=2
+npc 28 21 id=r6_hiker sprite=hiker face=right move=still trainer=r6_hiker sight=4
+npc 40 17 id=r6_acolyte sprite=acolyte face=up move=still trainer=r6_acolyte sight=3 leave=1
+npc 46 13 id=r6_ace sprite=ace face=left move=still trainer=r6_ace sight=3
+item 3 6 item=full_tonic qty=1 flag=item_route6_3_6
+item 47 20 item=apex_capsule qty=1 flag=item_route6_47_20
+item 15 25 item=strong_incense qty=1 flag=item_route6_15_25 hidden=1
+item 31 12 item=rekindle_seed qty=1 flag=item_route6_31_12

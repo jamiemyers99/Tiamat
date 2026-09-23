@@ -1,0 +1,73 @@
+id: thornwild
+kind: route
+name: Thornwild
+base: forest
+music: forest
+battle: forest
+west: route2 0
+south: saltreach 0
+
+layout:
+KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK
+KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK
+KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK
+KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK
+KKKK..............GGGGGGGG..............KKKK
+KKKK..............GGGGGGGG............q.KKKK
+KKKK............::............GGGGGGGG..KKKK
+KKKK............::............GGGGGGGG..KKKK
+KKKK............::KKKKKKKKKK..GGGGqqGG..KKKK
+KKKK............::KKKKKKKKKK..GGGGGGGG..KKKK
+::::::::::::::::KKKKKKKKKKKK..GGGGGGGG..KKKK
+::::::::::::::::KKKKKKKKKKKK..GGGGGGGG..KKKK
+KKKKGGGGGGGGKK::KKKKKKKKKKKK............KKKK
+KKKKGGGGGGGGKK::KKKKKKKKKKKK............KKKK
+KKKKGGGGGGGGKK::KKKKKKKKKKKK::KKKKKKKKKKKKKK
+KKKKGGGGGGGGKK::KKKKKKKKKKKK::KKKKKKKKKKKKKK
+KKKKGGGGGGGGKK::KKKKKKKKKKKK::KKKKKK......KK
+KKKKGGGGGGGGKK::KKKKKKKKKKKK::KKKKKK......KK
+KKKKKKKKKKKKKK::GGGGGGKKKKKK::KKKKKKGGGGGGKK
+KKKKKKKKKKKKKK::GGGGGGKKKKKK::KKKKKKGGGGGGKK
+KKKKKKKKKKKKKK::GGGGGGKKKKKK::::::::GGGGGGKK
+KKKKKKKKKKKKKK::GGGGGGKKKKKK::::::::GGGGGGKK
+KKKKKKKKKKKKKK::GGGGGGKKKKKK::KKKKKKGGGGGGKK
+KKKKKKKKKKKKKK::GGGGGGKKKKKK::KKKKKKGGGGGGKK
+KKKKKKKKKKKKKK::::::::::::::::::KKKK......KK
+KKKKKKKKKKKKKK::::::::::::::::::KKKK......KK
+KKKK..........KKKKKK..........::..........KK
+KKKK..........KKKKKK.F........::..F.......KK
+KKKK..GGGGGG..KKKKKK..........::....KKKKKKKK
+KKKK..GGGGGG..KKKKKK......::::::....KKKKKKKK
+KKKK..GGGGGG::::::::......::::::....KKKKKKKK
+KKKK..GGGGGG::::::::..........::....KKKKKKKK
+KKKK..GGGGGG..KKKKKK.F........::..F.KKKKKKKK
+KKKK..GGGGGG..KKKKKK..........::....KKKKKKKK
+KKKK..........KKKKKKKKKKKKKKKK::KKKKKKKKKKKK
+KKKK..........KKKKKKKKKKKKKKKK::KKKKKKKKKKKK
+KKKKKKKKKKKKKKKKKKKKKKKKKKKKKK::KKKKKKKKKKKK
+KKKKKKKKKKKKKKKKKKKKKKKKKKKKKK::KKKKKKKKKKKK
+KKKKKKKKKKKKKKKKKKKKKKKKKKKKKK::KKKKKKKKKKKK
+KKKKKKKKKKKKKKKKKKKKKKKKKKKKKK::KKKKKKKKKKKK
+end
+
+objects:
+prop 23 28 stone
+prop 32 28 stone
+prop 23 31 stone
+prop 32 31 stone
+prop 27 27 statue script=thornwild.shrine
+sign 38 5 script=thornwild.pip
+prop 2 12 sign text="THORNWILD|Stay on the trail. The trees remember."
+npc 8 11 id=tw_bugs sprite=kid face=right move=still trainer=tw_bugs sight=4
+npc 20 22 id=tw_ranger sprite=ranger face=left move=still trainer=tw_ranger sight=4
+npc 37 17 id=tw_mystic sprite=mystic face=down move=still trainer=tw_mystic sight=4
+npc 29 26 id=tw_acolyte_1 sprite=acolyte face=down move=still trainer=tw_acolyte_1 sight=3 hide=wren2_done
+npc 26 33 id=tw_acolyte_2 sprite=acolyte_b face=right move=still trainer=tw_acolyte_2 sight=4 hide=wren2_done
+npc 30 38 id=tw_wren sprite=wren face=up move=still show=never
+trigger 30 35 script=thornwild.wren w=2 h=1 once=wren2_done cond=beat:tw_acolyte_1&beat:tw_acolyte_2
+trigger 30 34 script=thornwild.acolytes_block w=2 h=1 cond="!beat:tw_acolyte_1|!beat:tw_acolyte_2"
+item 5 5 item=td14 qty=1 flag=item_thornwild_5_5
+item 40 26 item=prime_capsule qty=1 flag=item_thornwild_40_26
+item 24 4 item=strong_tonic qty=1 flag=item_thornwild_24_4 hidden=1
+item 5 34 item=capsule qty=3 flag=item_thornwild_5_34
+item 36 12 item=nerve_balm qty=1 flag=item_thornwild_36_12

@@ -2,60 +2,38 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#0c0b14" />
     <title>Tiamat</title>
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-    <meta http-equiv="Pragma" content="no-cache" />
-    <meta http-equiv="Expires" content="0" />
-    <link rel="stylesheet" href="./styles.css?v=20260429-19" />
+    <link rel="icon" href="./icon.png" />
+    <style>
+      html, body { margin: 0; height: 100%; background: #0c0b14; overflow: hidden; }
+      body { display: flex; align-items: center; justify-content: center; font-family: system-ui, sans-serif; }
+      #game { display: flex; align-items: center; justify-content: center; width: 100vw; height: 100vh; }
+      #game canvas { image-rendering: pixelated; image-rendering: crisp-edges; display: block; }
+      #boot { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+              color: #8a86a8; letter-spacing: .3em; font-size: 13px; text-transform: uppercase; pointer-events: none; }
+      #touch { position: fixed; inset: 0; pointer-events: none; display: none; }
+      #touch.on { display: block; }
+      #touch .pad { position: absolute; left: 18px; bottom: 18px; width: 150px; height: 150px; pointer-events: auto; touch-action: none; }
+      #touch .pad div, #touch .btn { position: absolute; background: rgba(255,255,255,.14); border: 2px solid rgba(255,255,255,.28);
+              border-radius: 12px; color: rgba(255,255,255,.75); font: 700 16px system-ui; display: flex; align-items: center; justify-content: center; user-select: none; }
+      #touch .pad .u { left: 50px; top: 0; width: 50px; height: 50px; }
+      #touch .pad .d { left: 50px; bottom: 0; width: 50px; height: 50px; }
+      #touch .pad .l { left: 0; top: 50px; width: 50px; height: 50px; }
+      #touch .pad .r { right: 0; top: 50px; width: 50px; height: 50px; }
+      #touch .btn { pointer-events: auto; width: 58px; height: 58px; border-radius: 50%; touch-action: none; }
+      #touch .a { right: 22px; bottom: 70px; } #touch .b { right: 92px; bottom: 26px; }
+      #touch .m { right: 22px; top: 18px; width: 64px; height: 34px; border-radius: 10px; font-size: 12px; }
+    </style>
   </head>
   <body>
-    <main class="shell">
-      <section class="console-shell" aria-label="Tiamat handheld game frame">
-
-        <header class="console-top">
-          <div class="brand-block">
-            <p class="eyebrow">Original Monster Adventure</p>
-            <h1>Tiamat</h1>
-          </div>
-          <p class="status-line">Browser Version</p>
-        </header>
-
-        <section class="game-hud" aria-label="Status panel">
-          <p id="hud-location">Location: Rootmere</p>
-          <p id="hud-party">Party: None</p>
-          <p id="hud-coins">Coins: 0</p>
-          <p id="hud-pos">Pos: 9,10</p>
-          <p id="hud-tip">Tip: Visit the Morph Lab and choose your first Morph.</p>
-        </section>
-
-        <div style="position:relative;">
-          <canvas
-            id="game"
-            class="game-canvas"
-            aria-label="Tiamat game screen"
-          ></canvas>
-          <div id="art-loading">Loading…</div>
-        </div>
-
-        <footer class="console-bottom">
-          <p>Move: <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> or arrow keys</p>
-          <p>Interact: <kbd>E</kbd> <kbd>Enter</kbd> <kbd>Space</kbd></p>
-          <p>Pause: <kbd>Esc</kbd> &nbsp; Run: hold <kbd>Shift</kbd> (after shoes)</p>
-          <p>Battle: <kbd>Shift</kbd> = move info &nbsp; <kbd>B</kbd> = cancel evo</p>
-        </footer>
-
-      </section>
-    </main>
-    <script type="module" src="./src/main.js?v=20260429-19"></script>
-    <script>
-      // Hide loading overlay once the module boots
-      window.addEventListener("load", () => {
-        setTimeout(() => {
-          const el = document.getElementById("art-loading");
-          if (el) { el.classList.add("hidden"); }
-        }, 200);
-      });
-    </script>
+    <div id="boot">Loading Tiamat…</div>
+    <div id="game"></div>
+    <div id="touch">
+      <div class="pad"><div class="u" data-k="up">▲</div><div class="d" data-k="down">▼</div><div class="l" data-k="left">◀</div><div class="r" data-k="right">▶</div></div>
+      <div class="btn a" data-k="confirm">A</div><div class="btn b" data-k="cancel">B</div><div class="btn m" data-k="menu">MENU</div>
+    </div>
+    <script type="module" src="./src/main.js"></script>
   </body>
 </html>

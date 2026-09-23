@@ -1,0 +1,296 @@
+{
+ "abyssal_rift": {
+  "name": "The Abyssal Rift",
+  "kind": "cave",
+  "w": 40,
+  "h": 46
+ },
+ "brindlewood": {
+  "name": "Brindlewood",
+  "kind": "town",
+  "w": 40,
+  "h": 34
+ },
+ "brindlewood_haven": {
+  "name": "Brindlewood Haven",
+  "kind": "interior",
+  "w": 16,
+  "h": 11
+ },
+ "brindlewood_house": {
+  "name": "Old Aldous's House",
+  "kind": "interior",
+  "w": 12,
+  "h": 9
+ },
+ "brindlewood_posy": {
+  "name": "Posy's House",
+  "kind": "interior",
+  "w": 12,
+  "h": 9
+ },
+ "brindlewood_trial": {
+  "name": "Brindlewood Trial Hall",
+  "kind": "interior",
+  "w": 14,
+  "h": 18
+ },
+ "coldforge_mines": {
+  "name": "Coldforge Mines",
+  "kind": "cave",
+  "w": 44,
+  "h": 34
+ },
+ "cradle": {
+  "name": "Tiamat's Cradle",
+  "kind": "interior",
+  "w": 20,
+  "h": 16
+ },
+ "frostspire": {
+  "name": "Frostspire",
+  "kind": "town",
+  "w": 40,
+  "h": 34
+ },
+ "frostspire_haven": {
+  "name": "Frostspire Haven",
+  "kind": "interior",
+  "w": 16,
+  "h": 11
+ },
+ "frostspire_house": {
+  "name": "Snowbound House",
+  "kind": "interior",
+  "w": 12,
+  "h": 9
+ },
+ "frostspire_lodge": {
+  "name": "Climbers' Lodge",
+  "kind": "interior",
+  "w": 12,
+  "h": 9
+ },
+ "frostspire_trial": {
+  "name": "Frostspire Trial Hall",
+  "kind": "interior",
+  "w": 14,
+  "h": 18
+ },
+ "gearhollow": {
+  "name": "Gearhollow",
+  "kind": "town",
+  "w": 46,
+  "h": 36
+ },
+ "gearhollow_haven": {
+  "name": "Gearhollow Haven",
+  "kind": "interior",
+  "w": 16,
+  "h": 11
+ },
+ "gearhollow_house": {
+  "name": "Tinker's House",
+  "kind": "interior",
+  "w": 12,
+  "h": 9
+ },
+ "gearhollow_ironworks": {
+  "name": "Gearhollow Ironworks",
+  "kind": "interior",
+  "w": 20,
+  "h": 14
+ },
+ "gearhollow_store": {
+  "name": "Gearhollow Disc Shop",
+  "kind": "interior",
+  "w": 12,
+  "h": 9
+ },
+ "gearhollow_trial": {
+  "name": "Gearhollow Trial Hall",
+  "kind": "interior",
+  "w": 14,
+  "h": 18
+ },
+ "hollowmere": {
+  "name": "Hollowmere",
+  "kind": "town",
+  "w": 44,
+  "h": 34
+ },
+ "hollowmere_archive": {
+  "name": "The Hollowmere Archive",
+  "kind": "interior",
+  "w": 12,
+  "h": 9
+ },
+ "hollowmere_haven": {
+  "name": "Hollowmere Haven",
+  "kind": "interior",
+  "w": 16,
+  "h": 11
+ },
+ "hollowmere_house": {
+  "name": "Lakeside House",
+  "kind": "interior",
+  "w": 12,
+  "h": 9
+ },
+ "hollowmere_trial": {
+  "name": "Hollowmere Trial Hall",
+  "kind": "interior",
+  "w": 14,
+  "h": 18
+ },
+ "home_1f": {
+  "name": "Your Home",
+  "kind": "interior",
+  "w": 12,
+  "h": 9
+ },
+ "home_2f": {
+  "name": "Your Room",
+  "kind": "interior",
+  "w": 10,
+  "h": 7
+ },
+ "marsh_lab": {
+  "name": "Marsh Morph Lab",
+  "kind": "interior",
+  "w": 14,
+  "h": 10
+ },
+ "riftgate": {
+  "name": "Riftgate",
+  "kind": "town",
+  "w": 48,
+  "h": 38
+ },
+ "riftgate_haven": {
+  "name": "Riftgate Haven",
+  "kind": "interior",
+  "w": 16,
+  "h": 11
+ },
+ "riftgate_house": {
+  "name": "Seren's Old House",
+  "kind": "interior",
+  "w": 12,
+  "h": 9
+ },
+ "riftgate_trial": {
+  "name": "Riftgate Trial Hall",
+  "kind": "interior",
+  "w": 14,
+  "h": 18
+ },
+ "rootmere": {
+  "name": "Rootmere",
+  "kind": "town",
+  "w": 34,
+  "h": 26
+ },
+ "rootmere_cottage": {
+  "name": "Rootmere Cottage",
+  "kind": "interior",
+  "w": 10,
+  "h": 7
+ },
+ "route1": {
+  "name": "Route 1 \u00b7 Mossway",
+  "kind": "route",
+  "w": 34,
+  "h": 50
+ },
+ "route2": {
+  "name": "Route 2 \u00b7 Bramble Bridge",
+  "kind": "route",
+  "w": 48,
+  "h": 26
+ },
+ "route3": {
+  "name": "Route 3 \u00b7 Gullcliff Road",
+  "kind": "route",
+  "w": 52,
+  "h": 28
+ },
+ "route4": {
+  "name": "Route 4 \u00b7 Moorwind Way",
+  "kind": "route",
+  "w": 36,
+  "h": 54
+ },
+ "route5": {
+  "name": "Route 5 \u00b7 Glasslake Crossing",
+  "kind": "route",
+  "w": 50,
+  "h": 34
+ },
+ "route6": {
+  "name": "Route 6 \u00b7 Rimepass",
+  "kind": "route",
+  "w": 54,
+  "h": 30
+ },
+ "saltreach": {
+  "name": "Saltreach",
+  "kind": "town",
+  "w": 46,
+  "h": 38
+ },
+ "saltreach_haven": {
+  "name": "Saltreach Haven",
+  "kind": "interior",
+  "w": 16,
+  "h": 11
+ },
+ "saltreach_house": {
+  "name": "Harbourmaster's House",
+  "kind": "interior",
+  "w": 12,
+  "h": 9
+ },
+ "saltreach_lighthouse": {
+  "name": "Saltreach Lighthouse",
+  "kind": "interior",
+  "w": 10,
+  "h": 9
+ },
+ "saltreach_net": {
+  "name": "Net-Mender's Cottage",
+  "kind": "interior",
+  "w": 12,
+  "h": 9
+ },
+ "saltreach_trial": {
+  "name": "Saltreach Trial Hall",
+  "kind": "interior",
+  "w": 14,
+  "h": 18
+ },
+ "spire_crown": {
+  "name": "The Warden's Crown",
+  "kind": "interior",
+  "w": 18,
+  "h": 14
+ },
+ "sunken_chapel": {
+  "name": "Sunken Chapel",
+  "kind": "interior",
+  "w": 22,
+  "h": 26
+ },
+ "thornwild": {
+  "name": "Thornwild",
+  "kind": "route",
+  "w": 44,
+  "h": 40
+ },
+ "wren_house": {
+  "name": "Wren's House",
+  "kind": "interior",
+  "w": 10,
+  "h": 7
+ }
+}

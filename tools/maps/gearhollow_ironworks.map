@@ -1,0 +1,50 @@
+id: gearhollow_ironworks
+kind: interior
+name: Gearhollow Ironworks
+floor: stone
+wall: stone
+music: deepcall
+
+layout:
+WWWWWWWWWWWWWWWWWWWW
+WWWWwWWWWWWWWWWwWWWW
+....................
+....................
+....................
+....................
+....................
+....................
+....................
+....................
+....................
+....................
+....................
+.........mm.........
+end
+
+objects:
+furn 0 2 machine
+furn 1 2 machine
+furn 2 2 machine
+furn 17 2 machine
+furn 18 2 machine
+furn 19 2 machine
+furn 5 5 pillar
+furn 14 5 pillar
+furn 5 9 pillar
+furn 14 9 pillar
+furn 8 2 machine
+furn 11 2 machine
+furn 0 8 crate
+furn 0 9 crate
+furn 19 8 barrel
+furn 19 9 barrel
+furn 1 12 crate
+furn 18 12 crate
+npc 8 10 id=iw_acolyte_1 sprite=acolyte face=down move=still trainer=iw_acolyte_1 sight=2 hide=ironworks_done
+npc 12 7 id=iw_acolyte_2 sprite=acolyte_b face=left move=still trainer=iw_acolyte_2 sight=4 hide=ironworks_done
+npc 7 5 id=iw_acolyte_3 sprite=acolyte face=right move=still trainer=iw_acolyte_3 sight=4 hide=ironworks_done
+npc 10 3 id=iw_iskra sprite=iskra face=down move=still script=ironworks.iskra hide=ironworks_done
+npc 9 3 id=iw_boss sprite=acolyte face=right move=still text=... hide=ironworks_done
+npc 16 11 id=iw_worker sprite=engineer face=left move=still script=ironworks.worker
+item 17 4 item=td13 qty=1 flag=item_gearhollow_ironworks_17_4

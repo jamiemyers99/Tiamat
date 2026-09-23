@@ -1,0 +1,32 @@
+id: hollowmere_archive
+kind: interior
+name: The Hollowmere Archive
+floor: dark
+wall: dark
+music: house
+
+layout:
+WWWWWWWWWWWW
+WWWwWWWWwWWW
+............
+............
+............
+............
+............
+............
+.....m......
+end
+
+objects:
+furn 0 2 bookshelf v=1
+furn 1 2 bookshelf v=2
+furn 6 4 table v=0
+furn 5 4 chair
+furn 8 4 chair
+furn 11 2 plant
+furn 10 2 tv
+furn 2 2 bookshelf v=5
+furn 3 2 bookshelf v=6
+furn 4 2 bookshelf v=7
+npc 7 5 id=hm_archivist sprite=scholar face=left move=still script=hollowmere.archivist
+furn 9 5 globe

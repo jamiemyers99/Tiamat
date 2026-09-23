@@ -1,0 +1,28 @@
+id: gearhollow_house
+kind: interior
+name: Tinker's House
+floor: tile
+wall: stone
+music: house
+
+layout:
+WWWWWWWWWWWW
+WWWwWWWWwWWW
+............
+............
+............
+............
+............
+............
+.....m......
+end
+
+objects:
+furn 0 2 bookshelf v=1
+furn 1 2 bookshelf v=2
+furn 6 4 table v=0
+furn 5 4 chair
+furn 8 4 chair
+furn 11 2 plant
+furn 10 2 tv
+npc 7 5 id=gh_tinker sprite=engineer face=left move=still script=gearhollow.tinker

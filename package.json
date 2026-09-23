@@ -1,0 +1,24 @@
+{
+  "name": "tiamat",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Tiamat \u2014 an original creature-taming adventure in the Riven Reach.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "maps": "python3 tools/worldgen.py && python3 tools/art/build_maps.py",
+    "art": "python3 tools/art/build_all.py",
+    "music": "python3 tools/audio/songs.py",
+    "test": "node --test tests/*.test.mjs",
+    "validate": "node tools/validate.mjs",
+    "balance": "node tools/balance-sim.mjs"
+  },
+  "dependencies": {
+    "phaser": "3.90.0"
+  },
+  "devDependencies": {
+    "vite": "^8.3.0"
+  }
+}

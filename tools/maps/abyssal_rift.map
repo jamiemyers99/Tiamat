@@ -1,0 +1,84 @@
+id: abyssal_rift
+kind: cave
+name: The Abyssal Rift
+base: cave
+music: rift
+battle: rift
+light: dark
+enc_floor: 1
+escape: riftgate:29,29
+
+layout:
+RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR
+RRRRRRRRRRRRRRRRRR.....RRRRRRRRRRRRRRRRR
+RRRRRRRRRRRRRRRRRR.....RRRRRRRRRRRRRRRRR
+RRRRRRRRRRRRRRRRRR.....RRRRRRRRRRRRRRRRR
+RRRRRRRRRRRRRRRRRR.....RRRRRRRRRRRRRRRRR
+RRRRRRRRRRRRRRRRRR.....RRRRRRRRRRRRRRRRR
+RRRRRRRR.........................RRRRRRR
+RRRRRRRR.........................RRRRRRR
+RRRRRRRR.........................RRRRRRR
+RRRRRRRR.........................RRRRRRR
+RRRRRRRR.........................RRRRRRR
+RRRRRRRR.........................RRRRRRR
+RRRRRRRR.....vvvvvvvvvvvvvvv.....RRRRRRR
+RRRRRRRR.....RRRRRRRRRRRRRRR.....RRRRRRR
+RRRRRRRR.....RRRRRRRRRRRRRRR.....RRRRRRR
+RRRRRRRR.....RRRRRRRRRRRRRRR.....RRRRRRR
+RRRR..........~~~~~~~~~~~~~..........RRR
+RRRR..........~~~~~~~~~~~~~..........RRR
+RRRR..........~~~~~~~~~~~~~..........RRR
+RRRR..........~~~~~~~~~~~~~..........RRR
+RRRR.........RRRRRRRRRRRRRRR.........RRR
+RRRR.........RRRRRRRRRRRRRRR.........RRR
+RRRR.....RRRRRRRRRRRRRRRRRRRRRRR.....RRR
+RRRR.....RRRRRRRRRRRRRRRRRRRRRRR.....RRR
+RRRR.....RRRRRRRRRRRRRRRRRRRRRRR.....RRR
+RRRR.....RRRRRRRRRRRRRRRRRRRRRRR.....RRR
+RRRR.................................RRR
+RRRR........vvvvvvvvvvvvvvvvv........RRR
+RRRR.................................RRR
+RRRR.................................RRR
+RRRR.................................RRR
+RRRR.................................RRR
+RRRRRRRRRRRRRR.............RRRRRRRRRRRRR
+RRRRRRRRRRRRRR...~~~~~~~...RRRRRRRRRRRRR
+RRRRRRRRRRRRRR...~~~~~~~...RRRRRRRRRRRRR
+RRRRRRRRRRRRRR...~~~~~~~...RRRRRRRRRRRRR
+RRRRRRRRRRRRRR.............RRRRRRRRRRRRR
+RRRRRRRRRR.....................RRRRRRRRR
+RRRRRRRRRR.....................RRRRRRRRR
+RRRRRRRRRR.....................RRRRRRRRR
+RRRRRRRRRR.....................RRRRRRRRR
+RRRRRRRRRR.....................RRRRRRRRR
+RRRRRRRRRRRRRRRRRR....RRRRRRRRRRRRRRRRRR
+RRRRRRRRRRRRRRRRRR....RRRRRRRRRRRRRRRRRR
+RRRRRRRRRRRRRRRRRR....RRRRRRRRRRRRRRRRRR
+RRRRRRRRRRRRRRRRRR....RRRRRRRRRRRRRRRRRR
+end
+
+objects:
+warp 20 1 to=sunken_chapel:17,4 face=down
+warp 19 45 to=cradle:9,13 face=up
+warp 20 45 to=cradle:10,13 face=up
+prop 9 7 crystal
+prop 31 7 crystal
+prop 5 17 crystal
+prop 35 17 crystal
+prop 13 29 crystal
+prop 27 29 crystal
+prop 11 38 crystal
+prop 29 38 crystal
+prop 16 32 crystal
+prop 24 32 crystal
+prop 6 30 crystal
+prop 34 30 crystal
+npc 20 9 id=ar_acolyte_1 sprite=acolyte face=down move=still trainer=ar_acolyte_1 sight=2
+npc 6 24 id=ar_acolyte_2 sprite=acolyte_b face=down move=still trainer=ar_acolyte_2 sight=4
+npc 34 24 id=ar_acolyte_3 sprite=acolyte face=down move=still trainer=ar_acolyte_3 sight=4
+npc 20 38 id=ar_ace sprite=ace_b face=down move=still trainer=ar_ace sight=3
+item 9 20 item=full_tonic qty=1 flag=item_abyssal_rift_9_20
+item 31 13 item=apex_capsule qty=2 flag=item_abyssal_rift_31_13
+item 5 31 item=panacea qty=1 flag=item_abyssal_rift_5_31
+item 35 31 item=bloom_seed qty=1 flag=item_abyssal_rift_35_31
+item 20 8 item=growth_fruit qty=1 flag=item_abyssal_rift_20_8 hidden=1

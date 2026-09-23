@@ -1,0 +1,39 @@
+id: hollowmere_haven
+kind: interior
+name: Hollowmere Haven
+floor: mint
+wall: teal
+music: haven
+
+layout:
+WWWWWWWWWWWWWWWW
+WWwWWWWWWWWWWwWW
+................
+................
+....======.====.
+................
+................
+................
+................
+................
+.......mm.......
+end
+
+objects:
+furn 6 2 healer
+furn 12 2 shelf v=1
+furn 1 2 pc script=haven.pc
+furn 3 2 bookshelf v=3
+furn 3 3 plant
+furn 10 4 plant
+furn 15 4 plant
+furn 0 9 plant
+furn 15 9 plant
+furn 1 7 table v=0
+furn 1 6 chair
+furn 3 7 chair
+furn 11 7 table v=0
+furn 13 7 chair
+furn 6 6 rug
+npc 7 3 id=hollowmere_haven_keeper sprite=nurse face=down move=still script=haven.heal noturn=1 name="Haven Keeper"
+npc 12 3 id=hollowmere_haven_clerk sprite=clerk face=down move=still script=haven.shop noturn=1 name=Clerk

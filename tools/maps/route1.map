@@ -1,0 +1,75 @@
+id: route1
+kind: route
+name: Route 1 · Mossway
+base: grass
+music: route
+battle: meadow
+south: rootmere 0
+north: brindlewood 2
+
+layout:
+TTTTTTTTTTTTTTTT::TTTTTTTTTTTTTTTT
+TTTTTTTTTTTTTTTT::TTTTTTTTTTTTTTTT
+TTTTTTTTTTTTTT..::............TTTT
+TTTTTTTTTTTTTT..::..GGGGGGGGGGTTTT
+TTTT......TTTT..::..GGGGGGGGGGTTTT
+TTTT......TTTT..::..GGGGGGGGGGTTTT
+TTTT......TTTT..::..GGGGGGGGGGTTTT
+TTTT......TTTT..::..GGGGGGGGGGTTTT
+TTTT........TT..::..GGGGGGGGGGTTTT
+TTTT........TT..::..GGGGGGGGGGTTTT
+TT...........F..::............TTTT
+TT..........F...::.........F..TTTT
+TT..............::::::::........TT
+TT..............::::::::........TT
+TTTT..................::..TTTTTTTT
+TTTT..................::F.TTTTTTTT
+TTTTGGGGGGGGGGTTTTTT..::..TTTTTTTT
+TTTTGGGGGGGGGGTTTTTT..::..TTTTTTTT
+TTTTGGGGGGGGGGTTTTTT..::.FTTTTTTTT
+TTTTGGGGGGGGGGTTTTTT..::..TTTTTTTT
+TTTTGGGGGGGGGGTTTTTT..::..TTTTTTTT
+TTTTGGGGGGGGGGTTTTTT..::F.TTTTTTTT
+TTTTGGGGGGGGGG........::..TTTTTTTT
+TTTT...........F..F...::..TTTTTTTT
+TT..q.................::........TT
+TT....................::........TT
+TT......::::::::::::::::........TT
+TT......:::::::::::::::.........TT
+TTTTTTTT::..TTTT..............TTTT
+TTTTTTTT::..TTTT..GGGGGGGGGGGGTTTT
+TTTTTTTT::..TTTT..GGGGGGGGGGGGTTTT
+TTTTTTTT::..TTTT..GGGGGGGGGGGGTTTT
+TTTTTTTT::........GGGGGGGGGGGGTTTT
+TTTTTTTT::........GGGGGGGGGGGGTTTT
+TT....bb::vvvvvvvvvvvvvvvvvvvvvvTT
+TT......::......................TT
+TT......::........TTTT..........TT
+TT......::........TTTT..........TT
+TT......::........b..b..........TT
+TT......::......................TT
+TT......::::::::::......ssssss..TT
+TT......::::::::::.....ss~~~~ss.TT
+TT..............::.....s~~~~~~sFTT
+TT........GGGGGG::.....s~~~~~~s.TT
+TTTTTTTTTTGGGGGG::..F..ss~~~~ss.TT
+TTTTTTTTTTGGGGGG::...F..ssssss..TT
+TTTTTTTTTTGGGGGG::..F.........F.TT
+TTTTTTTTTTGGGGGG::..............TT
+TTTTTTTTTTTTTTTT::TTTTTTTTTTTTTTTT
+TTTTTTTTTTTTTTTT::TTTTTTTTTTTTTTTT
+end
+
+objects:
+prop 15 46 sign text="ROUTE 1 · MOSSWAY|North: Brindlewood   South: Rootmere"
+prop 18 2 sign text="BRINDLEWOOD|Home of the Moss Trial."
+npc 11 36 id=r1_ollie sprite=kid face=left move=still trainer=r1_ollie sight=3
+npc 14 23 id=r1_dana sprite=lass face=down move=still trainer=r1_dana sight=3
+npc 19 6 id=r1_theo sprite=youth face=left move=still trainer=r1_theo sight=3
+npc 27 31 id=r1_nell sprite=kid_b face=left move=still trainer=r1_nell sight=4
+npc 12 24 id=r1_aide sprite=assistant face=down move=still script=route1.aide
+item 3 37 item=capsule qty=2 flag=item_route1_3_37
+item 24 19 item=tonic qty=1 flag=item_route1_24_19
+item 5 5 item=ward_incense qty=1 flag=item_route1_5_5
+item 29 46 item=capsule qty=1 flag=item_route1_29_46 hidden=1
+item 24 33 item=purge_herb qty=1 flag=item_route1_24_33

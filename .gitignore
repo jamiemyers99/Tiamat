@@ -1,8 +1,11 @@
+node_modules/
+.vite/
 __pycache__/
-*.py[cod]
+*.pyc
 .pytest_cache/
 .venv/
-venv/
-build/
-dist/
-node_modules/
+.DS_Store
+Thumbs.db
+# old PyInstaller output (kept locally, not in git)
+legacy/python-prototype/build/
+legacy/python-prototype/dist/

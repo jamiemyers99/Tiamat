@@ -1,0 +1,41 @@
+id: cradle
+kind: interior
+name: Tiamat's Cradle
+floor: chapel
+wall: dark
+music: cradle
+light: dark
+battle: rift
+
+layout:
+WWWWWWWWWWWWWWWWWWWW
+WWWWWWWWWWWWWWWWWWWW
+##................##
+##................##
+##................##
+##.......__.......##
+##.......__.......##
+##.......__.......##
+##.......__.......##
+##.......__.......##
+##.......__.......##
+##.......__.......##
+##.......__.......##
+##.......__.......##
+##.......__.......##
+##.......__.......##
+end
+
+objects:
+furn 8 2 altar
+furn 3 4 crystal
+furn 16 4 crystal
+furn 3 9 crystal
+furn 16 9 crystal
+furn 5 13 crystal
+furn 14 13 crystal
+warp 9 15 to=abyssal_rift:19,44 face=down
+warp 10 15 to=abyssal_rift:20,44 face=down
+npc 9 6 id=cr_oriel sprite=oriel face=down move=still script=cradle.oriel hide=oriel_beaten
+trigger 2 10 script=cradle.oriel w=16 h=1 once=cradle_scene1
+sign 9 3 script=cradle.tiamat w=2

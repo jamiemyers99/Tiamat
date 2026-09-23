@@ -1,0 +1,59 @@
+id: route5
+kind: route
+name: Route 5 · Glasslake Crossing
+base: grass
+music: lake
+battle: water
+weather: fog
+east: hollowmere 0
+north: frostspire 8
+
+layout:
+NNNNNNNNNN::NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN
+NNNNNNNNNN::NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN
+NNNNNNNNnn::nnNNNNNNNNnnnnnnnnnnNNNNNNNNnnnnnnnnNN
+NNNNNNNNnn::nnNNNNNNNNGGGGGGGGGGNNNNNNNNGGGGGGnnNN
+NNNNNNNNnn::nnNNNNNNNNGGGGGGGGGGnnnnnnnnGGGGGGnnNN
+NNNNNNNNnn::nnNNNNNNNNGGGGGGGGGGnnnnnnnnGGGGGGnnNN
+NNnnnnnnon::nnnnnnnnnnGGGGGGGGGGnnnnonnnGGGGGGnnNN
+NNnnnnnnnn::nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnNN
+NNssssssss::ssssssssssssssssssssssssssssssssssssNN
+NNssssssss::ssssssssssssssssssssssssssssssssssssNN
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~sss~~~~~~oo
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ss.ss~~~~~oo
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~sss~~~~~~~~
+~~~~~~~~~~~~~~~ssssss~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~sGGGGGGs~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~sGGGGGGs~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~sG.TTGGs~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~ss.TTsss~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~ssssss~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ssssss~~~~~~~~~~~~~
+~~~~~ssss~~~~~~~~~~~~~~~~~~~~~ssGGGGss~~~~~~~~~~oo
+~~~~ss..ss~~~~~~~~~~~~~~~~~~~~sGGGGG.s~~~~~~~~~~oo
+~~~~~ssss~~~~~~~~~~~~~~~~~~~~~~ssssss~~~~~~~~~~~oo
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~oo
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~oo
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~oo
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~oo
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~oo
+ssssssssssssssssssssssssssssssssssssssssssssssssoo
+ssssssssssssssssssssssssssssssssssssssssssssssssoo
+TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
+TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
+TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
+TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
+end
+
+objects:
+prop 12 7 sign text="ROUTE 5 · GLASSLAKE CROSSING|North: Frostspire   East: Hollowmere"
+npc 16 16 id=r5_fisher sprite=fisher face=down move=still trainer=r5_fisher sight=3
+npc 36 21 id=r5_sailor sprite=sailor face=left move=still trainer=r5_sailor sight=4
+npc 24 8 id=r5_skier sprite=skier face=down move=still trainer=r5_skier sight=3
+npc 40 11 id=r5_mystic sprite=mystic face=left move=still trainer=r5_mystic sight=2
+npc 6 21 id=r5_ace sprite=ace_b face=right move=still trainer=r5_ace sight=3
+item 15 17 item=prime_capsule qty=3 flag=item_route5_15_17
+item 40 12 item=pearl qty=1 flag=item_route5_40_12
+item 5 21 item=full_tonic qty=1 flag=item_route5_5_21
+item 44 4 item=swift_capsule qty=2 flag=item_route5_44_4
+item 34 20 item=star_shard qty=1 flag=item_route5_34_20 hidden=1

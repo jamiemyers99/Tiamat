@@ -1,0 +1,32 @@
+id: home_1f
+name: Your Home
+kind: interior
+floor: wood
+wall: cream
+music: house
+
+layout:
+WWWwWWWWwWWW
+WWWwWWWWwWWW
+............
+............
+............
+............
+............
+............
+....m.......
+end
+
+objects:
+mat 4 8
+furn 0 1 fridge
+furn 1 2 stove
+furn 5 4 table v=0
+furn 5 3 chair
+furn 6 5 chair
+furn 3 2 tv text="A cooking show is on. The host is frying something that looks alarmingly like a Cindlet."
+furn 11 2 plant
+furn 7 2 bookshelf
+furn 10 2 stairs_up
+warp 10 2 to=home_2f:8,2 face=left
+npc 8 4 id=mum sprite=mum face=left move=still script=home.mum name=Mum

@@ -1,0 +1,27 @@
+id: gearhollow_store
+kind: interior
+name: Gearhollow Disc Shop
+floor: tile
+wall: white
+music: house
+
+layout:
+WWWWWWWWWWWW
+WWWwWWWWwWWW
+............
+............
+..=======...
+............
+............
+............
+.....m......
+end
+
+objects:
+furn 3 2 shelf v=2
+furn 6 2 shelf v=3
+furn 11 2 plant
+furn 0 2 bookshelf v=2
+furn 10 6 table v=1
+furn 0 7 plant
+npc 5 3 id=gh_discclerk sprite=clerk face=down move=still script=gearhollow.discshop noturn=1

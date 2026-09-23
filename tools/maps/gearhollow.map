@@ -1,0 +1,73 @@
+id: gearhollow
+kind: town
+name: Gearhollow
+base: grass
+music: gearhollow
+battle: town
+north: route4 -4
+fly: 12,14
+
+layout:
+YYYYYYYYYYYYYYYYYYYY;;YYYYYYYYYYYYYYYYYYYYYYYY
+YYYYYYYYYYYYYYYYYYYY;;YYYYYYYYYYYYYYYYYYYYYYYY
+YYRRRRRRRRRRRRRRRRRR;;RRRRRRRRRRRRRRRRRRRRRRYY
+YYRRRRRRRRRRRRRRRRRR;;RRRRRRRRRRRRRRRRRRRRRRYY
+YYRRYYYYYY..........;;......................YY
+YYRRYYYYYY....wwwww.;;......................YY
+YYRRYYYYYY....w...w.;;......................YY
+YYRRYYYYYY..........;;......................YY
+YYRR................;;......................YY
+YYRR................;;......................YY
+YYRR................;;............;;........YY
+YYRR................;;............;;........YY
+YY..................;;............;;........YY
+YY..................;;............;;........YY
+YY......L...;.....L.;;....L.......;;....L...YY
+YY.;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.YY
+YY.;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.YY
+YYRR................;;......................YY
+YYRR................;;......................YY
+YYRR................;;......................YY
+YYRR..F.............;;......................YY
+YY..................;;......................YY
+YY..................;;......................YY
+YY............;.....;;......................YY
+YY............;.....;;..;;;;;;;.............YY
+YY............;.F...;;.....;.......F........YY
+YY............;.....;;.....;................YY
+YY.....;;.....;....L;;.....;..;;............YY
+YY.....;;.....;.....;;.....;..;;.L..........YY
+YY......;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.......YY
+YYYYYY..;;;;;;;;;;;;;;;;;;;;;;;;;;;;;.YYYYYYYY
+YYYYYY................................YYYYYYYY
+YYYYYY.....F..........F...............YYYYYYYY
+YYYYYY................................YYYYYYYY
+YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY
+YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY
+end
+
+objects:
+cave 2 12 to=coldforge_mines:40,2 face=down
+building 9 10 haven w=6 h=4 roof=red wall=white to=gearhollow_haven
+building 29 4 hall w=11 h=6 roof=gray wall=brick label=IRONWORKS door=5 to=gearhollow_ironworks cond=has:forge_pass locked="The Ironworks gate is shut tight.|AUTHORISED STAFF ONLY. FORGE PASS REQUIRED."
+building 24 19 arena w=7 h=5 roof=gold wall=brick emblem=bolt type=Static label="SPARK TRIAL" to=gearhollow_trial cond=ironworks_done locked="A note is taped to the door:|AT THE IRONWORKS. BACK SOON. PROBABLY. — ISKRA"
+building 5 23 house w=5 h=4 roof=slate wall=brick variant=1 to=gearhollow_house
+building 12 19 house w=4 h=4 roof=brown wall=stone variant=0 to=gearhollow_store
+prop 16 6 stone script=gearhollow.seal
+prop 38 18 cart
+prop 40 21 crate
+prop 41 21 crate
+prop 37 22 barrel
+prop 6 18 barrel
+prop 24 12 crate
+prop 22 12 sign text="GEARHOLLOW|Where the Reach keeps its clockwork."
+prop 23 23 sign text="SPARK TRIAL · Warden Iskra|\"If it isn't broken, improve it anyway.\""
+npc 21 3 id=gh_gate sprite=engineer face=down move=still script=gearhollow.northgate hide=sigil_spark
+trigger 20 4 script=gearhollow.northgate w=2 h=1 cond=!sigil_spark
+npc 34 11 id=gh_worker sprite=engineer face=down move=still script=gearhollow.worker
+npc 16 16 id=gh_man sprite=man face=down move=wander text="Warden Iskra built the Haven's healing machine, the Ironworks crane AND my kettle. My kettle talks now. I wish it didn't." radius=2
+npc 35 20 id=gh_kid sprite=kid_b face=down move=wander text="Static Morphs hate the ground! Stone and... um... ground-ish Morphs. Stone ones. That's what my big sister says." radius=2
+npc 27 30 id=gh_wren sprite=wren face=up move=still show=never
+trigger 24 24 script=gearhollow.wren w=7 h=2 once=wren3_done cond=sigil_spark
+item 36 32 item=rekindle_seed qty=1 flag=item_gearhollow_36_32 hidden=1
+item 24 33 item=capsule qty=3 flag=item_gearhollow_24_33

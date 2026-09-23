@@ -1,0 +1,62 @@
+id: brindlewood
+kind: town
+name: Brindlewood
+base: grass
+music: brindlewood
+battle: forest
+south: route1 -2
+east: route2 0
+fly: 12,16
+
+layout:
+TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
+TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
+TTAA..AA..................AA....AA....TT
+TTAA..AA..................AA....AA....TT
+TT..TTTT..TTTT......................AATT
+TT..TTTT..TTTT......................AATT
+TT..TTTT..........................TTTTTT
+TT..TTTT..........................TTTTTT
+TT................................TTTTTT
+TT..................::...wwwwwww..TTTTTT
+TT....F.............::...wF...Fw......TT
+TT..................::.F.w.....w......TT
+TTAA................::...wF...Fw......TT
+TTAA.F..............::.....F.F...F....TT
+TT..F...............::................TT
+TT.............L....::..L.........L...TT
+TT.:::::::::::::::::::::::::::::::::::::
+TT.:::::::::::::::::::::::::::::::::::::
+TT.ss~~ss.........::..................TT
+TTs~~~~~~s........::.............fffffTT
+TTs~~~~~~s....F...::.............fFFFfTT
+TT.ss~~ss.........::.............fFFFfTT
+TT............qq..::..F..........ff.ffTT
+TT............qq..::..................TT
+TT................::..................TT
+TT................::....F.............TT
+TTAA............L.::......L...........TT
+TTAA:::::::::::::::::::::::::::::::...TT
+TT..:::::::::::::::::::::::::::::::...TT
+TT...........F....::..................TT
+TT..TTTTTTTTTTTT..::..TTTTTTTTTTTT..AATT
+TT..TTTTTTTTTTTT..::..TTTTTTTTTTTT..AATT
+TTTTTTTTTTTTTTTTTT::TTTTTTTTTTTTTTTTTTTT
+TTTTTTTTTTTTTTTTTT::TTTTTTTTTTTTTTTTTTTT
+end
+
+objects:
+building 9 12 haven w=6 h=4 roof=red wall=white to=brindlewood_haven
+building 17 4 arena w=7 h=5 roof=green wall=wood emblem=leaf type=Nature label="MOSS TRIAL" to=brindlewood_trial
+building 8 23 house w=4 h=4 roof=orange wall=timber variant=1 to=brindlewood_posy
+building 28 23 house w=5 h=4 roof=brown wall=log variant=2 to=brindlewood_house
+prop 28 11 stone script=brindlewood.seal
+prop 16 31 sign text="BRINDLEWOOD|A town that grew up around a very old tree."
+prop 22 9 sign text="MOSS TRIAL · Warden Mossa|\"Patience is a kind of strength.\""
+prop 37 15 sign text="EAST: Route 2 · Bramble Bridge"
+npc 24 20 id=bw_gardener sprite=farmer face=down move=still script=brindlewood.gardener
+npc 12 26 id=bw_posy sprite=lass face=down move=still script=brindlewood.posy hide=pip_returned
+npc 32 13 id=bw_woman sprite=woman_b face=down move=wander text="They say the Seal-stone hums on quiet nights. Warden Mossa says it's just singing to itself." radius=2
+npc 6 25 id=bw_kid sprite=kid_b face=down move=wander text="Warden Mossa's plants are super tough. My Cindlet singed one and it just... grew back angrier." radius=1
+item 37 3 item=tonic qty=1 flag=item_brindlewood_37_3 hidden=1
+item 28 29 item=capsule qty=1 flag=item_brindlewood_28_29

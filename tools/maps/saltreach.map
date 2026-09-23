@@ -1,0 +1,78 @@
+id: saltreach
+kind: town
+name: Saltreach
+base: grass
+music: saltreach
+battle: coast
+north: thornwild 0
+east: route3 0
+fly: 11,12
+
+layout:
+TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT;;TTTTTTTTTTTTTT
+TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT;;TTTTTTTTTTTTTT
+TTTTTTTT..TTTTTTTT............;;....TTTTTTTTTT
+TTTTTTTT..TTTTTTTT............;;....TTTTTTTTTT
+TTTTTTTT..TTTTTTTT............;;....TTTTTTTTTT
+TTTTTTTT..TTTTTTTT............;;....TTTTTTTTTT
+TT..PP.........PP...........PP;;....TTTTTTTTTT
+TT..PP.........PP...........PP;;....TTTTTTTTTT
+TT............................;;............TT
+TT......................;;....;;.F..........TT
+TT..............F.......;;....;;............TT
+TT.....L...........L....;;....;;.......L....TT
+TT.;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+TT.;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+TT.F................;;.......L........F...PPRR
+TT..................;;....F...............PPRR
+TT..................;;......................RR
+TT..................;;......................RR
+TT..................;;................ssssssRR
+TT..................;;................ssssssRR
+TT..................;;L...............ssssssRR
+TT..................;;................ssssssRR
+sssss.ssss.ssss.ssss;;sss.ssss.ssss.ssssssssRR
+ssssssssssssssssssss;;ssssssssssssssssssssssRR
+ssssssssssssssssssss;;ssssssssssssssssssssssRR
+~~~~~~~~~~~~~~~~~~~~kk~~~~~~~~~~~kk~~~~~~~~~RR
+~~~~~~~~~~~~~~~~~~~~kk~~~~~~~~~~~kk~~~~~~~~~RR
+~~~~~~~~~~~~~~~~~~~~kk~~~~~~~~~~~kk~~~~~~~~~RR
+~~~~~~~~~~~~~~~~~~~~kk~~~~~~~~~~~kk~~~~~~~~~RR
+~~~~~~~~~~~~~~~~~~~~kk~~~~~~~~~~~~~~~~~~~~~~RR
+~~~~~~~~~~~~~~~~~~~~kk~~~~~~~~~~~~~~~~~sss~~RR
+~~~~~~~~~~~~~~kkkkkkkkkkkkkk~~~~~~~~~~sssss~RR
+~~~~~~~~~~~~~~kkkkkkkkkkkkkk~~~~~~~~~~~sss~~RR
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~RR
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~RR
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~RR
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~RR
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~RR
+end
+
+objects:
+building 8 8 haven w=6 h=4 roof=red wall=white to=saltreach_haven
+building 21 3 arena w=7 h=5 roof=blue wall=brick emblem=drop type=Tide label="TIDE TRIAL" to=saltreach_trial cond=docks_done locked="The door is locked. A note is nailed to it:|GONE TO THE DOCKS TO SORT OUT SOME BARNACLES. — BRANN"
+building 32 17 house w=5 h=4 roof=teal wall=sand variant=0 to=saltreach_house door=3
+building 4 16 house w=5 h=4 roof=navy wall=plaster variant=1 to=saltreach_net
+lighthouse 41 19 to=saltreach_lighthouse
+prop 14 16 stall
+prop 17 16 stall
+prop 24 27 boat walk=0
+prop 15 34 boat
+prop 26 24 barrel
+prop 27 24 crate
+prop 18 24 crate
+prop 35 11 stone script=saltreach.seal
+prop 28 11 sign text="SALTREACH|Salt on the wind, fish on the table."
+prop 26 8 sign text="TIDE TRIAL · Captain Brann|\"The sea tests everyone.\""
+prop 22 23 sign text="SALTREACH DOCKS"
+npc 20 31 id=st_brann sprite=brann face=up move=still script=saltreach.brann_docks hide=docks_done
+npc 20 27 id=st_acolyte_1 sprite=acolyte face=up move=still trainer=st_acolyte_1 sight=2 leave=1
+npc 21 27 id=st_acolyte_2 sprite=acolyte_b face=up move=still trainer=st_acolyte_2 sight=2 leave=1
+npc 43 12 id=st_guard sprite=sailor face=left move=still script=saltreach.eastguard hide=sigil_tide
+trigger 43 13 script=saltreach.eastgate w=1 h=1 cond=!sigil_tide
+npc 13 18 id=st_fishwife sprite=woman_b face=down move=still text="Fresh gullfish! ...Oh, you're a Tamer? Then keep those robed folk off my pier, would you?"
+npc 30 20 id=st_sailor sprite=sailor face=down move=wander text="Those Deepcall types have been chartering every boat in the harbour. Where are they going? The Riven, they say. Nobody sails to the Riven." radius=2
+npc 10 21 id=st_kid sprite=kid face=down move=wander text="If you had a boat, you could reach the little island out in the bay! I saw something shiny there." radius=2
+item 39 31 item=pearl qty=1 flag=item_saltreach_39_31
+item 3 23 item=tonic qty=1 flag=item_saltreach_3_23 hidden=1

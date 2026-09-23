@@ -1,0 +1,27 @@
+id: brindlewood_house
+kind: interior
+name: Old Aldous's House
+floor: dark
+wall: wood
+music: house
+
+layout:
+WWWWWWWWWWWW
+WWWwWWWWwWWW
+............
+............
+............
+............
+............
+............
+.....m......
+end
+
+objects:
+furn 1 2 bed v=1
+furn 3 2 bookshelf v=5
+furn 7 4 table v=1
+furn 11 2 plant
+furn 0 6 plant
+furn 9 2 globe
+npc 7 5 id=aldous sprite=elder face=left move=still script=brindlewood.aldous

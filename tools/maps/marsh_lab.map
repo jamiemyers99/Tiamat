@@ -1,0 +1,36 @@
+id: marsh_lab
+kind: interior
+name: Marsh Morph Lab
+floor: lab
+wall: white
+music: haven
+
+layout:
+WWWWWWWWWWWWWW
+WWWwWWWWWwWWWW
+..............
+..............
+..............
+..............
+..............
+..............
+..............
+......m.......
+end
+
+objects:
+furn 0 2 machine
+furn 1 2 machine
+furn 12 2 machine
+furn 13 2 bookshelf v=1
+furn 4 2 bookshelf v=3
+furn 5 2 bookshelf v=4
+furn 10 2 pc text="Dr. Marsh's research notes: 'Six Seals. Six Sigils. Why would the old Wardens tie a Tamer's badge to a stone?'"
+furn 0 7 plant
+furn 13 7 plant
+furn 10 6 table v=2
+furn 11 5 chair
+furn 5 4 capsule_table script=lab.starters
+npc 8 3 id=marsh sprite=marsh face=down move=still script=lab.marsh name="Dr. Marsh"
+npc 3 4 id=lab_wren sprite=wren face=right move=still script=lab.wren hide=got_starter
+npc 11 7 id=lab_aide sprite=assistant face=down move=wander radius=1 script=lab.aide

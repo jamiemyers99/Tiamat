@@ -1,0 +1,27 @@
+id: saltreach_net
+kind: interior
+name: Net-Mender's Cottage
+floor: dark
+wall: cream
+music: house
+
+layout:
+WWWWWWWWWWWW
+WWWwWWWWwWWW
+............
+............
+............
+............
+............
+............
+.....m......
+end
+
+objects:
+furn 0 2 fridge
+furn 1 2 stove
+furn 4 5 table v=2
+furn 9 2 bookshelf v=4
+furn 11 6 plant
+furn 10 2 bed v=2
+npc 7 5 id=st_netmender sprite=elder_b face=left move=still script=saltreach.netmender

@@ -1,0 +1,154 @@
+// Game state, save slots and settings.
+import { SAVE_PREFIX, SETTINGS_KEY, SAVE_VERSION, MONEY_CAP, BOX_COUNT, BOX_SIZE } from '../config.js';
+
+export const DEFAULT_SETTINGS = {
+  textSpeed: 'normal',     // slow | normal | fast | instant
+  musicVol: 0.7,
+  sfxVol: 0.85,
+  battleAnims: true,
+  battleStyle: 'shift',    // shift | set
+  expShare: true,          // benched party members get a share of XP
+  autoRun: false,          // run without holding the run key
+  clock: 'game',           // game | real
+  scaling: 'pixel',        // pixel | fill
+  frame: 0,                // dialogue window colour
+};
+
+export function loadSettings() {
+  try {
+    const raw = localStorage.getItem(SETTINGS_KEY);
+    return { ...DEFAULT_SETTINGS, ...(raw ? JSON.parse(raw) : {}) };
+  } catch {
+    return { ...DEFAULT_SETTINGS };
+  }
+}
+
+export function saveSettings(s) {
+  try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(s)); } catch { /* storage unavailable */ }
+}
+
+export function newState() {
+  return {
+    version: SAVE_VERSION,
+    player: { name: 'Rowan', style: 0, map: 'home_2f', x: 5, y: 4, face: 'down', surfing: false },
+    rivalName: 'Wren',
+    party: [],
+    boxes: Array.from({ length: BOX_COUNT }, (_, i) => ({ name: `Box ${i + 1}`, slots: Array(BOX_SIZE).fill(null) })),
+    bag: {},
+    money: 3000,
+    flags: {},
+    vars: {},
+    defeated: {},
+    index: { seen: [], caught: [] },
+    sigils: [],
+    playMs: 0,
+    clock: 8 * 60,              // minutes since midnight (game clock)
+    day: 1,
+    lastHeal: { map: 'home_1f', x: 4, y: 7 },
+    repel: 0,
+    steps: 0,
+    uid: 1,
+    started: Date.now(),
+    trainerId: Math.floor(10000 + Math.random() * 89999),
+  };
+}
+
+export const G = {
+  state: newState(),
+  settings: loadSettings(),
+  slot: 0,
+};
+
+// ── helpers ──
+export const flag = (k) => !!G.state.flags[k];
+export const setFlag = (k, v = true) => { if (v) { G.state.flags[k] = true; } else { delete G.state.flags[k]; } };
+export const getVar = (k, d = 0) => (G.state.vars[k] ?? d);
+export const setVar = (k, v) => { G.state.vars[k] = v; };
+
+export function addMoney(n) {
+  G.state.money = Math.max(0, Math.min(MONEY_CAP, G.state.money + n));
+}
+
+export function itemCount(id) { return G.state.bag[id] || 0; }
+export function giveItem(id, n = 1) { G.state.bag[id] = Math.min(999, (G.state.bag[id] || 0) + n); }
+export function takeItem(id, n = 1) {
+  if ((G.state.bag[id] || 0) < n) { return false; }
+  G.state.bag[id] -= n;
+  if (G.state.bag[id] <= 0) { delete G.state.bag[id]; }
+  return true;
+}
+
+export function markSeen(speciesId) {
+  if (!G.state.index.seen.includes(speciesId)) { G.state.index.seen.push(speciesId); }
+}
+export function markCaught(speciesId) {
+  markSeen(speciesId);
+  if (!G.state.index.caught.includes(speciesId)) { G.state.index.caught.push(speciesId); }
+}
+
+export function nextUid() { G.state.uid = (G.state.uid || 1) + 1; return G.state.uid; }
+
+// Place a Morph in the party, or the first free box slot. Returns 'party' | 'box:N' | null.
+export function receiveMorph(mon) {
+  if (G.state.party.length < 6) { G.state.party.push(mon); return 'party'; }
+  for (let b = 0; b < G.state.boxes.length; b++) {
+    const i = G.state.boxes[b].slots.indexOf(null);
+    if (i >= 0) { G.state.boxes[b].slots[i] = mon; return `box:${b}`; }
+  }
+  return null;
+}
+
+// ── save slots ──
+export function slotKey(i) { return `${SAVE_PREFIX}${i}`; }
+
+export function saveGame(slot = G.slot) {
+  try {
+    const data = JSON.stringify({ ...G.state, version: SAVE_VERSION, savedAt: Date.now() });
+    localStorage.setItem(slotKey(slot), data);
+    G.slot = slot;
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function readSlot(i) {
+  try {
+    const raw = localStorage.getItem(slotKey(i));
+    if (!raw) { return null; }
+    return migrate(JSON.parse(raw));
+  } catch {
+    return { corrupt: true };
+  }
+}
+
+export function loadGame(i) {
+  const s = readSlot(i);
+  if (!s || s.corrupt) { return false; }
+  G.state = s;
+  G.slot = i;
+  return true;
+}
+
+export function deleteSlot(i) {
+  try { localStorage.removeItem(slotKey(i)); } catch { /* ignore */ }
+}
+
+// Upgrade older saves in place. v5 is the first save format of the rebuilt game.
+export function migrate(s) {
+  if (!s || typeof s !== 'object') { throw new Error('bad save'); }
+  const base = newState();
+  const out = { ...base, ...s };
+  out.player = { ...base.player, ...(s.player || {}) };
+  out.index = { seen: [], caught: [], ...(s.index || {}) };
+  out.flags = s.flags || {};
+  out.vars = s.vars || {};
+  out.bag = s.bag || {};
+  out.boxes = Array.isArray(s.boxes) && s.boxes.length ? s.boxes : base.boxes;
+  out.version = SAVE_VERSION;
+  return out;
+}
+
+export function hasLegacySave() {
+  try { return !!localStorage.getItem('tiamat_save'); } catch { return false; }
+}
