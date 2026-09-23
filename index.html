@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tiamat</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <link rel="stylesheet" href="./styles.css?v=20260429-19" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="console-shell" aria-label="Tiamat handheld game frame">
+
+        <header class="console-top">
+          <div class="brand-block">
+            <p class="eyebrow">Original Monster Adventure</p>
+            <h1>Tiamat</h1>
+          </div>
+          <p class="status-line">Browser Version</p>
+        </header>
+
+        <section class="game-hud" aria-label="Status panel">
+          <p id="hud-location">Location: Rootmere</p>
+          <p id="hud-party">Party: None</p>
+          <p id="hud-coins">Coins: 0</p>
+          <p id="hud-pos">Pos: 9,10</p>
+          <p id="hud-tip">Tip: Visit the Morph Lab and choose your first Morph.</p>
+        </section>
+
+        <div style="position:relative;">
+          <canvas
+            id="game"
+            class="game-canvas"
+            aria-label="Tiamat game screen"
+          ></canvas>
+          <div id="art-loading">Loading…</div>
+        </div>
+
+        <footer class="console-bottom">
+          <p>Move: <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> or arrow keys</p>
+          <p>Interact: <kbd>E</kbd> <kbd>Enter</kbd> <kbd>Space</kbd></p>
+          <p>Pause: <kbd>Esc</kbd> &nbsp; Run: hold <kbd>Shift</kbd> (after shoes)</p>
+          <p>Battle: <kbd>Shift</kbd> = move info &nbsp; <kbd>B</kbd> = cancel evo</p>
+        </footer>
+
+      </section>
+    </main>
+    <script type="module" src="./src/main.js?v=20260429-19"></script>
+    <script>
+      // Hide loading overlay once the module boots
+      window.addEventListener("load", () => {
+        setTimeout(() => {
+          const el = document.getElementById("art-loading");
+          if (el) { el.classList.add("hidden"); }
+        }, 200);
+      });
+    </script>
+  </body>
+</html>
