@@ -48,6 +48,8 @@ class InputManager {
     this.keysDown = new Set();
     this.touchDown = new Set();
     this.padDown = new Set();
+    // presses that started since the last frame — so a quick tap or key flick is never missed
+    this.latched = new Set();
     this.lastDirOrder = [];
     this.textListener = null;
     this.captureListener = null;
@@ -61,6 +63,7 @@ class InputManager {
         e.preventDefault();
         this.keysDown.add(act);
         (ALSO[act] || []).forEach((a) => this.keysDown.add(a));
+        if (!e.repeat) { this.latched.add(act); (ALSO[act] || []).forEach((a) => this.latched.add(a)); }
         if (DIRS.includes(act)) { this.lastDirOrder = this.lastDirOrder.filter((d) => d !== act); this.lastDirOrder.push(act); }
       }
     });
@@ -92,16 +95,56 @@ class InputManager {
     const root = document.getElementById('touch');
     if (!root) { return; }
     const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-    if (isTouch) { root.classList.add('on'); }
-    root.querySelectorAll('[data-k]').forEach((el) => {
+    this.isTouch = isTouch;
+    if (isTouch) { root.classList.add('on'); document.documentElement.classList.add('touch'); }
+    const buzz = () => { try { if (navigator.vibrate) { navigator.vibrate(8); } } catch { /* not supported */ } };
+    // D-pad: one finger steers; slide between arrows without lifting.
+    const pad = root.querySelector('.pad');
+    if (pad) {
+      const arrows = { up: pad.querySelector('.u'), down: pad.querySelector('.d'), left: pad.querySelector('.l'), right: pad.querySelector('.r') };
+      let pointer = null, cur = null;
+      const setDir = (d) => {
+        if (d === cur) { return; }
+        if (cur) { this.touchDown.delete(cur); arrows[cur]?.classList.remove('down'); }
+        cur = d;
+        if (d) {
+          this.touchDown.add(d);
+          this.latched.add(d);
+          this.lastDirOrder = this.lastDirOrder.filter((x) => x !== d);
+          this.lastDirOrder.push(d);
+          arrows[d]?.classList.add('down');
+          buzz();
+        }
+      };
+      const dirAt = (e) => {
+        const r = pad.getBoundingClientRect();
+        const dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2);
+        if (Math.hypot(dx, dy) < r.width * 0.1) { return cur; }
+        return Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up');
+      };
+      pad.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        pointer = e.pointerId;
+        try { pad.setPointerCapture(e.pointerId); } catch { /* ignore */ }
+        setDir(dirAt(e));
+      });
+      pad.addEventListener('pointermove', (e) => { if (e.pointerId === pointer) { e.preventDefault(); setDir(dirAt(e)); } });
+      const end = (e) => { if (e.pointerId === pointer) { pointer = null; setDir(null); } };
+      pad.addEventListener('pointerup', end);
+      pad.addEventListener('pointercancel', end);
+      pad.addEventListener('lostpointercapture', end);
+    }
+    root.querySelectorAll('.btn[data-k]').forEach((el) => {
       const k = el.dataset.k;
-      const on = (ev) => { ev.preventDefault(); this.touchDown.add(k); if (DIRS.includes(k)) { this.lastDirOrder = this.lastDirOrder.filter((d) => d !== k); this.lastDirOrder.push(k); } };
-      const off = (ev) => { ev.preventDefault(); this.touchDown.delete(k); };
+      const on = (ev) => { ev.preventDefault(); this.touchDown.add(k); this.latched.add(k); el.classList.add('down'); buzz(); };
+      const off = (ev) => { ev.preventDefault(); this.touchDown.delete(k); el.classList.remove('down'); };
       el.addEventListener('pointerdown', on);
       el.addEventListener('pointerup', off);
       el.addEventListener('pointercancel', off);
       el.addEventListener('pointerleave', off);
     });
+    // Stop long-press menus and pinch-zoom on the game.
+    window.addEventListener('contextmenu', (e) => { if (isTouch) { e.preventDefault(); } });
   }
 
   _pollPad() {
@@ -129,7 +172,8 @@ class InputManager {
   update(time) {
     this._pollPad();
     this.prev = this.down;
-    this.down = new Set([...this.keysDown, ...this.touchDown, ...this.padDown]);
+    this.down = new Set([...this.keysDown, ...this.touchDown, ...this.padDown, ...this.latched]);
+    this.latched.clear();
     this.pressedSet.clear();
     for (const a of ACTIONS) {
       if (this.down.has(a) && !this.prev.has(a)) {

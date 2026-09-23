@@ -54,10 +54,15 @@ export class TitleScene extends Phaser.Scene {
     logoShadow.setTint ? logoShadow.setAlpha(0.6) : null;
     this.logo = txt(this, GAME_W / 2, 40, 'TIAMAT', { align: 'center', color: 'gold', scale: 5 });
     this.sub = txt(this, GAME_W / 2, 98, 'Tales of the Riven Reach', { align: 'center', color: 'blue' });
-    this.press = txt(this, GAME_W / 2, 150, 'Press  Z / Enter / Space', { align: 'center' });
+    this.press = txt(this, GAME_W / 2, 150, input.isTouch ? 'Tap  A  to start' : 'Press  Z / Enter / Space', { align: 'center' });
     this.tweens.add({ targets: this.press, alpha: 0.2, duration: 700, yoyo: true, repeat: -1 });
     txt(this, GAME_W - 6, GAME_H - 10, 'v1.0', { face: 'small', color: 'gray', align: 'right' });
-    txt(this, 6, GAME_H - 10, 'An original game. Arrow keys / WASD to move.', { face: 'small', color: 'gray' });
+    if (input.isTouch) {
+      // centred so the on-screen pad and buttons don't cover it
+      txt(this, GAME_W / 2, GAME_H - 10, 'Pad to move · A to talk · B to go back', { face: 'small', color: 'gray', align: 'center' });
+    } else {
+      txt(this, 6, GAME_H - 10, 'An original game. Arrow keys / WASD to move.', { face: 'small', color: 'gray' });
+    }
     audio.playMusic(this.cache.audio.exists('bgm_title') ? 'bgm_title' : 'bgm_rootmere', { restart: true });
     this.state = 'press';
     this.cameras.main.fadeIn(600);

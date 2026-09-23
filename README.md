@@ -23,6 +23,27 @@ npm run build      # production build into dist/
 
 Add `?debug` to the URL for developer tools (F1 or ` in game: warp, heal, items, flags).
 
+## Play on your phone (GitHub Pages)
+
+The game is an installable web app: once it's online you can add it to your home screen,
+it opens full-screen in landscape with touch controls, and it keeps working offline.
+
+1. Put this folder on GitHub (e.g. GitHub Desktop → *Add existing repository* → *Publish repository*).
+2. On github.com open the repo → **Settings → Pages** → under *Build and deployment* set
+   **Source: GitHub Actions**.
+3. Every push to `main` now runs the tests, builds the game and publishes it
+   (`.github/workflows/pages.yml`). The address appears on the Pages settings page —
+   usually `https://<your-username>.github.io/<repo-name>/`.
+4. On the phone, open that address in Chrome or Samsung Internet and choose
+   **Install app** / **Add to Home screen**.
+
+Saves live on the phone (in the app's browser storage), separate from your computer's saves.
+A free GitHub account needs the repository to be public for Pages to work; with a paid plan the
+repo can be private, but the game's web address is still reachable by anyone who has the link.
+
+Touch controls: the pad moves (slide your thumb between arrows), **A** talks/confirms,
+**B** goes back, **RUN** runs (with Trail Boots), **MENU** opens the pause menu.
+
 ## Controls
 
 | Action | Keyboard | Gamepad |
@@ -78,6 +99,8 @@ index.html, src/        the game (Phaser 3 + Vite)
   scripts/              every story event, NPC and cutscene (act1–act4.js)
   world/, ui/, core/    map rendering, lighting & weather, widgets, input, saves, audio
 public/assets/          generated art, Tiled maps (.tmj), fonts and audio
+public/manifest.webmanifest, public/icons/   phone app manifest + icons (tools/art/build_icons.py)
+.github/workflows/      GitHub Pages deployment
 tools/
   worldgen.py           authors every map (tools/maps/*.map)
   art/                  pixel-art generators (tiles, buildings, characters, Morphs, UI)
@@ -85,6 +108,7 @@ tools/
   validate.mjs          checks every map, warp, script and trainer; flood-fills for unreachable stuff
   balance-sim.mjs       simulates every boss fight for each starter
   playtest.py           headless-browser playthrough of the whole story
+  pwa/sw-template.js    offline cache; vite.config.js fills in the file list at build time
 tests/                  unit tests (node --test)
 legacy/                 the earlier 160×144 browser prototype and the Python prototype
 ```

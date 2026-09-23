@@ -15,6 +15,7 @@ STEPS = [
     ['tools/worldgen.py'],
     ['tools/art/build_maps.py'],
     ['tools/art/build_regionmap.py'],
+    ['tools/art/build_icons.py'],
 ]
 
 for step in STEPS:

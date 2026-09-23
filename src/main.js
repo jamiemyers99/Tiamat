@@ -47,7 +47,9 @@ function fit() {
   const canvas = game.canvas;
   if (!canvas) { return; }
   let scale = Math.min(w / GAME_W, h / GAME_H);
-  if ((G.settings.scaling || 'pixel') === 'pixel' && scale >= 1) { scale = Math.floor(scale); }
+  // Whole-number scaling keeps pixels perfectly square on big screens; on phones (where it would
+  // leave the game tiny) fill the screen instead — their high pixel density keeps it crisp.
+  if ((G.settings.scaling || 'pixel') === 'pixel' && scale >= 2 && !input.isTouch) { scale = Math.floor(scale); }
   canvas.style.width = `${Math.round(GAME_W * scale)}px`;
   canvas.style.height = `${Math.round(GAME_H * scale)}px`;
   game.scale.refresh();
@@ -55,3 +57,8 @@ function fit() {
 window.addEventListener('resize', fit);
 game.events.once(Phaser.Core.Events.READY, () => { fit(); const b = document.getElementById('boot'); if (b) { b.remove(); } });
 window.__fit = fit;
+
+// Installable web app: cache the whole game for offline play (production builds only).
+if (import.meta.env.PROD && 'serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
+  window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch((e) => console.warn('[sw]', e)); });
+}
