@@ -53,6 +53,7 @@ class InputManager {
     this.lastDirOrder = [];
     this.textListener = null;
     this.captureListener = null;
+    this.rotated = 0;   // 0, 90 or -90: how far main.js has turned the game on an upright screen
     this.setBindings(DEFAULT_KEYS);
     window.addEventListener('keydown', (e) => {
       const k = e.key.toLowerCase();
@@ -118,7 +119,9 @@ class InputManager {
       };
       const dirAt = (e) => {
         const r = pad.getBoundingClientRect();
-        const dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2);
+        let dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2);
+        // game turned sideways on an upright screen (see main.js): screen → game directions
+        if (this.rotated === 90) { [dx, dy] = [dy, -dx]; } else if (this.rotated === -90) { [dx, dy] = [-dy, dx]; }
         if (Math.hypot(dx, dy) < r.width * 0.1) { return cur; }
         return Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up');
       };

@@ -41,9 +41,35 @@ audio.init(game);
 // Global per-frame input sampling (before any scene updates).
 game.events.on(Phaser.Core.Events.PRE_STEP, (time) => input.update(time));
 
+// Phones: if the screen is upright (the phone is held upright, or auto-rotate is off so the screen
+// never turns), turn the whole game sideways so it fills the screen when the phone is held landscape.
+// Which way the phone is tipped (from the motion sensor), so the sideways game is never upside down.
+let tilt = 90;
+function layout() {
+  const vw = window.innerWidth, vh = window.innerHeight;
+  const rot = !!input.isTouch && vh > vw;
+  document.documentElement.classList.toggle('rot', rot);
+  input.rotated = rot ? tilt : 0;
+  const app = document.getElementById('app');
+  if (app) {
+    app.style.width = rot ? `${vh}px` : '';
+    app.style.height = rot ? `${vw}px` : '';
+    app.style.transform = !rot ? '' : tilt > 0 ? `translateX(${vw}px) rotate(90deg)` : `translateY(${vh}px) rotate(-90deg)`;
+  }
+  return rot ? [vh, vw] : [vw, vh];
+}
+if (input.isTouch && 'DeviceMotionEvent' in window) {
+  window.addEventListener('devicemotion', (e) => {
+    const g = e.accelerationIncludingGravity;
+    if (!g || g.x == null || Math.abs(g.x) < 6 || Math.abs(g.x) < Math.abs(g.y || 0)) { return; }
+    const t = g.x > 0 ? 90 : -90;   // right edge up → turn the game clockwise; left edge up → anticlockwise
+    if (t !== tilt) { tilt = t; if (input.rotated) { fit(); } }
+  });
+}
+
 // Integer (pixel-perfect) or fill scaling.
 function fit() {
-  const w = window.innerWidth, h = window.innerHeight;
+  const [w, h] = layout();
   const canvas = game.canvas;
   if (!canvas) { return; }
   let scale = Math.min(w / GAME_W, h / GAME_H);
@@ -55,10 +81,40 @@ function fit() {
   game.scale.refresh();
 }
 window.addEventListener('resize', fit);
+window.addEventListener('orientationchange', () => { fit(); setTimeout(fit, 300); });
+if (window.visualViewport) { window.visualViewport.addEventListener('resize', fit); }
+layout();
+
+// On the first tap, ask for full screen + landscape (Android turns the screen even with auto-rotate
+// off). Browsers that refuse just keep the sideways layout above.
+if (input.isTouch) {
+  let asked = false;
+  const goLandscape = () => {
+    if (asked) { return; }
+    asked = true;
+    const lock = () => { try { const p = screen.orientation && screen.orientation.lock && screen.orientation.lock('landscape'); if (p && p.catch) { p.catch(() => {}); } } catch { /* unsupported */ } };
+    const el = document.documentElement;
+    const installed = window.matchMedia('(display-mode: fullscreen), (display-mode: standalone)').matches;
+    if (!installed && !document.fullscreenElement && el.requestFullscreen) {
+      el.requestFullscreen({ navigationUI: 'hide' }).then(lock, () => {}).finally(() => setTimeout(fit, 300));
+    } else { lock(); }
+  };
+  // pointerup/touchend count as a user gesture for touch (pointerdown does not)
+  window.addEventListener('pointerup', goLandscape, true);
+  window.addEventListener('touchend', goLandscape, true);
+}
 game.events.once(Phaser.Core.Events.READY, () => { fit(); const b = document.getElementById('boot'); if (b) { b.remove(); } });
 window.__fit = fit;
 
 // Installable web app: cache the whole game for offline play (production builds only).
 if (import.meta.env.PROD && 'serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
   window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch((e) => console.warn('[sw]', e)); });
+  // A new version was just downloaded: if we're still on the title screen, switch to it straight away
+  // (otherwise it's used next time the game is opened, so no unsaved progress is lost).
+  const hadController = !!navigator.serviceWorker.controller;
+  let reloading = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!hadController || reloading) { return; }
+    if (game.scene.isActive('Title')) { reloading = true; location.reload(); }
+  });
 }

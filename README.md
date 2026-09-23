@@ -38,6 +38,12 @@ it opens full-screen in landscape with touch controls, and it keeps working offl
    **Install app** / **Add to Home screen**.
 
 Saves live on the phone (in the app's browser storage), separate from your computer's saves.
+Browsers that wipe site data (e.g. DuckDuckGo's Fire button) wipe the saves too — Chrome is the
+best choice for installing it.
+
+The game always plays sideways. If the phone's auto-rotate is off, it turns itself round (using the
+motion sensor to pick the right way up) — just hold the phone landscape. New versions download in
+the background and switch over on the title screen.
 A free GitHub account needs the repository to be public for Pages to work; with a paid plan the
 repo can be private, but the game's web address is still reachable by anyone who has the link.
 
