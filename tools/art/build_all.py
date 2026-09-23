@@ -8,6 +8,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, '..', '..'))
 STEPS = [
     ['tools/art/build_chars.py'],
+    ['tools/art/font.py'],
     ['tools/art/build_ui.py'],
     ['tools/art/build_mons.py'],
     ['tools/art/build_battlebg.py'],

@@ -187,6 +187,9 @@ def ui_frames():
     mi('index', lambda s: (s.rect(3, 2, 10, 12, '#e2555f'), s.rect(4, 3, 8, 5, '#8ad8ff'), s.px(5, 10, '#ffffff'), s.px(7, 10, '#f5c542')))
     mi('card', lambda s: (s.rect(1, 4, 14, 9, '#3d8bfd'), s.rect(2, 5, 4, 5, '#f3cfae'), s.hline(8, 13, 6, '#ffffff'), s.hline(8, 12, 9, '#ffffff')))
     mi('save', lambda s: (s.rect(2, 2, 12, 12, '#5a6a9a'), s.rect(4, 2, 8, 5, '#e8ecf0'), s.rect(4, 9, 8, 5, '#2a2f4a')))
+    mi('keys', lambda s: (s.rect(0, 3, 16, 10, '#4a5070'), s.rect(1, 4, 14, 8, '#6a7090'),
+                          [s.rect(2 + i * 3, 5, 2, 2, '#e8ecf0') for i in range(4)],
+                          [s.rect(3 + i * 3, 8, 2, 2, '#e8ecf0') for i in range(3)], s.rect(4, 11, 8, 1, '#e8ecf0')))
     mi('options', lambda s: (s.ellipse(8, 8, 5.5, 5.5, '#9aa0b4'), s.ellipse(8, 8, 2, 2, '#1c1a28'), [s.rect(7, 0, 2, 3, '#9aa0b4'), s.rect(7, 13, 2, 3, '#9aa0b4'), s.rect(0, 7, 3, 2, '#9aa0b4'), s.rect(13, 7, 3, 2, '#9aa0b4')]))
     mi('map', lambda s: (s.rect(2, 3, 12, 10, '#e8d8a8'), s.vline(6, 3, 12, '#b8a878'), s.vline(10, 3, 12, '#b8a878'), s.px(8, 7, '#e2555f'), s.px(4, 9, '#4caf50')))
     mi('exit', lambda s: (s.rect(4, 2, 8, 12, '#8a5a3a'), s.rect(5, 3, 6, 10, '#b87a4a'), s.px(9, 8, '#f0d24a')))

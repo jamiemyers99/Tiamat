@@ -12,6 +12,7 @@ export const DEFAULT_SETTINGS = {
   clock: 'game',           // game | real
   scaling: 'pixel',        // pixel | fill
   frame: 0,                // dialogue window colour
+  keys: null,              // custom keyboard bindings ({ action: [key, key] }); null = defaults
 };
 
 export function loadSettings() {

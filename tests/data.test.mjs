@@ -23,7 +23,7 @@ test('every species is valid: types, learnsets, evolutions', () => {
   for (const s of Object.values(SPECIES)) {
     for (const t of s.types) { assert.ok(TYPES.includes(t), `${s.id} type ${t}`); }
     for (const [lv, mv] of s.learn) { assert.ok(MOVES[mv], `${s.id} learns unknown ${mv}`); assert.ok(lv >= 1); }
-    if (s.evolve) { assert.ok(SPECIES[s.evolve.into], `${s.id} evolves into unknown ${s.evolve.into}`); }
+    if (s.evo) { assert.ok(SPECIES[s.evo.into], `${s.id} evolves into unknown ${s.evo.into}`); assert.ok(s.evo.level > 1); }
   }
 });
 

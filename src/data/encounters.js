@@ -4,29 +4,29 @@ import { timeOfDay } from '../core/time.js';
 
 export const ENCOUNTERS = {
   route1: {
-    grass: [['nibbit', 2, 4, 35], ['beakling', 2, 4, 30], ['trotter', 3, 4, 20], ['burrlet', 3, 5, 10], ['chittik', 3, 4, 5]],
-    night: [['nibbit', 2, 4, 35], ['hushling', 3, 5, 20], ['pookit', 3, 5, 20], ['burrlet', 3, 5, 15], ['beakling', 2, 3, 10]],
+    grass: [['nibbit', 2, 3, 35], ['beakling', 2, 3, 30], ['trotter', 3, 4, 15], ['burrlet', 3, 4, 12], ['chittik', 3, 3, 8]],
+    night: [['nibbit', 2, 3, 35], ['hushling', 3, 4, 20], ['pookit', 3, 4, 20], ['burrlet', 3, 4, 15], ['beakling', 2, 3, 10]],
   },
   route2: {
-    grass: [['chittik', 8, 11, 25], ['fuzzling', 8, 11, 20], ['beakling', 9, 11, 20], ['burrlet', 9, 12, 15], ['nibbit', 9, 11, 15], ['sporra', 10, 12, 5]],
-    night: [['fuzzling', 9, 12, 25], ['hushling', 9, 12, 20], ['pookit', 9, 12, 20], ['glowick', 10, 12, 15], ['nibbit', 9, 11, 20]],
-    water: [['puddlet', 10, 14, 15], ['gullip', 10, 14, 60], ['jellume', 12, 15, 25]],
+    grass: [['chittik', 7, 9, 25], ['fuzzling', 7, 9, 20], ['beakling', 7, 10, 20], ['burrlet', 8, 10, 15], ['nibbit', 7, 9, 15], ['sporra', 9, 10, 5]],
+    night: [['fuzzling', 7, 10, 25], ['hushling', 8, 10, 20], ['pookit', 8, 10, 20], ['glowick', 9, 10, 15], ['nibbit', 7, 9, 20]],
+    water: [['crabbit', 9, 12, 15], ['gullip', 9, 12, 60], ['jellume', 10, 13, 25]],
   },
   thornwild: {
-    grass: [['chittik', 10, 13, 20], ['fuzzling', 10, 13, 20], ['sporra', 11, 14, 20], ['burrlet', 11, 14, 15], ['mantipule', 13, 15, 5], ['glowick', 11, 14, 10], ['nyxen', 12, 14, 10]],
-    night: [['echirp', 11, 14, 25], ['pookit', 11, 14, 20], ['nyxen', 12, 15, 20], ['mothlume', 14, 15, 5], ['glowick', 11, 14, 15], ['hushling', 11, 14, 15]],
+    grass: [['chittik', 9, 11, 20], ['fuzzling', 9, 11, 20], ['sporra', 10, 12, 20], ['burrlet', 10, 12, 15], ['mantipule', 12, 13, 5], ['glowick', 10, 12, 10], ['nyxen', 11, 12, 10]],
+    night: [['echirp', 10, 12, 25], ['pookit', 10, 12, 20], ['nyxen', 11, 13, 20], ['mothlume', 12, 13, 5], ['glowick', 10, 12, 15], ['hushling', 10, 12, 15]],
   },
   saltreach: {
-    water: [['gullip', 14, 18, 45], ['crabbit', 14, 18, 30], ['jellume', 15, 18, 25]],
+    water: [['gullip', 13, 16, 45], ['crabbit', 13, 16, 30], ['jellume', 14, 16, 25]],
   },
   route3: {
-    grass: [['gullip', 16, 19, 25], ['trotter', 16, 19, 15], ['pebbling', 16, 19, 20], ['pugnet', 17, 20, 15], ['voltquill', 17, 20, 15], ['crabbit', 16, 19, 10]],
-    night: [['echirp', 16, 19, 25], ['pookit', 17, 20, 20], ['pebbling', 16, 19, 20], ['hushling', 17, 20, 20], ['pugnet', 17, 20, 15]],
-    water: [['gullip', 17, 21, 40], ['crabbit', 17, 21, 30], ['jellume', 18, 22, 25], ['stormgull', 22, 24, 5]],
+    grass: [['gullip', 15, 18, 25], ['trotter', 15, 18, 15], ['pebbling', 15, 18, 20], ['pugnet', 16, 18, 15], ['voltquill', 16, 18, 15], ['crabbit', 15, 18, 10]],
+    night: [['echirp', 15, 18, 25], ['pookit', 16, 18, 20], ['pebbling', 15, 18, 20], ['hushling', 16, 18, 20], ['pugnet', 16, 18, 15]],
+    water: [['gullip', 16, 19, 40], ['crabbit', 16, 19, 30], ['jellume', 17, 20, 25], ['stormgull', 21, 22, 5]],
   },
   coldforge_mines: {
-    cave: [['pebbling', 18, 21, 25], ['tunnip', 18, 21, 25], ['ferrite', 19, 22, 15], ['echirp', 18, 21, 20], ['oozelet', 19, 22, 10], ['coilbit', 20, 22, 5]],
-    water: [['crabbit', 19, 22, 70], ['oozelet', 19, 22, 30]],
+    cave: [['pebbling', 17, 20, 25], ['tunnip', 17, 20, 25], ['ferrite', 18, 21, 15], ['echirp', 17, 20, 20], ['oozelet', 18, 21, 10], ['coilbit', 19, 21, 5]],
+    water: [['crabbit', 18, 21, 70], ['oozelet', 18, 21, 30]],
   },
   route4: {
     grass: [['omenet', 24, 27, 20], ['lambkin', 24, 27, 20], ['sporra', 24, 27, 15], ['trotter', 24, 26, 10], ['voltquill', 25, 27, 15], ['cairnite', 26, 28, 5], ['pugnet', 25, 27, 15]],
@@ -39,7 +39,7 @@ export const ENCOUNTERS = {
   route5: {
     grass: [['fuzzling', 28, 30, 15], ['mothlume', 29, 31, 10], ['omenet', 28, 31, 20], ['hushling', 28, 31, 20], ['lambkin', 28, 30, 15], ['chillcub', 29, 31, 10], ['flurrit', 30, 32, 10]],
     night: [['mothlume', 29, 31, 20], ['hushling', 28, 31, 25], ['vesperel', 30, 32, 10], ['pookit', 28, 31, 25], ['chillcub', 29, 31, 20]],
-    water: [['gullip', 28, 32, 30], ['jellume', 28, 32, 25], ['crabbit', 28, 32, 20], ['stormgull', 30, 33, 15], ['medusheen', 31, 33, 10]],
+    water: [['gullip', 27, 30, 30], ['jellume', 27, 30, 25], ['crabbit', 27, 30, 20], ['stormgull', 29, 31, 15], ['medusheen', 30, 31, 10]],
   },
   frostspire: {
     water: [['crabbit', 32, 35, 50], ['jellume', 32, 35, 50]],

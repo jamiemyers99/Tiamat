@@ -32,9 +32,21 @@ Add `?debug` to the URL for developer tools (F1 or ` in game: warp, heal, items,
 | Back, cancel | X, Q, Backspace | B |
 | Menu | C, Tab, Esc | Start |
 | Run (with Trail Boots) | Hold Shift | Hold X / R2 |
+| Change controls | Pause menu → Controls | |
 | Info in menus | F / R | Y |
 
-Touch controls appear automatically on phones and tablets.
+Every keyboard control can be changed in-game: open the pause menu and choose **Controls**
+(also under Options). Changes are saved in your browser. Space / E (confirm), Q (back) and
+Tab (menu) always work as a fallback. Touch controls appear automatically on phones and tablets.
+
+## Difficulty curve
+
+Every area has a tier from 0 (Rootmere) to 7 (the Riven), set in `src/data/region.js`.
+`src/data/difficulty.js` uses it to ramp things up as you travel: wild Morphs near home have
+soft genes and fight at random, Tamers start with no genes to speak of and make mistakes, and
+both get sharper tier by tier. Wardens and rivals always sit a step above the Tamers around
+them. Morphs you catch get a second roll on their genes, so early catches stay useful, and
+your starter and gift Morphs are always strong. `npm run balance` prints the whole curve.
 
 ## What's in the game
 

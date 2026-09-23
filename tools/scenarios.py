@@ -263,3 +263,63 @@ async def newgame(t, port):
         await t.key('z', 50, 200)
     await t.shot('bedroom')
     print('name:', await t.js("window.__tiamat.G.state.player.name"), 'map:', await t.js("window.__tiamat.G.state.player.map"))
+
+
+async def controls(t, port):
+    await t.p.goto(f'http://localhost:{port}/?map=rootmere&x=16&y=12&debug')
+    await t.wait(3000)
+    await t.js(f"{W}.openMenu()")
+    await t.wait(700)
+    # find "Controls" in the pause menu
+    labels = await t.js("window.__tiamat.game.scene.getScene('Menu').children.list.flatMap(c => c.list ? c.list : [c]).map(x => x.text || '').filter(Boolean).join('|')")
+    print('menu:', labels)
+    order = [x.strip() for x in labels.split('|') if x.strip() in ('Team', 'Bag', 'Index', 'Map', 'Rowan', 'Save', 'Controls', 'Options', 'Close')]
+    for _ in range(order.index('Controls')):
+        await t.key('ArrowDown')
+    await t.key('z'); await t.wait(600)
+    await t.shot('controls')
+    # rebind "Move up" key 1 to I
+    await t.key('z'); await t.wait(300)
+    await t.p.keyboard.press('i'); await t.wait(300)
+    # "Talk / confirm" key 1 to K
+    for _ in range(4):
+        await t.key('ArrowDown')
+    await t.key('z'); await t.wait(300)
+    await t.p.keyboard.press('k'); await t.wait(300)
+    await t.shot('controls_changed')
+    print('bindings:', await t.js("JSON.stringify(window.__tiamat.input.bindings)"))
+    await t.key('x'); await t.wait(400)
+    await t.key('x'); await t.wait(700)
+    print('top:', await t.js("window.__tiamat.input.top()"))
+    y0 = await t.js(f"{W}.player.ty")
+    await t.key('i', 350, 400)
+    await t.key('i', 350, 400)
+    y1 = await t.js(f"{W}.player.ty")
+    print('moved up with I:', y0, '->', y1)
+    print('saved:', await t.js("localStorage.getItem('tiamat.settings')"))
+    # reload: bindings survive
+    await t.p.reload(); await t.wait(3000)
+    print('after reload:', await t.js("JSON.stringify(window.__tiamat.input.bindings.up) + ' ' + JSON.stringify(window.__tiamat.input.bindings.confirm)"))
+
+
+async def difficulty(t, port):
+    await t.p.goto(f'http://localhost:{port}/?map=route1&x=16&y=44&debug')
+    await t.wait(3000)
+    await t.js("(() => { const T = window.__tiamat; T.G.settings.textSpeed = 'instant'; T.G.state.party = [T.createMon('cindlet', 6)]; })()")
+    await t.js(f"void {W}.S.wild('nibbit', 3)")
+    await t.wait(3000)
+    print('route1 wild ivs:', await t.js("JSON.stringify(window.__tiamat.game.scene.getScene('Battle').battle.e.mon.ivs)"), 'wild AI:', await t.js("window.__tiamat.game.scene.getScene('Battle').battle.opts.wildSkill"))
+    await t.shot('route1_wild')
+    await t.js("window.__tiamat.game.scene.getScene('Battle').cfg.onEnd({ outcome: 'run' })")
+    await t.wait(1200)
+    await t.js(f"void {W}.S.battle('r1_ollie')")
+    await t.wait(3000)
+    B = "window.__tiamat.game.scene.getScene('Battle')"
+    print('route1 tamer ivs:', await t.js(f"JSON.stringify({B}.battle.e.mon.ivs)"), 'skill:', await t.js(f"{B}.battle.trainer.skill"))
+    await t.js(f"{B}.cfg.onEnd({{ outcome: 'run' }})")
+    await t.wait(1200)
+    await t.js(f"{W}.transition('riftgate_trial', 6, 16, 'up')")
+    await t.wait(1500)
+    await t.js(f"void {W}.S.battle('seren')")
+    await t.wait(3000)
+    print('riftgate warden ivs:', await t.js(f"JSON.stringify({B}.battle.e.mon.ivs)"), 'skill:', await t.js(f"{B}.battle.trainer.skill"))

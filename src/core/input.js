@@ -1,24 +1,42 @@
 // Unified input: keyboard, gamepad and touch mapped to logical actions.
 // Scenes read input through a focus stack so only the top-most UI reacts.
 
-const KEYMAP = {
-  arrowup: 'up', w: 'up',
-  arrowdown: 'down', s: 'down',
-  arrowleft: 'left', a: 'left',
-  arrowright: 'right', d: 'right',
-  z: 'confirm', e: 'confirm', ' ': 'confirm', enter: 'confirm',
-  x: 'cancel', backspace: 'cancel', q: 'cancel',
-  escape: 'menu', tab: 'menu', c: 'menu',
-  shift: 'run',
-  f: 'info', r: 'info',
-  pageup: 'pageup', pagedown: 'pagedown',
-  f1: 'debug', '`': 'debug',
+// Default keyboard bindings: action → up to two keys (KeyboardEvent.key, lower-cased).
+export const DEFAULT_KEYS = {
+  up: ['arrowup', 'w'],
+  down: ['arrowdown', 's'],
+  left: ['arrowleft', 'a'],
+  right: ['arrowright', 'd'],
+  confirm: ['z', 'enter'],
+  cancel: ['x', 'backspace'],
+  menu: ['c', 'escape'],
+  run: ['shift', null],
+  info: ['f', null],
 };
-// Escape doubles as cancel inside menus.
+// Keys that always work, whatever the player binds (so nobody can lock themselves out).
+const FIXED_KEYS = {
+  ' ': 'confirm', e: 'confirm', q: 'cancel', tab: 'menu', r: 'info',
+  pageup: 'pageup', pagedown: 'pagedown', f1: 'debug', '`': 'debug',
+};
+export const REBINDABLE = ['up', 'down', 'left', 'right', 'confirm', 'cancel', 'menu', 'run', 'info'];
+export const ESSENTIAL = ['up', 'down', 'left', 'right', 'confirm', 'cancel', 'menu'];
+// The menu key doubles as cancel inside menus.
 const ALSO = { menu: ['cancel'] };
 
 const ACTIONS = ['up', 'down', 'left', 'right', 'confirm', 'cancel', 'menu', 'run', 'info', 'pageup', 'pagedown', 'debug'];
 const DIRS = ['up', 'down', 'left', 'right'];
+
+// Human-readable key names for the controls screen.
+export function keyName(k) {
+  if (!k) { return '—'; }
+  const names = {
+    arrowup: 'Up', arrowdown: 'Down', arrowleft: 'Left', arrowright: 'Right', ' ': 'Space', enter: 'Enter',
+    escape: 'Esc', backspace: 'Bksp', shift: 'Shift', control: 'Ctrl', alt: 'Alt', tab: 'Tab', meta: 'Meta',
+    delete: 'Del', insert: 'Ins', home: 'Home', end: 'End', capslock: 'Caps',
+  };
+  if (names[k]) { return names[k]; }
+  return k.length === 1 ? k.toUpperCase() : k.charAt(0).toUpperCase() + k.slice(1);
+}
 
 class InputManager {
   constructor() {
@@ -32,10 +50,13 @@ class InputManager {
     this.padDown = new Set();
     this.lastDirOrder = [];
     this.textListener = null;
+    this.captureListener = null;
+    this.setBindings(DEFAULT_KEYS);
     window.addEventListener('keydown', (e) => {
       const k = e.key.toLowerCase();
+      if (this.captureListener) { e.preventDefault(); const cb = this.captureListener; this.captureListener = null; cb(k); return; }
       if (this.textListener && this.textListener(e)) { e.preventDefault(); return; }
-      const act = KEYMAP[k];
+      const act = this.keymap[k];
       if (act) {
         e.preventDefault();
         this.keysDown.add(act);
@@ -44,7 +65,7 @@ class InputManager {
       }
     });
     window.addEventListener('keyup', (e) => {
-      const act = KEYMAP[e.key.toLowerCase()];
+      const act = this.keymap[e.key.toLowerCase()];
       if (act) {
         this.keysDown.delete(act);
         (ALSO[act] || []).forEach((a) => this.keysDown.delete(a));
@@ -53,6 +74,19 @@ class InputManager {
     window.addEventListener('blur', () => { this.keysDown.clear(); this.touchDown.clear(); });
     this._setupTouch();
   }
+
+  // Apply keyboard bindings ({ action: [key, key] }); missing actions fall back to the defaults.
+  setBindings(bind) {
+    const b = {};
+    for (const a of REBINDABLE) { b[a] = (bind && Array.isArray(bind[a]) ? bind[a] : DEFAULT_KEYS[a]).slice(0, 2); }
+    this.bindings = b;
+    this.keymap = { ...FIXED_KEYS };
+    for (const a of REBINDABLE) { for (const k of b[a]) { if (k) { this.keymap[k] = a; } } }
+    this.keysDown.clear();
+  }
+
+  // Grab the very next key press (for the controls screen).
+  captureKey() { return new Promise((resolve) => { this.captureListener = resolve; }); }
 
   _setupTouch() {
     const root = document.getElementById('touch');

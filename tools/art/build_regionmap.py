@@ -27,7 +27,7 @@ def noise(seed, scale):
 def points():
     src = open(os.path.join(ROOT, 'src', 'data', 'region.js'), encoding='utf-8').read()
     pts = {}
-    for m in re.finditer(r"id: '(\w+)', name: '([^']+)', x: (\d+), y: (\d+)(, town: true)?", src):
+    for m in re.finditer(r"id: '(\w+)', (?:tier: \d+, )?name: '([^']+)', x: (\d+), y: (\d+)(, town: true)?", src):
         pts[m.group(1)] = (int(m.group(3)), int(m.group(4)), bool(m.group(5)))
     return pts
 

@@ -132,7 +132,7 @@ export class Battle {
     if (this.kind !== 'wild' && this.enemyItemsLeft.length && this.e.mon.hp / maxHp(this.e.mon) < 0.25 && this.rng() < 0.8) {
       return { type: 'item', item: this.enemyItemsLeft.shift() };
     }
-    const idx = chooseEnemyMove(this, this.e, this.p, this.kind === 'wild' ? 0 : (this.trainer?.skill ?? 1));
+    const idx = chooseEnemyMove(this, this.e, this.p, this.kind === 'wild' ? (this.opts.wildSkill ?? 0) : (this.trainer?.skill ?? 1));
     return { type: 'move', index: idx };
   }
 

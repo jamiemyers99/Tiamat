@@ -33,6 +33,7 @@ const config = {
   scene: [BootScene, PreloadScene, TitleScene, IntroScene, WorldScene, BattleScene, EvolutionScene, MenuScene, TransitionScene, CreditsScene, UIScene],
 };
 
+input.setBindings(G.settings.keys);
 const game = new Phaser.Game(config);
 window.__tiamat = { game, G, input, createMon, healMon, state: stateMod };
 audio.init(game);

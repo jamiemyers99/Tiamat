@@ -2,6 +2,7 @@
 import { SPECIES } from '../data/species.js';
 import { RIVAL_PICK } from '../data/trainers.js';
 import { rivalBattle } from './common.js';
+import { partnerIvs } from '../data/difficulty.js';
 
 const STARTERS = {
   spriglet: { name: 'Spriglet', type: 'Nature', blurb: 'Spriglet, the Nature Morph. Patient and tough — it drinks sunlight and shrugs off Tide and Stone attacks.' },
@@ -16,7 +17,7 @@ export default {
     S.set('woke_up');
     await S.wait(400);
     await S.say(null, '{PLAYER} woke up to birdsong and the smell of toast.|Today is your naming day — the day every child in Rootmere becomes a Tamer!');
-    await S.say(null, 'Tip: use the arrow keys or WASD to walk, Z / Enter / Space to talk and confirm, X / Esc to go back, and C or Tab for the menu.');
+    await S.say(null, 'Tip: arrow keys or WASD to walk, Z / Enter / Space to talk, X to go back, and C, Esc or Tab for the menu. You can change any key in the menu under Controls.');
   },
 
   // ── Rootmere ────────────────────────────────────────────────────────────
@@ -77,7 +78,7 @@ export default {
     img.destroy();
     if (!ok) { return; }
     S.setVar('starter', pick);
-    await S.giveMorph(pick, 5, { text: `{PLAYER} chose ${info.name}!` });
+    await S.giveMorph(pick, 5, { text: `{PLAYER} chose ${info.name}!`, ivs: partnerIvs() });
     const wp = RIVAL_PICK[pick];
     await S.emote('lab_wren', '!');
     await S.say('Wren', `Then I'll take ${SPECIES[wp].name}! ${STARTERS[wp].type} beats ${info.type}. Sorry, not sorry.`);
@@ -184,7 +185,7 @@ export default {
     }
     await S.say('Aldous', "The Moss Sigil! So Mossa's finally met her match. Good, good.");
     await S.say('Aldous', "My old partner had a clutch before she passed. This one never took to me — too old, too slow. It wants to travel. Will you take it?");
-    const mon = await S.giveMorph('nyxen', 12);
+    const mon = await S.giveMorph('nyxen', 12, { ivs: partnerIvs() });
     if (mon) { S.set('got_nyxen'); }
     await S.say('Aldous', 'Nyxen is an Umbra Morph. Sneaky. Loyal. Look after each other.');
   },

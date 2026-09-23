@@ -11,6 +11,7 @@ import { MOVES } from '../data/moves.js';
 import { ITEMS } from '../data/items.js';
 import { TRAINERS } from '../data/trainers.js';
 import { nameEntry } from '../ui/nameEntry.js';
+import { tierOf, wildIvs, trainerIvs, trainerSkill, wildSkill, settleCaught } from '../data/difficulty.js';
 import { TYPE_COLORS, effectiveness } from '../data/types.js';
 import { txt, wrap, fmt } from '../ui/text.js';
 import { panel, Bar, choose } from '../ui/widgets.js';
@@ -45,11 +46,16 @@ export class BattleScene extends Phaser.Scene {
     this.animOn = G.settings.battleAnims !== false;
     // ── build parties ──
     let enemyParty, trainer = null;
+    // difficulty ramps with how far into the Reach this battle is (see data/difficulty.js)
+    const tier = tierOf(G.state.player.map);
+    this.tier = tier;
     if (cfg.kind === 'trainer') {
-      trainer = TRAINERS[cfg.trainerId];
-      enemyParty = trainer.party.map(([sp, lv, moves]) => createMon(sp, lv, { moves, shiny: false }));
+      const base = TRAINERS[cfg.trainerId];
+      trainer = { ...base, skill: trainerSkill(tier, base) };
+      const ivs = trainerIvs(tier, base);
+      enemyParty = trainer.party.map(([sp, lv, moves]) => createMon(sp, lv, { moves, shiny: false, ivs }));
     } else {
-      enemyParty = [createMon(cfg.species, cfg.level, { metMap: G.state.player.map })];
+      enemyParty = [createMon(cfg.species, cfg.level, { metMap: G.state.player.map, ivs: wildIvs(tier) })];
     }
     enemyParty.forEach((m) => markSeen(m.species));
     this.trainer = trainer;
@@ -86,6 +92,7 @@ export class BattleScene extends Phaser.Scene {
         night,
         cave: mapProps.light === 'dark' || mapProps.enc_floor === '1',
         noRun: cfg.noRun,
+        wildSkill: wildSkill(tier),
       },
     });
     this.cameras.main.fadeIn(250, 0, 0, 0);
@@ -105,6 +112,9 @@ export class BattleScene extends Phaser.Scene {
       m.ot = G.state.player.name;
       m.metMap = G.state.player.map;
       m.status = null;
+      const ratio = m.hp / maxHp(m);
+      settleCaught(m);
+      m.hp = Math.max(1, Math.round(maxHp(m) * ratio));
       const firstTime = !G.state.index.caught.includes(m.species);
       markCaught(m.species);
       if (firstTime) { await this.message(`${SPECIES[m.species].name}'s data was added to the Index!`); }

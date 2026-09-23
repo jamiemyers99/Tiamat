@@ -2,7 +2,7 @@
 // Tamer Card, Options, Save, Reach Map, Shop and Storage.
 import Phaser from 'phaser';
 import { GAME_W, GAME_H, MONEY_CAP } from '../config.js';
-import { input } from '../core/input.js';
+import { input, DEFAULT_KEYS, REBINDABLE, ESSENTIAL, keyName } from '../core/input.js';
 import { audio } from '../core/audio.js';
 import { G, saveGame, saveSettings, itemCount, giveItem, takeItem, addMoney, flag } from '../core/state.js';
 import { SPECIES, SPECIES_LIST } from '../data/species.js';
@@ -43,6 +43,7 @@ export class MenuScene extends Phaser.Scene {
       if (mode === 'shop') { result = await this.shop(this.cfg.stock || [], this.cfg.title); }
       else if (mode === 'storage') { result = await this.storage(); }
       else if (mode === 'options') { result = await this.options(); }
+      else if (mode === 'controls') { result = await this.controls(); }
       else if (mode === 'party-pick') { result = await this.party({ pick: true, title: this.cfg.title, filter: this.cfg.filter }); }
       else if (mode === 'map') { result = await this.reachMap(); }
       else { result = await this.mainMenu(); }
@@ -94,6 +95,7 @@ export class MenuScene extends Phaser.Scene {
     if (itemCount('reach_map')) { items.push({ label: 'Map', value: 'map', icon: 'menu_map' }); }
     items.push({ label: G.state.player.name, value: 'card', icon: 'menu_card' });
     items.push({ label: 'Save', value: 'save', icon: 'menu_save' });
+    items.push({ label: 'Controls', value: 'controls', icon: 'menu_keys' });
     items.push({ label: 'Options', value: 'options', icon: 'menu_options' });
     items.push({ label: 'Close', value: 'close', icon: 'menu_exit' });
     let index = 0;
@@ -121,6 +123,7 @@ export class MenuScene extends Phaser.Scene {
       if (v === 'map') { await this.reachMap(); }
       if (v === 'card') { await this.card(); }
       if (v === 'options') { await this.options(); }
+      if (v === 'controls') { await this.controls(); }
       if (v === 'save') {
         const yes = await this.confirm('Save your progress?');
         if (yes) {
@@ -599,6 +602,7 @@ export class MenuScene extends Phaser.Scene {
       { k: 'scaling', label: 'Screen scaling', vals: ['pixel', 'fill'], names: ['Pixel-perfect', 'Fill window'] },
       { k: 'frame', label: 'Text box colour', vals: [0, 1, 2, 3, 4], names: ['Night', 'Teal', 'Gold', 'Rose', 'Paper'] },
       { k: '_fullscreen', label: 'Fullscreen', action: true },
+      { k: '_controls', label: 'Controls...', action: true, open: true },
     ];
     let i = 0;
     const c = this.add.container(0, 0);
@@ -610,6 +614,7 @@ export class MenuScene extends Phaser.Scene {
     rows.forEach((r) => c.add(r));
     const cur = this.add.image(76, 0, 'cursor').setOrigin(0, 0); c.add(cur);
     const valText = (d) => {
+      if (d.open) { return ''; }
       if (d.action) { return this.scale.isFullscreen ? 'On' : 'Off'; }
       if (d.vol) { return `${'■'.replace('■', '|').repeat(Math.round(S[d.k] * 10))}${'.'.repeat(10 - Math.round(S[d.k] * 10))}  ${Math.round(S[d.k] * 100)}%`; }
       const vi = d.vals.indexOf(S[d.k]);
@@ -620,14 +625,18 @@ export class MenuScene extends Phaser.Scene {
       cur.setY(49 + i * 17);
     };
     draw();
-    await this.loop(() => {
+    for (;;) {
+    const res = await this.loop(() => {
       const o = this.owner;
       const d = defs[i];
       if (input.nav('up', o)) { i = (i + defs.length - 1) % defs.length; audio.sfx('cursor'); draw(); }
       else if (input.nav('down', o)) { i = (i + 1) % defs.length; audio.sfx('cursor'); draw(); }
       else if (input.nav('left', o) || input.nav('right', o) || (input.pressed('confirm', o) && d.action)) {
         const dir = input.nav('left', o) ? -1 : 1;
-        if (d.action) {
+        if (d.open) {
+          if (input.pressed('confirm', o)) { audio.sfx('select'); return 'controls'; }
+          return undefined;
+        } else if (d.action) {
           if (this.scale.isFullscreen) { this.scale.stopFullscreen(); } else { this.scale.startFullscreen(); }
         } else if (d.vol) {
           S[d.k] = Math.max(0, Math.min(1, Math.round((S[d.k] + dir * 0.1) * 10) / 10));
@@ -643,7 +652,119 @@ export class MenuScene extends Phaser.Scene {
       } else if (input.pressed('cancel', o)) { audio.sfx('cancel'); return true; }
       return undefined;
     });
+    if (res !== 'controls') { break; }
+    c.setVisible(false);
+    await this.controls();
+    c.setVisible(true);
+    draw();
+    }
     c.destroy();
+  }
+
+  // ─── controls (key rebinding) ─────────────────────────────────────────
+  async controls() {
+    const LABELS = {
+      up: 'Move up', down: 'Move down', left: 'Move left', right: 'Move right', confirm: 'Talk / confirm',
+      cancel: 'Back / cancel', menu: 'Pause menu', run: 'Run', info: 'Info (in menus)',
+    };
+    const bind = {};
+    for (const a of REBINDABLE) { bind[a] = [...input.bindings[a]]; }
+    const c = this.add.container(0, 0).setDepth(40);
+    c.add(this.dim(0.94));
+    c.add(panel(this, 40, 8, 400, 254, 'dark'));
+    c.add(txt(this, 56, 16, 'CONTROLS', { color: 'gold' }));
+    const kn = (a) => keyName(input.bindings[a][0] || input.bindings[a][1]);
+    c.add(txt(this, 424, 16, `${kn('confirm')} change key   ${kn('cancel')} done`, { align: 'right', face: 'small', color: 'gray' }));
+    c.add(txt(this, 262, 32, 'KEY 1', { align: 'center', face: 'small', color: 'gray' }));
+    c.add(txt(this, 362, 32, 'KEY 2', { align: 'center', face: 'small', color: 'gray' }));
+    const Y = (r) => 44 + r * 16;
+    const rows = REBINDABLE.map((a, r) => {
+      const lab = txt(this, 72, Y(r), LABELS[a]);
+      const k1 = txt(this, 262, Y(r), '', { align: 'center', color: 'blue' });
+      const k2 = txt(this, 362, Y(r), '', { align: 'center', color: 'blue' });
+      c.add([lab, k1, k2]);
+      return [k1, k2];
+    });
+    const nR = REBINDABLE.length;
+    c.add(txt(this, 72, Y(nR) + 4, 'Reset to defaults'));
+    c.add(txt(this, 72, Y(nR + 1) + 4, 'Done'));
+    c.add(txt(this, 240, 220, 'Always work too: Space / E confirm · Q back · Tab menu', { align: 'center', face: 'small', color: 'gray' }));
+    c.add(txt(this, 240, 230, 'Gamepad: stick / D-pad move · A confirm · B back · Start menu · X run', { align: 'center', face: 'small', color: 'gray' }));
+    const status = txt(this, 240, 244, '', { align: 'center', color: 'gold' });
+    c.add(status);
+    const cur = this.add.image(56, 0, 'cursor').setOrigin(0, 0);
+    const box = this.add.rectangle(0, 0, 86, 14).setStrokeStyle(1, 0xffd65c).setOrigin(0.5, 0);
+    c.add([cur, box]);
+    let r = 0, col = 0;
+    const say = (t) => status.setText(t);
+    const draw = () => {
+      rows.forEach(([k1, k2], i) => { k1.setText(keyName(bind[REBINDABLE[i]][0])); k2.setText(keyName(bind[REBINDABLE[i]][1])); });
+      const y = r < nR ? Y(r) : Y(r) + 4;
+      cur.setY(y + 1);
+      box.setVisible(r < nR);
+      if (r < nR) { box.setPosition(col === 0 ? 262 : 362, y - 2); }
+    };
+    const apply = () => {
+      input.setBindings(bind);
+      G.settings.keys = JSON.parse(JSON.stringify(bind));
+      saveSettings(G.settings);
+    };
+    const FIXED = { ' ': 'confirm', e: 'confirm', q: 'cancel', tab: 'menu', r: 'info', pageup: null, pagedown: null, f1: null, '`': null };
+    const assign = (a, j, k) => {
+      const old = bind[a][j];
+      if (k === 'delete') {
+        if (ESSENTIAL.includes(a) && !bind[a][1 - j]) { return `${LABELS[a]} needs at least one key.`; }
+        bind[a][j] = null;
+        return `Cleared ${LABELS[a]}, key ${j + 1}.`;
+      }
+      if (k in FIXED && FIXED[k] !== a) { return `${keyName(k)} is reserved${FIXED[k] ? ` for ${LABELS[FIXED[k]]}` : ''}.`; }
+      if (k === old) { return 'No change.'; }
+      for (const b of REBINDABLE) {
+        for (let jb = 0; jb < 2; jb++) {
+          if (bind[b][jb] !== k || (b === a && jb === j)) { continue; }
+          if (b === a) { bind[a][jb] = old; bind[a][j] = k; return `${LABELS[a]}: ${keyName(k)}.`; }
+          if (!old && ESSENTIAL.includes(b) && !bind[b][1 - jb]) { return `${keyName(k)} is the only key for ${LABELS[b]}.`; }
+          bind[b][jb] = old;
+          bind[a][j] = k;
+          return `${LABELS[a]}: ${keyName(k)}  (swapped with ${LABELS[b]})`;
+        }
+      }
+      bind[a][j] = k;
+      return `${LABELS[a]}: ${keyName(k)}.`;
+    };
+    draw();
+    for (;;) {
+      const act = await this.loop(() => {
+        const o = this.owner;
+        if (input.nav('up', o)) { r = (r + nR + 1) % (nR + 2); audio.sfx('cursor'); draw(); }
+        else if (input.nav('down', o)) { r = (r + 1) % (nR + 2); audio.sfx('cursor'); draw(); }
+        else if ((input.nav('left', o) || input.nav('right', o)) && r < nR) { col = 1 - col; audio.sfx('cursor'); draw(); }
+        else if (input.pressed('confirm', o)) { return 'ok'; }
+        else if (input.pressed('cancel', o)) { return 'back'; }
+        return undefined;
+      });
+      if (act === 'back' || (act === 'ok' && r === nR + 1)) { audio.sfx('cancel'); break; }
+      if (r === nR) {
+        for (const a of REBINDABLE) { bind[a] = [...DEFAULT_KEYS[a]]; }
+        apply(); audio.sfx('select'); say('Controls reset to defaults.'); draw();
+        continue;
+      }
+      const a = REBINDABLE[r];
+      audio.sfx('select');
+      say(`Press a key for ${LABELS[a]} (Delete clears)...`);
+      box.setStrokeStyle(2, 0x7cea8c);
+      await new Promise((res) => this.time.delayedCall(120, res));
+      const k = await input.captureKey();
+      box.setStrokeStyle(1, 0xffd65c);
+      const msg = assign(a, col, k);
+      apply();
+      input.clear();
+      audio.sfx('cursor');
+      say(msg);
+      draw();
+    }
+    c.destroy();
+    return true;
   }
 
   // ─── Reach map ────────────────────────────────────────────────────────
