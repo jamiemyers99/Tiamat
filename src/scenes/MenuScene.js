@@ -579,7 +579,7 @@ export class MenuScene extends Phaser.Scene {
     c.add(txt(this, 424, 42, `ID ${s.trainerId}`, { align: 'right', color: 'gray' }));
     const idx = this.cache.json.get('charIndex');
     const style = ['player_a', 'player_b', 'player_c', 'player_d'][s.player.style || 0];
-    c.add(this.add.image(380, 140, 'chars', idx[style] * 12).setScale(4).setOrigin(0.5, 1));
+    c.add(this.add.image(380, 140, 'chars', idx[style] * 12).setScale(3).setOrigin(0.5, 1));
     const h = Math.floor(s.playMs / 3600000), m = Math.floor((s.playMs % 3600000) / 60000);
     const lines = [
       ['Name', s.player.name], ['Money', `${s.money.toLocaleString()}¢`], ['Index', flag('got_index') ? `${s.index.caught.length} caught / ${s.index.seen.length} seen` : '—'],

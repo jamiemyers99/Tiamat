@@ -1,23 +1,28 @@
 """Build the character spritesheet (public/assets/sprites/chars.png + chars.json).
 
-Each character occupies one row of 12 frames (16×24):
+Each character occupies one row of 12 frames (32×32, see chars.py for the frame contract):
   down×3, left×3, right×3, up×3   (stand, stepA, stepB)
+chars.png is 384 px wide × 32 px per character; chars.json maps id → row index.
+
+    python3 tools/art/build_chars.py
 """
 import os, sys, json
+import numpy as np
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 ROOT = os.path.abspath(os.path.join(HERE, '..', '..'))
-from chars import frame, make_palette, W, H
+from chars import frame, make_palette, W, H, FEET_Y
 from spr import Spr
 
 P = make_palette
-# id: (head, body, palette)
+HERO = {'gear': ('pack',)}      # optional extras: the heroes carry a backpack in their accent colour
+# id: (head, body, palette[, extras])
 ROSTER = {
     # player styles
-    'player_a':  ('cap', 'casual', P('light', '#6b4a2e', '#3f6fc8', '#34394f', '#2a2230', '#d8453d')),
-    'player_b':  ('ponytail', 'casual', P('light', '#7a3a2a', '#d8453d', '#34394f', '#2a2230', '#f2c14e')),
-    'player_c':  ('cap', 'casual', P('brown', '#2a1f1a', '#2aa19a', '#3a3040', '#2a2230', '#f2c14e')),
-    'player_d':  ('ponytail', 'casual', P('deep', '#1e1414', '#7a52b0', '#34394f', '#2a2230', '#6fe0c8')),
+    'player_a':  ('cap', 'casual', P('light', '#6b4a2e', '#3f6fc8', '#34394f', '#2a2230', '#d8453d'), HERO),
+    'player_b':  ('ponytail', 'casual', P('light', '#7a3a2a', '#d8453d', '#34394f', '#2a2230', '#f2c14e'), HERO),
+    'player_c':  ('cap', 'casual', P('brown', '#2a1f1a', '#2aa19a', '#3a3040', '#2a2230', '#f2c14e'), HERO),
+    'player_d':  ('ponytail', 'casual', P('deep', '#1e1414', '#7a52b0', '#34394f', '#2a2230', '#6fe0c8'), HERO),
     # story cast
     'mum':       ('bun', 'robe', P('light', '#8a5a3a', '#d88a6a', '#6a4a3a', '#3a2a2a', '#d88a6a')),
     'marsh':     ('long', 'robe', P('light', '#d8d8e4', '#f2f2f4', '#5a6a8a', '#3a3a44', '#6fa0d8', '#8aa4c8')),
@@ -68,21 +73,33 @@ ROSTER = {
 }
 
 
+def check_frame(fr, cid, col):
+    """Every frame must honour the contract the game relies on."""
+    a = fr.a[:, :, 3]
+    ys, xs = np.nonzero(a == 255)
+    assert ys.max() == FEET_Y, (cid, col, 'feet must end on row', FEET_Y, ys.max())
+    assert ys.min() >= 1, (cid, col, 'figure reaches row', ys.min())
+    assert xs.min() >= 5 and xs.max() <= 27, (cid, col, 'figure outside x 5..27', xs.min(), xs.max())
+
+
 def main():
     rows = list(ROSTER.items())
     sheet = Spr(W * 12, H * len(rows))
     index = {}
-    for r, (cid, (head, body, pal)) in enumerate(rows):
+    for r, (cid, (head, body, pal, *extras)) in enumerate(rows):
         index[cid] = r
+        gear = extras[0].get('gear', ()) if extras else ()
         for d, direction in enumerate(['down', 'left', 'right', 'up']):
             for f in range(3):
-                sheet.blit(frame(head, body, direction, f, pal), (d * 3 + f) * W, r * H)
+                fr = frame(head, body, direction, f, pal, gear)
+                check_frame(fr, cid, d * 3 + f)
+                sheet.blit(fr, (d * 3 + f) * W, r * H)
     out = os.path.join(ROOT, 'public', 'assets', 'sprites')
     os.makedirs(out, exist_ok=True)
     sheet.save(os.path.join(out, 'chars.png'))
     with open(os.path.join(out, 'chars.json'), 'w') as f:
         json.dump(index, f, indent=1)
-    print(f'chars: {len(rows)} characters')
+    print(f'chars: {len(rows)} characters, {W}×{H} frames, sheet {W * 12}×{H * len(rows)}')
 
 
 if __name__ == '__main__':

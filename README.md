@@ -79,7 +79,7 @@ your starter and gift Morphs are always strong. `npm run balance` prints the who
 
 - **The Riven Reach**: 49 hand-built maps — 7 towns, 6 routes, a forest, mines, a lake crossing,
   a mountain pass, a cult headquarters, the Abyssal Rift and Tiamat's Cradle.
-- **68 Morphs** across 15 types, each with a male and a female form (Tiamat, the Draco Queen,
+- **102 Morphs** across 15 types — 15 three-stage evolution lines — each with a male and a female form (Tiamat, the Draco Queen,
   is always female), evolutions, move learning, Tech Discs, Radiant (shiny) Morphs —
   1 wild Morph in 100 — and day/night and water encounter tables.
 - **Six Warden Trials** (Mossa, Brann, Iskra, Morrow, Hale, Seren), a rival who always
@@ -89,7 +89,7 @@ your starter and gift Morphs are always strong. `npm run balance` prints the who
 - **Pokémon-style systems**: Havens (heal + shop + storage PC), 8-box storage, Bond Charm
   XP sharing, Ward Incense, Homing Thread, Skiff (surfing), Brush Hook (cutting),
   Wing Whistle fast travel on the Reach Map, nicknames, trainer AI with items.
-- **Modern presentation**: 480×270 widescreen pixel art, smooth movement and camera,
+- **Modern presentation**: 480×270 widescreen pixel art, 32×32 Gen-4-style people, smooth movement and camera,
   animated battles, day/night lighting with glowing windows and lamps, fog/rain/snow
   weather, screen transitions, and a full soundtrack.
 - **Saves**: three save slots in your browser (Continue from the title screen).

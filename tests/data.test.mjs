@@ -19,7 +19,7 @@ test('type chart is well-formed and the starter triangle holds', () => {
 
 test('every species is valid: types, learnsets, evolutions', () => {
   validateSpecies();
-  assert.equal(Object.keys(SPECIES).length, 68);
+  assert.equal(Object.keys(SPECIES).length, 102);
   for (const s of Object.values(SPECIES)) {
     for (const t of s.types) { assert.ok(TYPES.includes(t), `${s.id} type ${t}`); }
     for (const [lv, mv] of s.learn) { assert.ok(MOVES[mv], `${s.id} learns unknown ${mv}`); assert.ok(lv >= 1); }
@@ -64,4 +64,11 @@ test('encounter tables are sane', () => {
       }
     }
   }
+});
+
+test('three-stage lines and new Morphs can be found', () => {
+  const stages = (id) => { let n = 1; let cur = SPECIES[id]; while (cur.evo) { cur = SPECIES[cur.evo.into]; n++; } return n; };
+  const roots = Object.values(SPECIES).filter((s) => !Object.values(SPECIES).some((o) => o.evo && o.evo.into === s.id));
+  const threeStage = roots.filter((r) => stages(r.id) === 3).map((r) => r.id);
+  assert.ok(threeStage.length >= 14, `only ${threeStage.length} three-stage lines`);
 });

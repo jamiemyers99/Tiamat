@@ -5,6 +5,14 @@ sys.path.insert(0, HERE)
 ROOT = os.path.abspath(os.path.join(HERE, '..', '..'))
 from mongen import render
 from mon_designs import D
+from mon_designs_a import NEW as NEW_A
+from mon_designs_b import NEW as NEW_B
+from mon_designs_c import NEW as NEW_C
+
+for _extra in (NEW_A, NEW_B, NEW_C):
+    for _k in _extra:
+        assert _k not in D, f'duplicate Morph design {_k}'
+    D.update(_extra)
 from spr import Spr
 from PIL import Image
 
@@ -27,7 +35,7 @@ def main(only=None):
             frames.append((f'{sid}_is{sex}', render(parts, mats, 32, 'front', shiny=True, female=fem)))
     big = [f for f in frames if f[1].w == 96]
     small = [f for f in frames if f[1].w == 32]
-    cols = 16
+    cols = 32   # keeps the sheet under 4096 px tall (phone GPU texture limit)
     rows_big = (len(big) + cols - 1) // cols
     rows_small = (len(small) + cols * 3 - 1) // (cols * 3)
     W = cols * 96

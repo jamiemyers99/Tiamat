@@ -42,9 +42,9 @@ test('encounters respect the time of day', () => {
   const r = () => { rng = (rng + 0.137) % 1; return rng; };
   for (let i = 0; i < 50; i++) {
     const day = rollEncounter('route1', 'grass', 12 * 60, r);
-    assert.ok(['nibbit', 'beakling', 'trotter', 'burrlet', 'chittik'].includes(day.species));
+    assert.ok(['nibbit', 'beakling', 'trotter', 'burrlet', 'chittik', 'pawpunch', 'hivling'].includes(day.species));
     const night = rollEncounter('route1', 'grass', 23 * 60, r);
-    assert.ok(['nibbit', 'hushling', 'pookit', 'burrlet', 'beakling'].includes(night.species));
+    assert.ok(['nibbit', 'hushling', 'pookit', 'burrlet', 'beakling', 'wispurr'].includes(night.species));
   }
   assert.equal(timeOfDay(6 * 60), 'dawn');
   assert.equal(timeOfDay(19 * 60), 'dusk');

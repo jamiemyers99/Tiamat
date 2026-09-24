@@ -20,7 +20,7 @@ export class IntroScene extends Phaser.Scene {
     g.fillStyle(0x1b1e33, 1).fillCircle(GAME_W / 2, 130, 110);
     g.fillStyle(0x222640, 1).fillCircle(GAME_W / 2, 130, 80);
     const idx = this.cache.json.get('charIndex');
-    this.marsh = this.add.image(GAME_W / 2, 150, 'chars', idx.marsh * 12).setScale(4).setOrigin(0.5, 1).setAlpha(0);
+    this.marsh = this.add.image(GAME_W / 2, 150, 'chars', idx.marsh * 12).setScale(3).setOrigin(0.5, 1).setAlpha(0);
     this.cameras.main.fadeIn(600);
     audio.playMusic('bgm_haven', { restart: true });
     await this.tween({ targets: this.marsh, alpha: 1, duration: 600 });
@@ -41,10 +41,10 @@ export class IntroScene extends Phaser.Scene {
     await UI.say(M, "Now, let me get a proper look at you.");
     // style choice
     const styles = ['player_a', 'player_b', 'player_c', 'player_d'];
-    const previews = styles.map((s, i) => this.add.image(GAME_W / 2 - 90 + i * 60, 150, 'chars', idx[s] * 12).setScale(3).setOrigin(0.5, 1).setAlpha(0));
+    const previews = styles.map((s, i) => this.add.image(GAME_W / 2 - 90 + i * 60, 150, 'chars', idx[s] * 12).setScale(2).setOrigin(0.5, 1).setAlpha(0));
     await this.tween({ targets: this.marsh, alpha: 0, duration: 300 });
     previews.forEach((p) => this.tweens.add({ targets: p, alpha: 0.5, duration: 300 }));
-    const sel = this.add.rectangle(0, 0, 44, 76).setStrokeStyle(2, 0xffd65c).setOrigin(0.5, 1);
+    const sel = this.add.rectangle(0, 0, 50, 70).setStrokeStyle(2, 0xffd65c).setOrigin(0.5, 1);
     UI.say(M, 'Which one is you?', { keepOpen: true });
     const style = await this.pickStyle(previews, sel);
     UI.hideBox();

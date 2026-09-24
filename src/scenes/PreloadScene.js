@@ -18,7 +18,7 @@ export class PreloadScene extends Phaser.Scene {
     for (const id of Object.keys(maps)) {
       this.load.tilemapTiledJSON(`map_${id}`, `assets/maps/${id}.tmj`);
     }
-    this.load.spritesheet('chars', 'assets/sprites/chars.png', { frameWidth: 16, frameHeight: 24 });
+    this.load.spritesheet('chars', 'assets/sprites/chars.png', { frameWidth: 32, frameHeight: 32 });
     this.load.atlas('ui', 'assets/ui/ui.png', 'assets/ui/ui.json');
     this.load.atlas('mons', 'assets/sprites/mons.png', 'assets/sprites/mons.json');
     this.load.atlas('icons', 'assets/sprites/icons.png', 'assets/sprites/icons.json');

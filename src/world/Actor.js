@@ -118,7 +118,7 @@ export class Actor {
   }
 
   emote(kind = '!', ms = 700) {
-    const e = this.scene.add.image(this.sprite.x, this.sprite.y - 26, `emote_${kind}`).setOrigin(0.5, 1).setDepth(DEPTH.fx);
+    const e = this.scene.add.image(this.sprite.x, this.sprite.y - 33, `emote_${kind}`).setOrigin(0.5, 1).setDepth(DEPTH.fx);
     e.setScale(0.2);
     this.scene.tweens.add({ targets: e, scale: 1, duration: 140, ease: 'Back.easeOut' });
     return new Promise((resolve) => {
