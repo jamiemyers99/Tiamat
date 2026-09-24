@@ -4,7 +4,7 @@ import Phaser from 'phaser';
 import { GAME_W, GAME_H, MONEY_CAP } from '../config.js';
 import { input, DEFAULT_KEYS, REBINDABLE, ESSENTIAL, keyName } from '../core/input.js';
 import { audio } from '../core/audio.js';
-import { G, saveGame, saveSettings, itemCount, giveItem, takeItem, addMoney, flag } from '../core/state.js';
+import { G, saveGame, saveSettings, itemCount, giveItem, takeItem, addMoney, flag, hasCaughtForm, hasSeenForm } from '../core/state.js';
 import { NATURES, natureText } from '../data/natures.js';
 import { playerStyleKey } from '../data/players.js';
 import { SPECIES, SPECIES_LIST } from '../data/species.js';
@@ -48,6 +48,7 @@ export class MenuScene extends Phaser.Scene {
       else if (mode === 'controls') { result = await this.controls(); }
       else if (mode === 'party-pick') { result = await this.party({ pick: true, title: this.cfg.title, filter: this.cfg.filter }); }
       else if (mode === 'map') { result = await this.reachMap(); }
+      else if (mode === 'index') { result = await this.index(this.cfg.species); }
       else { result = await this.mainMenu(); }
     } catch (e) {
       if (e !== MENU_EXIT) { console.error('[menu]', e); }
@@ -503,9 +504,9 @@ export class MenuScene extends Phaser.Scene {
   }
 
   // ─── Index ────────────────────────────────────────────────────────────
-  async index() {
-    let i = 0;
+  async index(startId) {
     const list = SPECIES_LIST;
+    let i = Math.max(0, list.findIndex((sp) => sp.id === startId));
     const seen = new Set(G.state.index.seen), caught = new Set(G.state.index.caught);
     const c = this.add.container(0, 0);
     c.add(this.dim(0.94));
@@ -523,7 +524,20 @@ export class MenuScene extends Phaser.Scene {
     const t2 = this.add.image(342, 146, 'ui', 'type_Plain').setOrigin(0, 0);
     const desc = [0, 1, 2, 3, 4, 5].map((k) => txt(this, 224, 162 + k * 13, ''));
     const hab = txt(this, 224, 244, '', { face: 'small', color: 'blue' });
-    c.add([nm, cls, t1, t2, ...desc, hab]);
+    // male / female forms: coloured = caught in that form, gray = not caught yet; A switches the picture
+    const fm = txt(this, 446, 14, '♂'), ff = txt(this, 458, 14, '♀');
+    const formHint = txt(this, 222, 14, 'A: SWITCH FORM', { face: 'small', color: 'gray' });
+    c.add([nm, cls, t1, t2, ...desc, hab, fm, ff, formHint]);
+    const ix = G.state.index;
+    const twoForms = (sp) => (sp.female ?? 0.5) > 0 && (sp.female ?? 0.5) < 1;
+    const firstForm = (sp) => {
+      if (!twoForms(sp)) { return (sp.female ?? 0.5) >= 1 ? 'f' : 'm'; }
+      if (hasCaughtForm(sp.id, 'm', ix)) { return 'm'; }
+      if (hasCaughtForm(sp.id, 'f', ix)) { return 'f'; }
+      return hasSeenForm(sp.id, 'f', ix) && !hasSeenForm(sp.id, 'm', ix) ? 'f' : 'm';
+    };
+    let form = firstForm(list[i]);
+    let formOf = list[i].id;
     let scroll = 0;
     const habitats = this.habitats();
     const draw = () => {
@@ -541,8 +555,15 @@ export class MenuScene extends Phaser.Scene {
       rows.forEach(([t], k) => { if (k === i - scroll && list[scroll + k] && seen.has(list[scroll + k].id)) { t.setFont('main_gold'); } });
       const sp = list[i];
       const s = seen.has(sp.id), cg = caught.has(sp.id);
-      pic.setFrame(`${sp.id}_f`).setVisible(s);
-      if (s && !cg) { pic.setTintFill(0x2a2d44); } else { pic.clearTint(); }
+      if (formOf !== sp.id) { form = firstForm(sp); formOf = sp.id; }
+      pic.setFrame(monFrame({ species: sp.id, sex: form }, 'f')).setVisible(s);
+      if (s && !hasCaughtForm(sp.id, form, ix)) { pic.setTintFill(0x2a2d44); } else { pic.clearTint(); }
+      const both = twoForms(sp);
+      const onlyF = !both && (sp.female ?? 0.5) >= 1;
+      fm.setVisible(s && (both || !onlyF)).setFont(`main_${hasCaughtForm(sp.id, 'm', ix) ? 'blue' : 'gray'}`).setAlpha(form === 'm' ? 1 : 0.5);
+      ff.setVisible(s && (both || onlyF)).setFont(`main_${hasCaughtForm(sp.id, 'f', ix) ? 'pink' : 'gray'}`).setAlpha(form === 'f' ? 1 : 0.5);
+      if (!both) { fm.setX(458); } else { fm.setX(446); }
+      formHint.setVisible(s && both);
       nm.setText(s ? sp.name : '???');
       cls.setText(cg ? sp.cls : '');
       t1.setVisible(cg).setFrame(`type_${sp.types[0]}`);
@@ -560,7 +581,12 @@ export class MenuScene extends Phaser.Scene {
       else if (input.nav('down', o)) { i = (i + 1) % list.length; audio.sfx('cursor'); draw(); }
       else if (input.nav('left', o)) { i = Math.max(0, i - 15); audio.sfx('cursor'); draw(); }
       else if (input.nav('right', o)) { i = Math.min(list.length - 1, i + 15); audio.sfx('cursor'); draw(); }
-      else if (input.pressed('confirm', o)) { if (caught.has(list[i].id) || seen.has(list[i].id)) { audio.cry(list[i].num); } }
+      else if (input.pressed('confirm', o)) {
+        if (caught.has(list[i].id) || seen.has(list[i].id)) {
+          if (twoForms(list[i])) { form = form === 'm' ? 'f' : 'm'; draw(); }
+          audio.cry(list[i].num);
+        }
+      }
       else if (input.pressed('cancel', o)) { audio.sfx('cancel'); return true; }
       return undefined;
     });

@@ -43,7 +43,7 @@ export function newState() {
     flags: {},
     vars: {},
     defeated: {},
-    index: { seen: [], caught: [] },
+    index: { seen: [], caught: [], seenSex: {}, caughtSex: {} },
     sexTally: { m: 0, f: 0 },
     starterMoves2: true,
     xpShareOn: false,
@@ -85,12 +85,59 @@ export function takeItem(id, n = 1) {
   return true;
 }
 
-export function markSeen(speciesId) {
-  if (!G.state.index.seen.includes(speciesId)) { G.state.index.seen.push(speciesId); }
+// The Index tracks each species, and (like Pokémon) which male/female forms you've seen and caught.
+function addForm(map, speciesId, sex) {
+  if (sex !== 'm' && sex !== 'f') { return false; }
+  const list = map[speciesId] || (map[speciesId] = []);
+  if (list.includes(sex)) { return false; }
+  list.push(sex);
+  return true;
 }
-export function markCaught(speciesId) {
-  markSeen(speciesId);
-  if (!G.state.index.caught.includes(speciesId)) { G.state.index.caught.push(speciesId); }
+export function markSeen(speciesId, sex) {
+  const ix = G.state.index;
+  if (!ix.seen.includes(speciesId)) { ix.seen.push(speciesId); }
+  addForm(ix.seenSex || (ix.seenSex = {}), speciesId, sex);
+}
+// Returns true when this is a new form of a species already in the Index.
+export function markCaught(speciesId, sex) {
+  markSeen(speciesId, sex);
+  const ix = G.state.index;
+  const firstSpecies = !ix.caught.includes(speciesId);
+  if (firstSpecies) { ix.caught.push(speciesId); }
+  const newForm = addForm(ix.caughtSex || (ix.caughtSex = {}), speciesId, sex);
+  return newForm && !firstSpecies;
+}
+// Have you caught this species in this form (♂/♀)?
+export function hasCaughtForm(speciesId, sex, index = G.state.index) {
+  return !!(index && index.caughtSex && (index.caughtSex[speciesId] || []).includes(sex));
+}
+export function hasSeenForm(speciesId, sex, index = G.state.index) {
+  return !!(index && index.seenSex && (index.seenSex[speciesId] || []).includes(sex)) || hasCaughtForm(speciesId, sex, index);
+}
+
+// Older saves only knew "caught this species". Work out which forms from the Morphs you own:
+// an owned Morph counts for its species and for the earlier stages it evolved from (if you caught those).
+export function rebuildForms(state) {
+  const prev = {};
+  for (const sp of Object.values(SPECIES)) { if (sp.evo && sp.evo.into) { prev[sp.evo.into] = sp.id; } }
+  const ix = state.index;
+  const caught = new Set(ix.caught || []);
+  const caughtSex = {};
+  const add = (id, sex) => {
+    const l = caughtSex[id] || (caughtSex[id] = []);
+    if (!l.includes(sex)) { l.push(sex); }
+  };
+  const owned = [...(state.party || []), ...(state.boxes || []).flatMap((b) => b.slots || [])].filter(Boolean);
+  for (const m of owned) {
+    if (m.sex !== 'm' && m.sex !== 'f') { continue; }
+    add(m.species, m.sex);
+    for (let id = prev[m.species], n = 0; id && n < 5; id = prev[id], n++) { if (caught.has(id)) { add(id, m.sex); } }
+  }
+  // single-sex species (Tiamat): catching one means you have its only form
+  for (const id of caught) { const f = SPECIES[id]?.female; if (f === 1) { add(id, 'f'); } else if (f === 0) { add(id, 'm'); } }
+  const seenSex = {};
+  for (const [id, l] of Object.entries(caughtSex)) { seenSex[id] = [...l]; }
+  return { caughtSex, seenSex };
 }
 
 export function nextUid() { G.state.uid = (G.state.uid || 1) + 1; return G.state.uid; }
@@ -148,7 +195,8 @@ export function migrate(s) {
   const out = { ...base, ...s };
   out.player = { ...base.player, ...(s.player || {}) };
   if (!s.player || !s.player.gender) { out.player.gender = (out.player.style || 0) % 2 ? 'f' : 'm'; }
-  out.index = { seen: [], caught: [], ...(s.index || {}) };
+  const ix = s.index || {};
+  out.index = { seen: [...(ix.seen || [])], caught: [...(ix.caught || [])], seenSex: { ...(ix.seenSex || {}) }, caughtSex: { ...(ix.caughtSex || {}) } };
   out.flags = s.flags || {};
   out.vars = s.vars || {};
   out.bag = s.bag || {};
@@ -168,6 +216,13 @@ export function migrate(s) {
     out.boxes.forEach((b) => (b.slots || []).forEach(refreshStarterMoves));
     out.starterMoves2 = true;
   }
+  // the Index learned about male/female forms: rebuild it once from the Morphs you own
+  if (!ix.caughtSex) {
+    const forms = rebuildForms(out);
+    out.index.caughtSex = forms.caughtSex;
+    out.index.seenSex = { ...forms.seenSex, ...(ix.seenSex || {}) };
+  }
+  for (const id of out.index.caught) { if (!out.index.seen.includes(id)) { out.index.seen.push(id); } }
   out.version = SAVE_VERSION;
   return out;
 }

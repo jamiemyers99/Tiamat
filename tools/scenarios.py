@@ -325,3 +325,40 @@ async def difficulty(t, port):
     await t.js(f"void {W}.S.battle('seren')")
     await t.wait(3000)
     print('riftgate warden ivs:', await t.js(f"JSON.stringify({B}.battle.e.mon.ivs)"), 'skill:', await t.js(f"{B}.battle.trainer.skill"))
+
+
+# ── an older save (before male/female Index forms) loads, and the caught mark follows the form ──
+async def forms(t, port):
+    await t.p.goto(f'http://localhost:{port}/')
+    await t.wait(2500)
+    await t.js("""(() => { const T = window.__tiamat; const s = T.state.newState();
+      s.player.name = 'Jamie'; s.player.map = 'route1'; s.player.x = 16; s.player.y = 10;
+      const m = T.createMon('beakling', 8, { sex: 'm' }); delete m.nature;
+      s.party = [T.createMon('cindlet', 12), m];
+      s.index = { seen: ['beakling', 'cindlet'], caught: ['beakling', 'cindlet'] };
+      s.flags.got_index = true; s.bag.capsule = 5;
+      delete s.sexTally; delete s.xpShareOn; delete s.starterMoves2; delete s.player.gender;
+      localStorage.setItem(T.state.slotKey(0), JSON.stringify(s)); })()""")
+    await t.p.reload()
+    await t.wait(2500)
+    ok = await t.js("window.__tiamat.state.loadGame(0)")
+    ix = await t.js("JSON.stringify(window.__tiamat.G.state.index)")
+    print('loaded old save:', ok, ix)
+    await t.js("window.__tiamat.game.scene.getScene('Title').scene.start('World')")
+    await t.wait(2500)
+    print('map:', await t.js("window.__tiamat.G.state.player.map"), 'party:', await t.js("window.__tiamat.G.state.party.map(m => m.species + ':' + m.sex + ':' + m.nature).join(' ')"))
+    for sex in ['m', 'f']:
+        await t.js(f"void {W}.S.wild('beakling', 4, {{ sex: '{sex}' }})")
+        await t.wait(3200)
+        vis = await t.js("(() => { const B = window.__tiamat.game.scene.getScene('Battle'); return B.battle.e.mon.sex + ' mark=' + B.eCaught.visible; })()")
+        print('wild beakling', vis)
+        await t.shot(f'battle_{sex}')
+        await t.js("window.__tiamat.game.scene.getScene('Battle').battle.outcome = 'fled'")
+        for _ in range(3): await t.key('Escape', 60, 150)
+        await t.js("(() => { const B = window.__tiamat.game.scene.getScene('Battle'); if (B.scene.isActive()) { B.cfg.onEnd({ outcome: 'fled' }); B.scene.stop(); } })()")
+        await t.wait(1200)
+    await t.js("(() => { const W = window.__tiamat.game.scene.getScene('World'); W.scene.launch('Menu', { mode: 'index', species: 'beakling', onClose: () => {} }); W.scene.bringToTop('Menu'); })()")
+    await t.wait(1500)
+    await t.shot('index')
+    await t.key('z', 60, 400)
+    await t.shot('index_female')

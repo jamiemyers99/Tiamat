@@ -224,7 +224,7 @@ export class ScriptAPI {
   // ── Morphs ──
   async giveMorph(species, level, opts = {}) {
     const mon = createMon(species, level, { ot: G.state.player.name, ...opts });
-    markCaught(species);
+    markCaught(species, mon.sex);
     const where = receiveMorph(mon);
     audio.jingle('jingle_item');
     const nm = SPECIES[species].name;

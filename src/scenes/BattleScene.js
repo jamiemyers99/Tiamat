@@ -3,7 +3,7 @@ import Phaser from 'phaser';
 import { GAME_W, GAME_H } from '../config.js';
 import { input } from '../core/input.js';
 import { audio } from '../core/audio.js';
-import { G, itemCount, takeItem, addMoney, markSeen, markCaught, receiveMorph, flag } from '../core/state.js';
+import { G, itemCount, takeItem, addMoney, markSeen, markCaught, hasCaughtForm, receiveMorph, flag } from '../core/state.js';
 import { Battle } from '../battle/engine.js';
 import { createMon, balancedSex, calcStats, maxHp, monName, monFrame, sexSymbol, xpProgress, replaceMove, evolutionTarget, STAT_KEYS } from '../battle/mon.js';
 import { SPECIES } from '../data/species.js';
@@ -56,9 +56,9 @@ export class BattleScene extends Phaser.Scene {
       enemyParty = trainer.party.map(([sp, lv, moves]) => createMon(sp, lv, { moves, shiny: false, ivs }));
     } else {
       if (!G.state.sexTally) { G.state.sexTally = { m: 0, f: 0 }; }
-      enemyParty = [createMon(cfg.species, cfg.level, { metMap: G.state.player.map, ivs: wildIvs(tier), sex: balancedSex(cfg.species, G.state.sexTally) })];
+      enemyParty = [createMon(cfg.species, cfg.level, { metMap: G.state.player.map, ivs: wildIvs(tier), sex: cfg.sex || balancedSex(cfg.species, G.state.sexTally) })];
     }
-    enemyParty.forEach((m) => markSeen(m.species));
+    enemyParty.forEach((m) => markSeen(m.species, m.sex));
     this.trainer = trainer;
     const night = timeOfDay(G.state.clock) === 'night';
     const world = this.scene.get('World');
@@ -118,8 +118,9 @@ export class BattleScene extends Phaser.Scene {
       settleCaught(m);
       m.hp = Math.max(1, Math.round(maxHp(m) * ratio));
       const firstTime = !G.state.index.caught.includes(m.species);
-      markCaught(m.species);
+      const newForm = markCaught(m.species, m.sex);
       if (firstTime) { await this.message(`${SPECIES[m.species].name}'s data was added to the Index!`); }
+      else if (newForm) { await this.message(`The ${m.sex === 'f' ? 'female' : 'male'} form of ${SPECIES[m.species].name} was added to the Index!`); }
       this.setPrompt(`Give a nickname to the caught ${SPECIES[m.species].name}?`);
       const nick = await choose(this, [{ label: 'Yes', value: true }, { label: 'No', value: false }], { x: GAME_W - 12, y: MSG_Y - 4, anchor: 'bottom-right', depth: 80 });
       if (nick) {
@@ -208,8 +209,8 @@ export class BattleScene extends Phaser.Scene {
       this.eLv.setText(`Lv${m.level}`);
       this.eHp.set(m.hp / mx);
       this._status(this.eStatus, m.status);
-      // small capsule after the name = you've caught this species before
-      this.eCaught.setX(end + 3).setVisible(this.battle.kind === 'wild' && G.state.index.caught.includes(m.species));
+      // small capsule after the name = you've caught this species in this form (♂/♀) before
+      this.eCaught.setX(end + 3).setVisible(this.battle.kind === 'wild' && hasCaughtForm(m.species, m.sex));
     } else {
       this._nameRow(this.pName, this.pSex, this.pTypes, m);
       this.pLv.setText(`Lv${m.level}`);
@@ -315,7 +316,7 @@ export class BattleScene extends Phaser.Scene {
 
   async sendOut(b, battler, first = false) {
     const m = battler.mon;
-    markSeen(m.species);
+    markSeen(m.species, m.sex);
     if (battler.side === 1) {
       if (!first) { await this.message(`${this.trainer ? this.trainer.name : 'The foe'} sent out ${monName(m)}!`); }
       this.enemySpr.setFrame(monFrame(m, 'f')).setPosition(EP.x, EP.y).setAlpha(1).setScale(0.1).setVisible(true);

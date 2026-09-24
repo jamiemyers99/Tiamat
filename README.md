@@ -97,6 +97,9 @@ your starter and gift Morphs are always strong. `npm run balance` prints the who
   bonus (shown as SAME TYPE BONUS in the move menu), an even male/female spread in the wild,
   signature moves for the three starter lines (no other Morph learns them) and for 28 evolved
   Morphs (stronger than the ordinary moves, learned a few levels after evolving).
+- **Index forms**: the Index records male and female forms separately, like the classics. The capsule
+  mark beside a wild Morph's name only shows if you've caught that form, and in the Index A switches
+  between the ♂ and ♀ pictures (coloured symbol = caught in that form).
 - **Secrets**: items hidden inside bushes, rocks and trees — face one and press A (or your confirm
   key) to search it. One bush just north of Rootmere hides an **XP Share**: attach it from the Bag and
   every Morph in the team gets the full XP from each battle.

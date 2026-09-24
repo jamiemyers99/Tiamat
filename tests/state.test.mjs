@@ -23,7 +23,7 @@ test('old or partial saves are migrated safely', () => {
   const s = migrate({ player: { name: 'Old' }, party: [] });
   assert.equal(s.player.name, 'Old');
   assert.ok(Array.isArray(s.boxes) && s.boxes.length > 0);
-  assert.deepEqual(s.index, { seen: [], caught: [] });
+  assert.deepEqual(s.index, { seen: [], caught: [], seenSex: {}, caughtSex: {} });
   assert.equal(readSlot(7), null);
 });
 

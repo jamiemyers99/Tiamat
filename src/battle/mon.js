@@ -114,7 +114,7 @@ const OLD_STARTER_MOVES = new Set(['bump', 'gruff_bark', 'stern_look', 'nip', 'l
   'frost_armor', 'whiteout_gale']);
 
 export function refreshStarterMoves(mon) {
-  if (!mon || !STARTER_LINES.includes(mon.species)) { return false; }
+  if (!mon || !STARTER_LINES.includes(mon.species) || !Array.isArray(mon.moves)) { return false; }
   const fresh = movesForLevel(mon.species, mon.level);
   const keep = mon.moves.filter((m) => !OLD_STARTER_MOVES.has(m.id) && !fresh.includes(m.id));
   const room = 4 - Math.min(4, keep.length);

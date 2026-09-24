@@ -72,7 +72,7 @@ export class EvolutionScene extends Phaser.Scene {
       spr.setFrame(newF).clearTint().setScale(1.4);
       const oldName = SPECIES[mon.species].name;
       const pending = evolve(mon, into);
-      markCaught(into);
+      markCaught(into, mon.sex);
       audio.cry(SPECIES[into].num);
       await this.say(`Congratulations! Your ${oldName} evolved into ${SPECIES[into].name}!`);
       for (const mv of pending) { await this.learn(mon, mv); }

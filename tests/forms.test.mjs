@@ -99,3 +99,30 @@ test('evolved Morphs have their own signature moves, stronger than the basic one
     assert.ok(MOVES[id].power >= 90, `${id} should hit hard`);
   }
 });
+
+test('the Index tracks male and female forms separately; old saves are rebuilt from owned Morphs', async () => {
+  const { G, newState, markCaught, hasCaughtForm } = await import('../src/core/state.js');
+  const { SPECIES_LIST } = await import('../src/data/species.js');
+  const base = SPECIES_LIST.find((sp) => sp.evo && sp.evo.into);
+  const evolved = base.evo.into;
+  // an older save: caught the first stage, evolved it (male), also caught a lone female Nibbit-style Morph
+  const into = new Set(SPECIES_LIST.map((sp) => sp.evo && sp.evo.into).filter(Boolean));
+  const other = SPECIES_LIST.find((sp) => !sp.evo && !into.has(sp.id) && sp.id !== 'tiamat');  // a Morph that doesn't evolve
+  const old = {
+    index: { seen: [base.id, evolved, other.id, 'tiamat'], caught: [base.id, evolved, other.id, 'tiamat'] },
+    party: [{ species: evolved, uid: 4, level: 20, sex: 'm' }],
+    boxes: [{ name: 'Box 1', slots: [{ species: other.id, uid: 9, level: 5, sex: 'f' }, null] }],
+  };
+  const s = migrate(old);
+  assert.ok(hasCaughtForm(evolved, 'm', s.index) && !hasCaughtForm(evolved, 'f', s.index));
+  assert.ok(hasCaughtForm(base.id, 'm', s.index) && !hasCaughtForm(base.id, 'f', s.index), 'the stage it evolved from counts too');
+  assert.ok(hasCaughtForm(other.id, 'f', s.index) && !hasCaughtForm(other.id, 'm', s.index));
+  assert.ok(hasCaughtForm('tiamat', 'f', s.index));
+  assert.deepEqual(s.index.caught, old.index.caught, 'species counts are unchanged');
+  assert.deepEqual(migrate(s).index.caughtSex, s.index.caughtSex, 'loading again changes nothing');
+  // catching the other form later
+  G.state = s;
+  assert.equal(markCaught(other.id, 'f'), false);
+  assert.equal(markCaught(other.id, 'm'), true, 'a new form of a known species');
+  assert.ok(hasCaughtForm(other.id, 'm'));
+});
