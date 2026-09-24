@@ -87,3 +87,5 @@ item 5 5 item=dusk_capsule qty=2 flag=item_route4_5_5
 item 31 48 item=strong_tonic qty=1 flag=item_route4_31_48
 item 28 36 item=star_shard qty=1 flag=item_route4_28_36 hidden=1
 item 3 20 item=clarity_leaf qty=1 flag=item_route4_3_20
+item 3 12 item=star_shard qty=1 flag=item_route4_3_12 hidden=1 in=bush
+item 27 40 item=focus_drop qty=1 flag=item_route4_27_40 hidden=1 in=rock

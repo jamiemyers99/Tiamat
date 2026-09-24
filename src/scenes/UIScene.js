@@ -6,7 +6,8 @@ import { input } from '../core/input.js';
 import { audio } from '../core/audio.js';
 import { G } from '../core/state.js';
 import { txt, wrap, fmt } from '../ui/text.js';
-import { panel, choose } from '../ui/widgets.js';
+import { panel, choose, Bar } from '../ui/widgets.js';
+import { maxHp, monName, monFrame } from '../battle/mon.js';
 
 const SPEEDS = { slow: 45, normal: 24, fast: 10, instant: 0 };
 const FRAMES = ['dark', 'teal', 'gold', 'red', 'light'];
@@ -19,6 +20,8 @@ export const UI = {
   banner(...a) { return this.scene.banner(...a); },
   toast(...a) { return this.scene.toast(...a); },
   hideBox() { this.scene.hideBox(); },
+  sleep(...a) { return this.scene.sleep(...a); },
+  healPanel(...a) { return this.scene.healPanel(...a); },
 };
 
 export class UIScene extends Phaser.Scene {
@@ -149,6 +152,64 @@ export class UIScene extends Phaser.Scene {
         { y: -26, duration: 260, ease: 'Sine.easeIn' },
       ],
     });
+  }
+
+  // Resting: the screen closes like eyelids (a drowsy blink, then shut), stays dark while
+  // `during()` runs (e.g. the heal jingle), then the eyes open again with a couple of blinks.
+  async sleep(during) {
+    const tw = (cfg) => new Promise((r) => this.tweens.add({ ...cfg, onComplete: r }));
+    const half = GAME_H / 2 + 2;
+    const top = this.add.rectangle(0, -half, GAME_W, half, 0x050409).setOrigin(0, 0).setDepth(200);
+    const bot = this.add.rectangle(0, GAME_H, GAME_W, half, 0x050409).setOrigin(0, 0).setDepth(200);
+    const lids = (k, duration, ease = 'Sine.easeInOut') => Promise.all([
+      tw({ targets: top, y: -half + half * k, duration, ease }),
+      tw({ targets: bot, y: GAME_H - half * k, duration, ease }),
+    ]);
+    await lids(0.55, 420);           // eyes getting heavy...
+    await lids(0.3, 260);
+    await lids(1, 520, 'Quad.easeIn'); // ...and shut
+    const z = txt(this, GAME_W / 2, GAME_H / 2 - 4, 'z z z', { align: 'center', color: 'gray' }).setDepth(201).setAlpha(0);
+    this.tweens.add({ targets: z, alpha: 0.8, y: GAME_H / 2 - 10, duration: 700, yoyo: true, repeat: 1 });
+    await Promise.all([during ? during() : null, new Promise((r) => this.time.delayedCall(1600, r))]);
+    z.destroy();
+    await lids(0.35, 380, 'Quad.easeOut');  // blink awake
+    await lids(0.8, 160);
+    await lids(0, 420, 'Quad.easeOut');
+    top.destroy(); bot.destroy();
+  }
+
+  // Healing at a Haven: the team's capsules appear, their health bars refill with a chime.
+  async healPanel(party, doHeal) {
+    const n = party.length;
+    const w = Math.max(200, 20 + n * 70), h = 92;
+    const x0 = (GAME_W - w) / 2, y0 = 34;
+    const c = this.add.container(0, 0).setDepth(150).setAlpha(0);
+    c.add(panel(this, x0, y0, w, h, 'dark'));
+    c.add(txt(this, GAME_W / 2, y0 + 7, 'Healing your team...', { align: 'center', color: 'gold' }));
+    const bars = party.map((m, i) => {
+      const cx = x0 + 10 + 35 + i * ((w - 20) / n);
+      c.add(this.add.image(cx, y0 + 44, 'mons', monFrame(m, 'i')).setScale(1.1));
+      c.add(txt(this, cx, y0 + 64, monName(m).slice(0, 9), { align: 'center', face: 'small' }));
+      const bar = new Bar(this, cx - 24, y0 + 76, 48, 4);
+      bar.set(m.hp / maxHp(m)); bar.addTo(c);
+      return { bar, cx };
+    });
+    await new Promise((r) => this.tweens.add({ targets: c, alpha: 1, duration: 200, onComplete: r }));
+    const jingle = doHeal();
+    await Promise.all(bars.map(({ bar, cx }, i) => new Promise((r) => this.time.delayedCall(i * 160, async () => {
+      for (let k = 0; k < 6; k++) {
+        const sp = this.add.image(cx + (Math.random() - 0.5) * 30, y0 + 50 + (Math.random() - 0.5) * 20, 'p_star').setDepth(151).setTint(0x8af0c8);
+        c.add(sp);
+        this.tweens.add({ targets: sp, y: sp.y - 16, alpha: 0, duration: 600, delay: k * 70, onComplete: () => sp.destroy() });
+      }
+      await bar.tweenTo(1, 700);
+      r();
+    }))));
+    await jingle;
+    c.list[1].setText('Your team is fully healed!');
+    await new Promise((r) => this.time.delayedCall(700, r));
+    await new Promise((r) => this.tweens.add({ targets: c, alpha: 0, duration: 250, onComplete: r }));
+    c.destroy();
   }
 
   toast(text, color = 'white') {

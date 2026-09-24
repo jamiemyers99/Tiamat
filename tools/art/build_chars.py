@@ -23,6 +23,11 @@ ROSTER = {
     'player_b':  ('ponytail', 'casual', P('light', '#7a3a2a', '#d8453d', '#34394f', '#2a2230', '#f2c14e'), HERO),
     'player_c':  ('cap', 'casual', P('brown', '#2a1f1a', '#2aa19a', '#3a3040', '#2a2230', '#f2c14e'), HERO),
     'player_d':  ('ponytail', 'casual', P('deep', '#1e1414', '#7a52b0', '#34394f', '#2a2230', '#6fe0c8'), HERO),
+    # extra player styles so boys and girls each have four to choose from
+    'player_e':  ('spiky', 'casual', P('tan', '#3a2a1a', '#3a8a4a', '#2a2f40', '#2a2230', '#f2c14e'), HERO),
+    'player_f':  ('long', 'casual', P('light', '#e8b04a', '#e27a8a', '#34394f', '#2a2230', '#6fe0c8'), HERO),
+    'player_g':  ('short', 'casual', P('deep', '#1a1414', '#e07a3a', '#2a2f40', '#2a2230', '#3f6fc8'), HERO),
+    'player_h':  ('bun', 'casual', P('brown', '#2a1a14', '#2aa19a', '#34394f', '#2a2230', '#f5c542'), HERO),
     # story cast
     'mum':       ('bun', 'robe', P('light', '#8a5a3a', '#d88a6a', '#6a4a3a', '#3a2a2a', '#d88a6a')),
     'marsh':     ('long', 'robe', P('light', '#d8d8e4', '#f2f2f4', '#5a6a8a', '#3a3a44', '#6fa0d8', '#8aa4c8')),

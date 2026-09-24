@@ -50,3 +50,4 @@ item 41 23 item=star_shard qty=1 flag=item_route3_41_23
 item 4 16 item=strong_tonic qty=1 flag=item_route3_4_16
 item 48 19 item=prime_capsule qty=1 flag=item_route3_48_19 hidden=1
 item 22 9 item=nerve_balm qty=1 flag=item_route3_22_9
+item 12 10 item=prime_capsule qty=2 flag=item_route3_12_10 hidden=1 in=rock

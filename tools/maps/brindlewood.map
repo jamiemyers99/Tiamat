@@ -60,3 +60,4 @@ npc 32 13 id=bw_woman sprite=woman_b face=down move=wander text="They say the Se
 npc 6 25 id=bw_kid sprite=kid_b face=down move=wander text="Warden Mossa's plants are super tough. My Cindlet singed one and it just... grew back angrier." radius=1
 item 37 3 item=tonic qty=1 flag=item_brindlewood_37_3 hidden=1
 item 28 29 item=capsule qty=1 flag=item_brindlewood_28_29
+item 15 23 item=wake_chime qty=1 flag=item_brindlewood_15_23 hidden=1 in=bush

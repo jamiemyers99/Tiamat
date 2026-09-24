@@ -5,6 +5,8 @@ import { GAME_W, GAME_H, MONEY_CAP } from '../config.js';
 import { input, DEFAULT_KEYS, REBINDABLE, ESSENTIAL, keyName } from '../core/input.js';
 import { audio } from '../core/audio.js';
 import { G, saveGame, saveSettings, itemCount, giveItem, takeItem, addMoney, flag } from '../core/state.js';
+import { NATURES, natureText } from '../data/natures.js';
+import { playerStyleKey } from '../data/players.js';
 import { SPECIES, SPECIES_LIST } from '../data/species.js';
 import { MOVES } from '../data/moves.js';
 import { ITEMS, POCKETS, canLearnDisc } from '../data/items.js';
@@ -266,13 +268,17 @@ export class MenuScene extends Phaser.Scene {
       if (page === 0) {
         STAT_KEYS.forEach((k, j) => {
           const y = 44 + j * 20;
-          c.add(txt(this, 198, y, STAT_LABEL[k]));
+          // nature: the raised stat is shown in red with +, the lowered one in blue with -
+          const nat = NATURES[m.nature] || [];
+          const up = nat[0] === k, down = nat[1] === k;
+          c.add(txt(this, 198, y, `${STAT_LABEL[k]}${up ? ' +' : down ? ' -' : ''}`, { color: up ? 'red' : down ? 'blue' : 'white' }));
           const val = k === 'hp' ? `${m.hp}/${st.hp}` : `${st[k]}`;
           c.add(txt(this, 330, y, val, { align: 'right', color: 'gold' }));
           const bw = Math.min(120, Math.round(st[k] / (m.level * 2.2 + 10) * 60));
           c.add(this.add.rectangle(340, y + 3, 120, 5, 0x262a47).setOrigin(0, 0));
           c.add(this.add.rectangle(340, y + 3, bw, 5, [0x5ee07a, 0xff8a5a, 0xf5c542, 0x78c8ff, 0xb89aff, 0xf06292][j]).setOrigin(0, 0));
         });
+        c.add(txt(this, 198, 160, natureText(m.nature), { face: 'small', color: 'gray' }));
         c.add(txt(this, 198, 172, 'Experience'));
         c.add(txt(this, 460, 172, `${m.xp}`, { align: 'right' }));
         c.add(txt(this, 198, 186, 'To next level'));
@@ -366,7 +372,7 @@ export class MenuScene extends Phaser.Scene {
       }
       idx = Math.min(idx, ids.length - 1);
       const menu = new ListMenu(this, {
-        items: ids.map((k) => ({ label: ITEMS[k].name, right: ITEMS[k].key || ITEMS[k].disc ? '' : `×${G.state.bag[k]}`, value: k })),
+        items: ids.map((k) => ({ label: ITEMS[k].name, right: k === 'xp_share' ? (G.state.xpShareOn ? 'ON' : 'OFF') : ITEMS[k].key || ITEMS[k].disc ? '' : `×${G.state.bag[k]}`, rightColor: k === 'xp_share' ? (G.state.xpShareOn ? 'green' : 'gray') : undefined, value: k })),
         x: 10, y: 36, width: 246, visible: 15, noPanel: true, index: idx, depth: 5, onMove: (it) => show(it.value),
       });
       // allow pocket switching while the list is open
@@ -396,11 +402,20 @@ export class MenuScene extends Phaser.Scene {
     const opts = [];
     const usable = ['heal', 'cure', 'revive', 'pp', 'level', 'teach', 'repel', 'escape', 'map'].includes(u.kind);
     if (usable) { opts.push({ label: 'Use', value: 'use' }); }
+    if (u.kind === 'attach') { opts.push({ label: G.state.xpShareOn ? 'Detach' : 'Attach', value: 'attach' }); }
     if (!it.key && !it.disc) { opts.push({ label: 'Toss', value: 'toss' }); }
     opts.push({ label: 'Cancel', value: null });
     const a = await choose(this, opts, { x: GAME_W - 12, y: GAME_H - 12, anchor: 'bottom-right', depth: 30 });
     if (a === 'toss') {
       if (await this.confirm(`Throw away one ${it.name}?`)) { takeItem(id); }
+      return;
+    }
+    if (a === 'attach') {
+      G.state.xpShareOn = !G.state.xpShareOn;
+      audio.sfx(G.state.xpShareOn ? 'heal' : 'cancel');
+      await this.toast(G.state.xpShareOn
+        ? `${G.state.player.name} attached the XP Share. The whole team will share battle XP!`
+        : `${G.state.player.name} took off the XP Share.`);
       return;
     }
     if (a !== 'use') { return; }
@@ -578,7 +593,7 @@ export class MenuScene extends Phaser.Scene {
     c.add(txt(this, 56, 42, 'TAMER CARD', { color: 'gold' }));
     c.add(txt(this, 424, 42, `ID ${s.trainerId}`, { align: 'right', color: 'gray' }));
     const idx = this.cache.json.get('charIndex');
-    const style = ['player_a', 'player_b', 'player_c', 'player_d'][s.player.style || 0];
+    const style = playerStyleKey(s.player.style || 0);
     c.add(this.add.image(380, 140, 'chars', idx[style] * 12).setScale(3).setOrigin(0.5, 1));
     const h = Math.floor(s.playMs / 3600000), m = Math.floor((s.playMs % 3600000) / 60000);
     const lines = [

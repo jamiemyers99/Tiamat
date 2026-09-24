@@ -57,3 +57,4 @@ npc 13 17 id=rm_man sprite=man_b face=left move=still text="Route 1 is north of 
 npc 22 9 id=rm_mum sprite=mum face=down move=still show=got_starter&!mum_boots
 trigger 16 1 script=rootmere.north w=2 h=2 cond=!got_starter
 item 31 3 item=tonic qty=1 flag=item_rootmere_31_3 hidden=1
+item 13 4 item=tonic qty=1 flag=item_rootmere_13_4 hidden=1 in=bush

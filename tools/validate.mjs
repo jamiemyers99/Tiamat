@@ -176,7 +176,8 @@ for (const m of Object.values(maps)) {
     const what = o.type === 'npc' ? `npc ${o.props.id}` : o.type === 'item' ? `item ${o.props.item}` : o.type === 'warp' ? `warp → ${o.props.to}` : o.type === 'sign' ? `sign "${String(o.props.text || o.props.script).slice(0, 24)}"` : o.type === 'trigger' ? `trigger ${o.props.script}` : null;
     if (!what || o.props.show === 'never') { continue; }
     let ok;
-    if (o.type === 'item' && o.props.hidden) { ok = seen.has(`${o.x},${o.y}`); }
+    if (o.type === 'item' && o.props.in) { ok = near(o.x, o.y) && beh(m, o.x, o.y) === 'solid'; }
+    else if (o.type === 'item' && o.props.hidden) { ok = seen.has(`${o.x},${o.y}`); }
     else if (o.type === 'trigger') { ok = [...Array(o.w * o.h).keys()].some((i) => seen.has(`${o.x + (i % o.w)},${o.y + Math.floor(i / o.w)}`)); }
     else if (o.type === 'warp' && (o.props.door === '1' || o.props.door === true)) { ok = near(o.x, o.y); }
     else if (o.type === 'warp') { ok = seen.has(`${o.x},${o.y}`); }

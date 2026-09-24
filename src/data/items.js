@@ -46,6 +46,7 @@ it('star_shard', 'Star Shard', 'items', 0, { kind: 'sell' }, 'A shard that fell 
 
 // ── Key items ───────────────────────────────────────────────────────────────
 it('trail_boots', 'Trail Boots', 'key', 0, { kind: 'key' }, 'Hold {BTN:run} while walking to dash.', { key: true });
+it('xp_share', 'XP Share', 'key', 0, { kind: 'attach' }, 'A charm on a cord. While it is attached to you, every Morph in your team gets the full XP from each battle.', { key: true });
 it('bond_charm', 'Bond Charm', 'key', 0, { kind: 'key' }, 'Lets Morphs that sit out a battle still gain some XP.', { key: true });
 it('reach_map', 'Reach Map', 'key', 0, { kind: 'map' }, 'A map of the Riven Reach. Shows where you are.', { key: true });
 it('brush_hook', 'Brush Hook', 'key', 0, { kind: 'key' }, 'A curved blade for clearing brambles. Use it by facing a bramble.', { key: true });

@@ -5,7 +5,7 @@ import { input } from '../core/input.js';
 import { audio } from '../core/audio.js';
 import { G, itemCount, takeItem, addMoney, markSeen, markCaught, receiveMorph, flag } from '../core/state.js';
 import { Battle } from '../battle/engine.js';
-import { createMon, calcStats, maxHp, monName, monFrame, sexSymbol, xpProgress, replaceMove, evolutionTarget, STAT_KEYS } from '../battle/mon.js';
+import { createMon, balancedSex, calcStats, maxHp, monName, monFrame, sexSymbol, xpProgress, replaceMove, evolutionTarget, STAT_KEYS } from '../battle/mon.js';
 import { SPECIES } from '../data/species.js';
 import { MOVES } from '../data/moves.js';
 import { ITEMS } from '../data/items.js';
@@ -55,7 +55,8 @@ export class BattleScene extends Phaser.Scene {
       const ivs = trainerIvs(tier, base);
       enemyParty = trainer.party.map(([sp, lv, moves]) => createMon(sp, lv, { moves, shiny: false, ivs }));
     } else {
-      enemyParty = [createMon(cfg.species, cfg.level, { metMap: G.state.player.map, ivs: wildIvs(tier) })];
+      if (!G.state.sexTally) { G.state.sexTally = { m: 0, f: 0 }; }
+      enemyParty = [createMon(cfg.species, cfg.level, { metMap: G.state.player.map, ivs: wildIvs(tier), sex: balancedSex(cfg.species, G.state.sexTally) })];
     }
     enemyParty.forEach((m) => markSeen(m.species));
     this.trainer = trainer;
@@ -88,6 +89,7 @@ export class BattleScene extends Phaser.Scene {
       ui: this,
       opts: {
         expShare: G.settings.expShare !== false && itemCount('bond_charm') > 0,
+        xpShareAll: !!G.state.xpShareOn && itemCount('xp_share') > 0,
         style: G.settings.battleStyle || 'shift',
         night,
         cave: mapProps.light === 'dark' || mapProps.enc_floor === '1',
@@ -700,7 +702,9 @@ export class BattleScene extends Phaser.Scene {
     const catImg = this.add.image(ix + 40, MSG_Y + 7, 'ui', 'cat_phys').setOrigin(0, 0);
     const pw = txt(this, ix, MSG_Y + 20, '', { face: 'small' });
     const eff = txt(this, ix, MSG_Y + 32, '', { face: 'main' });
-    c.add([typeImg, catImg, pw, eff]);
+    const stab = txt(this, ix, MSG_Y + 45, '', { face: 'small', color: 'gold' });
+    c.add([typeImg, catImg, pw, eff, stab]);
+    const myTypes = b.p.types ? b.p.types() : SPECIES[mon.species].types;
     let i = Math.min(this._lastMove || 0, mon.moves.length - 1);
     const draw = () => {
       const cell = cells[i];
@@ -709,6 +713,8 @@ export class BattleScene extends Phaser.Scene {
       typeImg.setFrame(`type_${mv.type}`);
       catImg.setFrame(`cat_${mv.cat}`).setX(ix + typeImg.width + 3);
       pw.setText(`POW ${mv.power || '-'}   ACC ${mv.acc ?? '-'}`);
+      // like Pokémon: a move that matches the Morph's own type hits 1.5× harder
+      stab.setText(mv.cat !== 'status' && myTypes.includes(mv.type) ? 'SAME TYPE BONUS x1.5' : '');
       if (mv.cat === 'status') { eff.setText('Status move').setFont('main_gray'); }
       else {
         const e = effectiveness(mv.type, foeTypes);

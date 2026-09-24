@@ -73,3 +73,5 @@ item 24 19 item=tonic qty=1 flag=item_route1_24_19
 item 5 5 item=ward_incense qty=1 flag=item_route1_5_5
 item 29 46 item=capsule qty=1 flag=item_route1_29_46 hidden=1
 item 24 33 item=purge_herb qty=1 flag=item_route1_24_33
+item 4 24 item=xp_share qty=1 flag=item_route1_4_24 hidden=1 in=bush
+item 21 38 item=tonic qty=2 flag=item_route1_21_38 hidden=1 in=bush

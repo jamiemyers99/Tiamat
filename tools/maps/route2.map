@@ -49,3 +49,5 @@ item 5 5 item=td15 qty=1 flag=item_route2_5_5
 item 44 18 item=capsule qty=2 flag=item_route2_44_18
 item 15 20 item=tonic qty=1 flag=item_route2_15_20
 item 29 3 item=wake_chime qty=1 flag=item_route2_29_3 hidden=1
+item 45 14 item=capsule qty=3 flag=item_route2_45_14 hidden=1 in=rock
+item 31 23 item=purge_herb qty=2 flag=item_route2_31_23 hidden=1 in=bush

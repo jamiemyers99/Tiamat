@@ -5,6 +5,7 @@ import { G, flag, setFlag, getVar, setVar, giveItem, takeItem, itemCount, addMon
 import { audio } from './audio.js';
 import { input } from './input.js';
 import { UI } from '../scenes/UIScene.js';
+import { blackoutLoss } from './state.js';
 import { DIRS, OPP } from '../world/Actor.js';
 import { WALK_MS, TILE } from '../config.js';
 import { ITEMS } from '../data/items.js';
@@ -243,6 +244,16 @@ export class ScriptAPI {
     G.state.party.forEach(healMon);
     if (!silent) { await audio.jingle('jingle_heal'); }
   }
+  // Rest at home: eyes close, the heal jingle plays in the dark, eyes open again.
+  async restAndHeal() {
+    await UI.sleep(async () => { G.state.party.forEach(healMon); await audio.jingle('jingle_heal'); });
+  }
+  // Haven: show the team's health bars refilling with sparkles while the jingle plays.
+  async havenHeal() {
+    if (!G.state.party.length) { return; }
+    await UI.healPanel(G.state.party, async () => { await audio.jingle('jingle_heal'); });
+    G.state.party.forEach(healMon);
+  }
 
   // ── battles ──
   battle(trainerId, opts = {}) { return this._battle({ kind: 'trainer', trainerId, ...opts }); }
@@ -299,20 +310,26 @@ export class ScriptAPI {
     });
   }
 
-  async whiteout() {
-    const lost = Math.floor(G.state.money / 2);
-    G.state.money -= lost;
-    await UI.say(null, `{PLAYER} is out of usable Morphs!|{PLAYER} dropped ${lost}¢ in the panic...|...and hurried back to safety, shielding the party.`);
-    G.state.party.forEach(healMon);
+  async whiteout() {  // money lost grows with Sigils and levels: small at the start, heavy near the end
+    // never more than you actually have: the amount shown is exactly what leaves your purse
+    const lost = Math.min(Math.max(0, G.state.money || 0), blackoutLoss(G.state));
+    G.state.money = Math.max(0, (G.state.money || 0) - lost);
+    const drop = lost > 0 ? `{PLAYER} dropped ${lost.toLocaleString()}¢ in the panic...` : "{PLAYER}'s pockets were already empty...";
+    await UI.say(null, `{PLAYER} is out of usable Morphs!|${drop}|...and hurried back to safety, shielding the party.`);
     const h = G.state.lastHeal;
     await this.fadeOut(300);
     this.w.loadMap(h.map, h.x, h.y, 'down');
     await this.fadeIn(400);
     if (h.map.endsWith('_haven')) {
-      await UI.say('Haven Keeper', "Oh, you poor things. Your Morphs are all rested now — please be more careful out there.");
+      await UI.say('Haven Keeper', "Oh, you poor things! Let me see to your team right away.");
+      await this.havenHeal();
+      await UI.say('Haven Keeper', 'There — all rested. Please be more careful out there.');
     } else {
-      await UI.say('Mum', "{PLAYER}! You look exhausted. Rest up — your Morphs are fine now, love.");
+      await UI.say('Mum', "{PLAYER}! You look exhausted. Go and have a lie down, love.");
+      await this.restAndHeal();
+      await UI.say('Mum', 'Better? Your Morphs are right as rain again.');
     }
+    G.state.party.forEach(healMon);
   }
 
   // ── world ──

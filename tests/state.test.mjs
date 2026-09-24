@@ -50,3 +50,18 @@ test('encounters respect the time of day', () => {
   assert.equal(timeOfDay(19 * 60), 'dusk');
   assert.equal(rollEncounter('rootmere', 'grass', 600), null);
 });
+
+test('blacking out costs little at the start and more later', async () => {
+  const { blackoutLoss } = await import('../src/core/state.js');
+  const early = blackoutLoss({ money: 3000, sigils: [], party: [{ level: 12 }, { level: 9 }] });
+  assert.ok(early <= 100, `early loss ${early}`);
+  const late = blackoutLoss({ money: 30000, sigils: ['a', 'b', 'c', 'd', 'e', 'f'], party: [{ level: 50 }] });
+  assert.equal(late, 4000);
+  assert.equal(blackoutLoss({ money: 50, sigils: ['a'], party: [{ level: 30 }] }), 50);
+});
+
+test('the money shown as lost always matches what you had', async () => {
+  const { blackoutLoss } = await import('../src/core/state.js');
+  assert.equal(blackoutLoss({ money: 50, sigils: ['a', 'b'], party: [{ level: 20 }] }), 50);
+  assert.equal(blackoutLoss({ money: 0, sigils: [], party: [{ level: 5 }] }), 0);
+});

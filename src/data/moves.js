@@ -9,6 +9,68 @@ function m(id, name, type, cat, power, acc, pp, fx = {}, desc = '') {
   MOVES[id] = { id, name, type, cat, power, acc, pp, fx, prio: fx.prio || 0, desc };
 }
 
+// ── Starter signature moves (only the three starter lines learn these) ─────
+// Spriglet → Spriggrove → Mosswarden (Nature, later Stone)
+m('sprout_tackle', 'Sprout Tackle', 'Plain', 'phys', 40, 100, 35, {}, 'A springy headbutt with the sprout on its crown. Only Spriglet and its evolutions know it.');
+m('petal_cloak', 'Petal Cloak', 'Nature', 'status', 0, null, 20, { stat: { def: 1, spd: 1 }, target: 'self' }, 'Wraps itself in hardened petals, raising Defense and Sp. Def.');
+m('bramble_whip', 'Bramble Whip', 'Nature', 'phys', 55, 100, 25, { flinch: 0.1 }, 'Lashes out with a thorny vine. May cause flinching.');
+m('pebble_seed', 'Pebble Seed', 'Stone', 'phys', 50, 95, 25, {}, 'Spits a seed as hard as stone — a hint of the guardian it will become.');
+m('verdant_pulse', 'Verdant Pulse', 'Nature', 'spec', 70, 100, 15, { drain: 0.3 }, 'A wave of green life that restores some of the damage dealt.');
+m('rootquake', 'Rootquake', 'Stone', 'phys', 85, 100, 10, {}, 'Its roots heave the ground beneath the foe.');
+m('grove_renewal', 'Grove Renewal', 'Nature', 'status', 0, null, 10, { heal: 0.5 }, 'Draws strength from the forest floor to recover half its max HP.');
+m('ancient_canopy', 'Ancient Canopy', 'Nature', 'spec', 110, 90, 5, { stat: { spd: -1 }, target: 'foe', chance: 0.2 }, 'Brings down the weight of an ancient forest. May lower Sp. Def.');
+m('monolith_crash', 'Monolith Crash', 'Stone', 'phys', 120, 85, 5, {}, 'Falls on the foe like a toppled standing stone.');
+// Cindlet → Cindreaver → Pyromane (Ember, later Umbra)
+m('cinder_pounce', 'Cinder Pounce', 'Plain', 'phys', 40, 100, 35, {}, 'A hot-headed pounce, tail-flame flickering. Only Cindlet and its evolutions know it.');
+m('sulk_smoke', 'Sulk Smoke', 'Ember', 'status', 0, 100, 20, { stat: { acc: -1 }, target: 'foe' }, 'Puffs out sulky smoke that lowers the foe\'s accuracy.');
+m('ember_fang', 'Ember Fang', 'Ember', 'phys', 60, 100, 25, { status: 'burn', chance: 0.1 }, 'Bites with glowing fangs. May burn.');
+m('shadow_spark', 'Shadow Spark', 'Umbra', 'spec', 50, 100, 25, { flinch: 0.1 }, 'A spark with a black core — a hint of the dusk it will become. May cause flinching.');
+m('blaze_mane', 'Blaze Mane', 'Ember', 'spec', 75, 100, 15, { status: 'burn', chance: 0.2 }, 'Shakes its burning mane at the foe. May burn.');
+m('dusk_ignite', 'Dusk Ignite', 'Ember', 'status', 0, null, 15, { stat: { atk: 1, spa: 1 }, target: 'self' }, 'Its flame darkens and flares, raising Attack and Sp. Atk.');
+m('umbral_flare', 'Umbral Flare', 'Umbra', 'spec', 85, 100, 10, {}, 'A flare of black fire that burns in the shadows.');
+m('black_pyre', 'Black Pyre', 'Ember', 'spec', 120, 90, 5, { status: 'burn', chance: 0.3 }, 'Engulfs the foe in black-cored flame. May burn.');
+m('nightfire_rend', 'Nightfire Rend', 'Umbra', 'phys', 100, 95, 5, { highCrit: true }, 'Rends the foe with claws of night-fire. High critical-hit ratio.');
+// Puddlet → Torrentide → Maelstrand (Tide, later Frost)
+m('puddle_hop', 'Puddle Hop', 'Plain', 'phys', 40, 100, 35, {}, 'A bouncy, splashy body-slam. Only Puddlet and its evolutions know it.');
+m('drizzle_eyes', 'Drizzle Eyes', 'Tide', 'status', 0, 100, 20, { stat: { atk: -1 }, target: 'foe' }, 'Gives the foe big, sad, dripping eyes. Lowers Attack.');
+m('bubble_snap', 'Bubble Snap', 'Tide', 'spec', 50, 100, 25, { stat: { spe: -1 }, target: 'foe', chance: 0.1 }, 'Snaps a burst of bubbles at the foe. May lower Speed.');
+m('rime_splash', 'Rime Splash', 'Frost', 'spec', 50, 100, 25, { status: 'freeze', chance: 0.1 }, 'Icy spray — a hint of the cold it will become. May freeze.');
+m('riptide_fang', 'Riptide Fang', 'Tide', 'phys', 70, 100, 15, { flinch: 0.2 }, 'Drags the foe under with its fangs. May cause flinching.');
+m('current_coat', 'Current Coat', 'Tide', 'status', 0, null, 15, { stat: { def: 1, spe: 1 }, target: 'self' }, 'Wraps itself in a swirling current, raising Defense and Speed.');
+m('glacier_surge', 'Glacier Surge', 'Frost', 'phys', 85, 100, 10, {}, 'Rides a wave of freezing water into the foe.');
+m('maelstrom', 'Maelstrom', 'Tide', 'spec', 110, 90, 5, { stat: { spe: -1 }, target: 'foe', chance: 0.3 }, 'Traps the foe in a crushing whirlpool. May lower Speed.');
+m('permafrost_breath', 'Permafrost Breath', 'Frost', 'spec', 110, 85, 5, { status: 'freeze', chance: 0.2 }, 'A breath so cold the sea turns to ice. May freeze.');
+
+// ── Signature moves of evolved Morphs (each is learned by one Morph only) ──
+m('eye_of_the_storm', 'Eye of the Storm', 'Wing', 'spec', 110, 95, 5, { stat: { spe: 1 }, target: 'self', chance: 0.3 }, 'Tempestral calls down the heart of a storm. May raise its Speed.');
+m('thunderwing', 'Thunderwing', 'Static', 'phys', 105, 95, 5, { status: 'paralyze', chance: 0.2 }, 'Dives with wings wreathed in lightning. May paralyse.');
+m('heartless_night', 'Heartless Night', 'Umbra', 'spec', 115, 90, 5, { stat: { spd: -1 }, target: 'foe', chance: 0.3 }, 'Smothers the foe in a starless night. May lower Sp. Def.');
+m('riftbreaker', 'Riftbreaker', 'Drake', 'phys', 120, 90, 5, {}, 'Splits the earth like the Riven itself.');
+m('plague_tide', 'Plague Tide', 'Toxin', 'spec', 110, 90, 5, { status: 'toxic', chance: 0.3 }, 'A rolling wave of glowing bog-poison. May badly poison.');
+m('champions_gauntlet', 'Champion’s Gauntlet', 'Brawl', 'phys', 110, 95, 5, { highCrit: true }, 'A title-winning steel punch. High critical-hit ratio.');
+m('prophecy_beam', 'Prophecy Beam', 'Mind', 'spec', 115, 90, 5, { confuse: 0.2 }, 'Fires what its third eye foresees. May confuse.');
+m('aurora_lance', 'Aurora Lance', 'Frost', 'spec', 110, 95, 5, { status: 'freeze', chance: 0.15 }, 'A spear of frozen aurora light. May freeze.');
+m('siege_ram', 'Siege Ram', 'Iron', 'phys', 120, 90, 5, { recoil: 0.2 }, 'Charges like a battering ram. The user takes some recoil.');
+m('tyrant_skyfall', 'Tyrant Skyfall', 'Drake', 'phys', 125, 90, 5, { highCrit: true }, 'Plunges from the clouds with a roar. High critical-hit ratio.');
+m('guillotine_scythe', 'Guillotine Scythe', 'Swarm', 'phys', 110, 90, 5, { highCrit: true }, 'One perfect, silent cut. High critical-hit ratio.');
+m('peakfall', 'Peakfall', 'Stone', 'phys', 130, 85, 5, { selfStat: { spe: -1 } }, 'Drops a snow-capped peak on the foe. Lowers the user’s Speed.');
+m('siren_sting', 'Siren Sting', 'Tide', 'spec', 95, 100, 10, { status: 'poison', chance: 0.3 }, 'Glowing tendrils sting from the deep. May poison.');
+m('crushing_claw', 'Crushing Claw', 'Tide', 'phys', 100, 95, 10, { stat: { def: -1 }, target: 'foe', chance: 0.3 }, 'A claw that cracks shells. May lower Defense.');
+m('mammoth_stampede', 'Mammoth Stampede', 'Plain', 'phys', 110, 95, 5, { flinch: 0.2 }, 'A thundering charge. May cause flinching.');
+m('tesla_coil', 'Tesla Coil', 'Static', 'spec', 100, 95, 10, { status: 'paralyze', chance: 0.3 }, 'Discharges its whole coil at once. May paralyse.');
+m('glacier_maul', 'Glacier Maul', 'Frost', 'phys', 110, 90, 5, { status: 'freeze', chance: 0.1 }, 'Swipes with claws of glacier ice. May freeze.');
+m('thunder_jaws', 'Thunder Jaws', 'Static', 'phys', 100, 95, 10, { status: 'paralyze', chance: 0.2 }, 'Lightning crawls down its fangs as it bites. May paralyse.');
+m('reapers_lantern', 'Reaper’s Lantern', 'Umbra', 'spec', 105, 95, 5, { drain: 0.3 }, 'Draws the foe’s light into its lantern, healing some of the damage dealt.');
+m('caldera_crush', 'Caldera Crush', 'Ember', 'phys', 110, 90, 5, { status: 'burn', chance: 0.2 }, 'Clamps down with jaws hot as a volcano. May burn.');
+m('death_stinger', 'Death Stinger', 'Toxin', 'phys', 100, 95, 10, { status: 'toxic', chance: 0.3 }, 'A glowing sting that seeps deep. May badly poison.');
+m('royal_sting', 'Royal Sting', 'Swarm', 'phys', 90, 100, 10, { status: 'poison', chance: 0.3 }, 'The queen’s own sting. May poison.');
+m('moonlit_riddle', 'Moonlit Riddle', 'Mind', 'spec', 100, 95, 10, { confuse: 0.3 }, 'Asks a riddle with no answer. May confuse.');
+m('haymaker', 'Haymaker', 'Brawl', 'phys', 110, 85, 5, { flinch: 0.2 }, 'A wild, all-in swing. May cause flinching.');
+m('mycelial_surge', 'Mycelial Surge', 'Nature', 'spec', 95, 100, 10, { status: 'sleep', chance: 0.1 }, 'Roots and spores burst up everywhere. May cause sleep.');
+m('bulwark_charge', 'Bulwark Charge', 'Iron', 'phys', 100, 95, 10, { stat: { def: 1 }, target: 'self', chance: 0.3 }, 'Charges behind its armour. May raise its Defense.');
+m('tunnel_quake', 'Tunnel Quake', 'Stone', 'phys', 100, 95, 10, {}, 'Collapses a tunnel under the foe.');
+m('dusk_hunt', 'Dusk Hunt', 'Umbra', 'phys', 90, 100, 10, { prio: 1 }, 'Strikes from the dusk before the foe can react. Always goes first.');
+
 // ── Plain ───────────────────────────────────────────────────────────────────
 m('bump', 'Bump', 'Plain', 'phys', 40, 100, 35, {}, 'A clumsy but honest shove.');
 m('nip', 'Nip', 'Plain', 'phys', 35, 100, 35, { flinch: 0.1 }, 'A quick nip. May make the foe flinch.');

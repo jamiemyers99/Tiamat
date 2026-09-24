@@ -47,3 +47,55 @@ test('the sprite atlas has male and female frames for every Morph', () => {
     }
   }
 });
+
+test('natures raise one stat and lower another, and lean toward the type', async () => {
+  const { NATURES, natureMult, rollNature } = await import('../src/data/natures.js');
+  const { calcStats } = await import('../src/battle/mon.js');
+  assert.equal(Object.keys(NATURES).length, 25);
+  assert.equal(natureMult('Fierce', 'atk'), 1.1);
+  assert.equal(natureMult('Fierce', 'spa'), 0.9);
+  assert.equal(natureMult('Fierce', 'hp'), 1);
+  const a = createMon('nibbit', 50, { nature: 'Fierce', ivs: { hp: 10, atk: 10, def: 10, spa: 10, spd: 10, spe: 10 } });
+  const b = createMon('nibbit', 50, { nature: 'Even', ivs: { hp: 10, atk: 10, def: 10, spa: 10, spd: 10, spe: 10 } });
+  assert.ok(calcStats(a).atk > calcStats(b).atk && calcStats(a).spa < calcStats(b).spa && calcStats(a).hp === calcStats(b).hp);
+  let seed = 7;
+  const rng = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+  let atkUp = 0;
+  for (let i = 0; i < 4000; i++) { if (NATURES[rollNature(['Brawl'], rng)][0] === 'atk') { atkUp++; } }
+  assert.ok(atkUp / 4000 > 0.35, `Brawl should lean to Attack natures (${atkUp})`);
+  assert.ok(createMon('nibbit', 5).nature in NATURES);
+});
+
+test('wild Morphs stay close to half male, half female', async () => {
+  const { balancedSex } = await import('../src/battle/mon.js');
+  const tally = { m: 0, f: 0 };
+  for (let i = 0; i < 40; i++) { balancedSex('nibbit', tally); assert.ok(Math.abs(tally.m - tally.f) <= 6, JSON.stringify(tally)); }
+  assert.equal(balancedSex('tiamat', tally), 'f');
+});
+
+test('starter lines only learn their own signature moves; old saves are updated', async () => {
+  const { SPECIES, SPECIES_LIST } = await import('../src/data/species.js');
+  const { STARTER_LINES } = await import('../src/battle/mon.js');
+  const sig = new Set(STARTER_LINES.flatMap((id) => SPECIES[id].learn.map(([, mv]) => mv)));
+  for (const sp of SPECIES_LIST) {
+    if (STARTER_LINES.includes(sp.id)) { continue; }
+    for (const [, mv] of sp.learn) { assert.ok(!sig.has(mv), `${sp.id} shares starter move ${mv}`); }
+  }
+  const s = migrate({ party: [{ species: 'cindreaver', uid: 3, level: 30, moves: [{ id: 'flare_bite', pp: 1, max: 15 }, { id: 'rubble_fall', pp: 9, max: 10 }] }] });
+  const ids = s.party[0].moves.map((m) => m.id);
+  assert.ok(ids.includes('rubble_fall'), 'Tech Disc moves are kept');
+  assert.ok(!ids.includes('flare_bite') && ids.includes('umbral_flare'), ids.join());
+});
+
+test('evolved Morphs have their own signature moves, stronger than the basic ones', async () => {
+  const { SPECIES_LIST } = await import('../src/data/species.js');
+  const { MOVES } = await import('../src/data/moves.js');
+  const learners = {};
+  for (const sp of SPECIES_LIST) { for (const [, mv] of sp.learn) { (learners[mv] = learners[mv] || new Set()).add(sp.id); } }
+  const sigs = ['eye_of_the_storm', 'riftbreaker', 'tyrant_skyfall', 'peakfall', 'siren_sting', 'dusk_hunt', 'champions_gauntlet'];
+  for (const id of sigs) {
+    assert.ok(MOVES[id], id);
+    assert.equal(learners[id].size, 1, `${id} should belong to one Morph`);
+    assert.ok(MOVES[id].power >= 90, `${id} should hit hard`);
+  }
+});

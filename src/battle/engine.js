@@ -593,23 +593,38 @@ export class Battle {
     const parts = this.p.party.filter((m) => m.hp > 0 && this.participants.has(m.uid));
     if (!parts.length) { return; }
     const shareOthers = this.opts.expShare;
+    const Le = foe.level;
+    const xpFor = (m) => {
+      const base = Math.floor((sp.xp * Le) / 5) * trainerMult / parts.length;
+      let amt = Math.floor(base * Math.pow((2 * Le + 10) / (Le + m.level + 10), 2.5)) + 1;
+      if (this.opts.xpMult) { amt = Math.floor(amt * this.opts.xpMult); }
+      return amt;
+    };
+    // XP Share attached: every healthy Morph gets exactly what the one that fought earned
+    if (this.opts.xpShareAll) {
+      const amt = xpFor(parts[parts.length - 1]);
+      await this.ui.message(`The XP Share glows! Your whole team gains ${amt} XP.`);
+      for (const m of this.p.party) {
+        if (m.hp <= 0 || m.level >= 100) { continue; }
+        await this.giveXp(m, amt, this.participants.has(m.uid), 'share');
+      }
+      return;
+    }
     for (const m of this.p.party) {
       if (m.hp <= 0 || m.level >= 100) { continue; }
       const isPart = this.participants.has(m.uid);
       if (!isPart && !shareOthers) { continue; }
-      const Le = foe.level, Lp = m.level;
-      const base = Math.floor((sp.xp * Le) / 5) * trainerMult / parts.length;
-      let amt = Math.floor(base * Math.pow((2 * Le + 10) / (Le + Lp + 10), 2.5)) + 1;
+      let amt = xpFor(m);
       if (!isPart) { amt = Math.max(1, Math.floor(amt / 2)); }
-      if (this.opts.xpMult) { amt = Math.floor(amt * this.opts.xpMult); }
       await this.giveXp(m, amt, isPart);
     }
   }
 
-  async giveXp(m, amt, isPart) {
+  async giveXp(m, amt, isPart, via) {
     const before = m.level;
     const beforeXp = m.xp;
-    await this.ui.message(isPart ? `${monName(m)} gained ${amt} XP!` : `${monName(m)} gained ${amt} XP from the Bond Charm!`, { quick: !isPart });
+    const msg = via === 'share' ? `${monName(m)} gained ${amt} XP!` : isPart ? `${monName(m)} gained ${amt} XP!` : `${monName(m)} gained ${amt} XP from the Bond Charm!`;
+    await this.ui.message(msg, { quick: via === 'share' || !isPart });
     const steps = addXp(m, amt);
     await this.ui.xp(this, m, beforeXp, steps);
     for (const st of steps) {

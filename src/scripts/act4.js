@@ -161,7 +161,7 @@ export default {
     }
     await S.say('Wren', "{PLAYER}! You actually came for me. Even after... everything.");
     await S.say('Wren', "Here — let me patch up your team. It's the least I can do.");
-    await S.heal();
+    await S.havenHeal();
     await S.say('Wren', "Oriel went down the stairs behind the altar. Down into the Rift. They're going to wake Tiamat right now.");
     await S.say('Wren', "I'm going to get Grandma and the Wardens. You go. And {PLAYER}... be careful. Please.");
     S.set('wren_freed');

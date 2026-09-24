@@ -48,7 +48,7 @@ export default {
         ? "Look at you, all those Sigils! You look tired though. Have a rest."
         : "There you are! You look worn out. Come and have a rest.";
     await S.say('Mum', lines);
-    await S.heal();
+    await S.restAndHeal();
     S.setHealPoint('home_1f', 4, 7);
     await S.say('Mum', "There — you and your Morphs are right as rain. Don't forget to write! Or visit. Visiting is better.");
   },
@@ -58,7 +58,7 @@ export default {
     if (!yes) { await S.say('Haven Keeper', 'Safe travels! We are always open.'); return; }
     if (!S.state.party.length) { await S.say('Haven Keeper', "Oh! You don't have any Morphs with you. Come back when you do!"); return; }
     await S.say('Haven Keeper', "Let's see to your team...");
-    await S.heal();
+    await S.havenHeal();
     const p = S.state.player;
     S.setHealPoint(p.map, p.x, p.y);
     await S.say('Haven Keeper', 'All done! Your Morphs are fighting fit. Come back any time!');

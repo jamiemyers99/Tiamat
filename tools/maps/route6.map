@@ -56,3 +56,5 @@ item 3 6 item=full_tonic qty=1 flag=item_route6_3_6
 item 47 20 item=apex_capsule qty=1 flag=item_route6_47_20
 item 15 25 item=strong_incense qty=1 flag=item_route6_15_25 hidden=1
 item 31 12 item=rekindle_seed qty=1 flag=item_route6_31_12
+item 14 15 item=grand_tonic qty=1 flag=item_route6_14_15 hidden=1 in=tree
+item 30 20 item=growth_fruit qty=1 flag=item_route6_30_20 hidden=1 in=rock

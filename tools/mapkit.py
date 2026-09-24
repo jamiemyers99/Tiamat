@@ -107,8 +107,9 @@ class M:
     def sign(self, x, y, text, walk=False):
         return self.obj(f'prop {x} {y} sign text={_q(text)}' + (' walk=1' if walk else ''))
 
-    def item(self, x, y, item, qty=1, hidden=False):
-        return self.obj(f'item {x} {y} item={item} qty={qty} flag=item_{self.id}_{x}_{y}' + (' hidden=1' if hidden else ''))
+    def item(self, x, y, item, qty=1, hidden=False, inside=None):
+        """inside='bush'|'rock'|'tree': hidden inside a solid bush/rock/tree — found by facing it and pressing A."""
+        return self.obj(f'item {x} {y} item={item} qty={qty} flag=item_{self.id}_{x}_{y}' + (' hidden=1' if hidden or inside else '') + (f' in={inside}' if inside else ''))
 
     def trigger(self, x, y, script, w=1, h=1, once=None, cond=None):
         s = f'trigger {x} {y} script={script} w={w} h={h}'

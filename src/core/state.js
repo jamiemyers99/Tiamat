@@ -1,4 +1,7 @@
 // Game state, save slots and settings.
+import { natureFromId } from '../data/natures.js';
+import { refreshStarterMoves } from '../battle/mon.js';
+import { SPECIES } from '../data/species.js';
 import { SAVE_PREFIX, SETTINGS_KEY, SAVE_VERSION, MONEY_CAP, BOX_COUNT, BOX_SIZE } from '../config.js';
 
 export const DEFAULT_SETTINGS = {
@@ -31,7 +34,7 @@ export function saveSettings(s) {
 export function newState() {
   return {
     version: SAVE_VERSION,
-    player: { name: 'Rowan', style: 0, map: 'home_2f', x: 5, y: 4, face: 'down', surfing: false },
+    player: { name: 'Rowan', style: 0, gender: 'm', map: 'home_2f', x: 5, y: 4, face: 'down', surfing: false },
     rivalName: 'Wren',
     party: [],
     boxes: Array.from({ length: BOX_COUNT }, (_, i) => ({ name: `Box ${i + 1}`, slots: Array(BOX_SIZE).fill(null) })),
@@ -41,6 +44,9 @@ export function newState() {
     vars: {},
     defeated: {},
     index: { seen: [], caught: [] },
+    sexTally: { m: 0, f: 0 },
+    starterMoves2: true,
+    xpShareOn: false,
     sigils: [],
     playMs: 0,
     clock: 8 * 60,              // minutes since midnight (game clock)
@@ -141,6 +147,7 @@ export function migrate(s) {
   const base = newState();
   const out = { ...base, ...s };
   out.player = { ...base.player, ...(s.player || {}) };
+  if (!s.player || !s.player.gender) { out.player.gender = (out.player.style || 0) % 2 ? 'f' : 'm'; }
   out.index = { seen: [], caught: [], ...(s.index || {}) };
   out.flags = s.flags || {};
   out.vars = s.vars || {};
@@ -148,13 +155,30 @@ export function migrate(s) {
   out.boxes = Array.isArray(s.boxes) && s.boxes.length ? s.boxes : base.boxes;
   // Morphs from saves made before male/female forms: pick a sex that stays the same every load
   const giveSex = (m) => {
-    if (!m || m.sex) { return; }
-    m.sex = m.species === 'tiamat' ? 'f' : ((m.uid || 0) % 2 ? 'f' : 'm');
+    if (!m) { return; }
+    if (!m.sex) { m.sex = m.species === 'tiamat' ? 'f' : ((m.uid || 0) % 2 ? 'f' : 'm'); }
+    // Morphs from before natures existed get a stable one
+    if (!m.nature) { m.nature = natureFromId(m.uid, SPECIES[m.species]?.types || []); }
   };
   (out.party || []).forEach(giveSex);
   out.boxes.forEach((b) => (b.slots || []).forEach(giveSex));
+  // starter lines got their own signature moves: swap them into older saves once
+  if (!s.starterMoves2) {
+    (out.party || []).forEach(refreshStarterMoves);
+    out.boxes.forEach((b) => (b.slots || []).forEach(refreshStarterMoves));
+    out.starterMoves2 = true;
+  }
   out.version = SAVE_VERSION;
   return out;
+}
+
+// Money dropped when the whole team faints — like Pokémon it scales with progress, so a new Tamer
+// loses pocket change and a veteran loses a lot: (per-level rate by Sigils) × strongest Morph's level.
+export const BLACKOUT_RATE = [8, 16, 24, 36, 48, 64, 80];
+export function blackoutLoss(state) {
+  const sigils = Math.min(BLACKOUT_RATE.length - 1, (state.sigils || []).length);
+  const top = Math.max(1, ...(state.party || []).map((m) => m.level || 1));
+  return Math.max(0, Math.min(state.money || 0, BLACKOUT_RATE[sigils] * top));
 }
 
 export function hasLegacySave() {

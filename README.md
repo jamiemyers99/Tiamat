@@ -92,6 +92,19 @@ your starter and gift Morphs are always strong. `npm run balance` prints the who
 - **Modern presentation**: 480×270 widescreen pixel art, 32×32 Gen-4-style people, smooth movement and camera,
   animated battles, day/night lighting with glowing windows and lamps, fog/rain/snow
   weather, screen transitions, and a full soundtrack.
+- **Battle details like the classics**: 25 natures (one stat +10 %, one −10 %, and each type leans
+  toward natures that suit it — Brawl Morphs are often strong, Mind Morphs clever), a 1.5× same-type
+  bonus (shown as SAME TYPE BONUS in the move menu), an even male/female spread in the wild,
+  signature moves for the three starter lines (no other Morph learns them) and for 28 evolved
+  Morphs (stronger than the ordinary moves, learned a few levels after evolving).
+- **Secrets**: items hidden inside bushes, rocks and trees — face one and press A (or your confirm
+  key) to search it. One bush just north of Rootmere hides an **XP Share**: attach it from the Bag and
+  every Morph in the team gets the full XP from each battle.
+- **Your hero**: choose boy or girl at the start, then one of four looks for each.
+- **Resting**: resting at home closes your eyes (the screen darkens) while your team recovers;
+  Havens show your team's health refilling.
+- **Blacking out**: you drop a little money early on and more as you earn Sigils (like the classics),
+  never more than you're carrying — the amount shown is exactly what you lost.
 - **Saves**: three save slots in your browser (Continue from the title screen).
 
 The whole story is in [STORY.md](STORY.md).

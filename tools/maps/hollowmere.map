@@ -68,3 +68,4 @@ trigger 2 30 script=hollowmere.shore w=12 h=1 once=maren1_done cond=sigil_veil
 trigger 1 12 script=hollowmere.lakegate w=1 h=8 cond=!maren1_done
 item 40 31 item=rekindle_seed qty=1 flag=item_hollowmere_40_31 hidden=1
 item 3 31 item=dusk_capsule qty=1 flag=item_hollowmere_3_31
+item 24 28 item=pearl qty=1 flag=item_hollowmere_24_28 hidden=1 in=rock

@@ -8,6 +8,7 @@ import { MapView } from '../world/MapView.js';
 import { Actor, DIRS, OPP } from '../world/Actor.js';
 import { Lighting, Weather, timeOfDay } from '../world/Atmosphere.js';
 import { UI } from './UIScene.js';
+import { playerStyleKey } from '../data/players.js';
 import { ScriptAPI, runScript, evalCond } from '../core/script.js';
 import { rollEncounter } from '../data/encounters.js';
 import { TRAINERS } from '../data/trainers.js';
@@ -124,7 +125,7 @@ export class WorldScene extends Phaser.Scene {
   }
 
   playerSprite() {
-    return ['player_a', 'player_b', 'player_c', 'player_d'][G.state.player.style || 0];
+    return playerStyleKey(G.state.player.style || 0);
   }
 
   _npcVisible(pr, id) {
@@ -497,7 +498,15 @@ export class WorldScene extends Phaser.Scene {
     setFlag(it.flag);
     if (it.sprite) { it.sprite.destroy(); }
     this.itemsOnMap = this.itemsOnMap.filter((x) => x !== it);
+    const inside = it.o.props.in;
+    if (inside) {
+      audio.blip('bump');
+      await UI.say(null, { bush: 'The leaves rustle... something is tucked away inside the bush!', rock: 'There is a gap under the rock... something is wedged inside!', tree: 'There is a hollow in the tree... something is hidden inside!' }[inside] || 'Something is hidden here!');
+    }
     await this.S.give(id, qty, { found: true });
+    if (id === 'xp_share') {
+      await UI.say(null, 'Attach it from the Bag (Key Items) and every Morph in your team will get the full XP from each battle.');
+    }
     this.busy--;
   }
 

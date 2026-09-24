@@ -1029,9 +1029,26 @@ def spire_crown():
 
 
 # ═══════════════════════════════════════════════════════════════════════════
+# Items hidden inside bushes, rocks and trees (Pokémon-style): face it and press A to search.
+# route1 (4, 24) is the berry bush just north of Rootmere's path — the early XP Share easter egg.
+HIDDEN_IN = {
+    'route1': [(4, 24, 'xp_share', 1, 'bush'), (21, 38, 'tonic', 2, 'bush')],
+    'rootmere': [(13, 4, 'tonic', 1, 'bush')],
+    'route2': [(45, 14, 'capsule', 3, 'rock'), (31, 23, 'purge_herb', 2, 'bush')],
+    'brindlewood': [(15, 23, 'wake_chime', 1, 'bush')],
+    'thornwild': [(38, 15, 'strong_tonic', 1, 'tree'), (35, 8, 'rekindle_seed', 1, 'bush')],
+    'route3': [(12, 10, 'prime_capsule', 2, 'rock')],
+    'route4': [(3, 12, 'star_shard', 1, 'bush'), (27, 40, 'focus_drop', 1, 'rock')],
+    'hollowmere': [(24, 28, 'pearl', 1, 'rock')],
+    'route6': [(14, 15, 'grand_tonic', 1, 'tree'), (30, 20, 'growth_fruit', 1, 'rock')],
+}
+
+
 def main():
     for fn in MAPS:
         m = fn()
+        for (x, y, item, qty, inside) in HIDDEN_IN.get(m.id, []):
+            m.item(x, y, item, qty, inside=inside)
         m.save()
     print(f'wrote {len(MAPS)} map sources')
 

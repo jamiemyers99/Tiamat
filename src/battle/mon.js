@@ -2,6 +2,7 @@
 import { SPECIES } from '../data/species.js';
 import { MOVES } from '../data/moves.js';
 import { MAX_LEVEL } from '../config.js';
+import { natureMult, rollNature } from '../data/natures.js';
 
 export const STAT_KEYS = ['hp', 'atk', 'def', 'spa', 'spd', 'spe'];
 export const STAT_NAMES = { hp: 'HP', atk: 'Attack', def: 'Defense', spa: 'Sp. Atk', spd: 'Sp. Def', spe: 'Speed', acc: 'accuracy', eva: 'evasion' };
@@ -19,6 +20,18 @@ export function rollSex(speciesId, rnd = Math.random) {
 // Atlas frame for a Morph: view 'f' (front), 'b' (back) or 'i' (icon).
 export function monFrame(mon, view = 'f') {
   return `${mon.species}_${view}${mon.shiny ? 's' : ''}${mon.sex === 'f' ? '_fem' : ''}`;
+}
+
+// Wild Morphs: keep the running count of males and females close to even, so a run of one sex
+// can't happen for long (the plain coin flip could give long streaks early on).
+export function balancedSex(speciesId, tally, rnd = Math.random) {
+  const f = SPECIES[speciesId]?.female ?? 0.5;
+  if (f >= 1 || f <= 0 || !tally) { return rollSex(speciesId, rnd); }
+  const diff = (tally.m || 0) - (tally.f || 0);
+  const p = Math.min(0.85, Math.max(0.15, f + diff * 0.12));
+  const s = rnd() < p ? 'f' : 'm';
+  tally[s] = (tally[s] || 0) + 1;
+  return s;
 }
 
 export function sexSymbol(mon) { return mon.sex === 'f' ? '♀' : (mon.sex === 'm' ? '♂' : ''); }
@@ -39,7 +52,7 @@ export function calcStats(mon) {
     const b = sp.base[i];
     const iv = mon.ivs[k] ?? 15;
     const v = Math.floor(((2 * b + iv) * L) / 100);
-    out[k] = k === 'hp' ? v + L + 10 : v + 5;
+    out[k] = k === 'hp' ? v + L + 10 : Math.floor((v + 5) * natureMult(mon.nature, k));
   });
   return out;
 }
@@ -84,10 +97,31 @@ export function createMon(speciesId, level, opts = {}) {
     metMap: opts.metMap || null,
     shiny: opts.shiny ?? (rnd() < SHINY_ODDS),
     sex: opts.sex || rollSex(speciesId, rnd),
+    nature: opts.nature || rollNature(sp.types, rnd),
     friendship: 70,
   };
   mon.hp = maxHp(mon);
   return mon;
+}
+
+// The three starter lines now learn their own signature moves. Morphs from older saves swap the
+// moves they learned from the old shared learnsets for the new ones (moves taught by Tech Discs stay).
+export const STARTER_LINES = ['spriglet', 'spriggrove', 'mosswarden', 'cindlet', 'cindreaver', 'pyromane', 'puddlet', 'torrentide', 'maelstrand'];
+const OLD_STARTER_MOVES = new Set(['bump', 'gruff_bark', 'stern_look', 'nip', 'leaf_nick', 'root_snare', 'stone_toss', 'vine_lash', 'drowse_pollen',
+  'sap_drain', 'seed_volley', 'moss_shield', 'bloom_blast', 'heal_bud', 'quake_stomp', 'timber_crash', 'stoneskin', 'ember_spark', 'smoke_veil',
+  'cinder_claw', 'flare_bite', 'blaze_ring', 'kindle', 'inferno_lash', 'pyre_rush', 'shade_fang', 'nightrend', 'shadow_creep', 'dread_gaze',
+  'splash_drop', 'chill_nip', 'rip_current', 'tidal_guard', 'brine_fang', 'tide_pulse', 'undertow', 'hydro_burst', 'icicle_jab', 'rime_ray',
+  'frost_armor', 'whiteout_gale']);
+
+export function refreshStarterMoves(mon) {
+  if (!mon || !STARTER_LINES.includes(mon.species)) { return false; }
+  const fresh = movesForLevel(mon.species, mon.level);
+  const keep = mon.moves.filter((m) => !OLD_STARTER_MOVES.has(m.id) && !fresh.includes(m.id));
+  const room = 4 - Math.min(4, keep.length);
+  const ids = [...(room ? fresh.slice(-room) : []), ...keep.map((m) => m.id)].slice(0, 4);
+  const before = mon.moves.map((m) => m.id).join();
+  mon.moves = ids.map((id) => mon.moves.find((m) => m.id === id) || makeMove(id));
+  return before !== ids.join();
 }
 
 export function healMon(mon) {
