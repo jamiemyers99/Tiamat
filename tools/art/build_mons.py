@@ -8,18 +8,23 @@ from mon_designs import D
 from spr import Spr
 from PIL import Image
 
+# species that only exist as female (Tiamat, the Draco Queen): their plain frames use the female form too
+FEMALE_ONLY = {'tiamat'}
+
 
 def main(only=None):
     frames = []
     for sid, (mats, parts) in D.items():
         if only and sid not in only:
             continue
-        frames.append((f'{sid}_f', render(parts, mats, 96, 'front')))
-        frames.append((f'{sid}_b', render(parts, mats, 96, 'back')))
-        frames.append((f'{sid}_fs', render(parts, mats, 96, 'front', shiny=True)))
-        frames.append((f'{sid}_bs', render(parts, mats, 96, 'back', shiny=True)))
-        frames.append((f'{sid}_i', render(parts, mats, 32, 'front')))
-        frames.append((f'{sid}_is', render(parts, mats, 32, 'front', shiny=True)))
+        for sex in ('', '_fem'):
+            fem = sex == '_fem' or sid in FEMALE_ONLY
+            frames.append((f'{sid}_f{sex}', render(parts, mats, 96, 'front', female=fem)))
+            frames.append((f'{sid}_b{sex}', render(parts, mats, 96, 'back', female=fem)))
+            frames.append((f'{sid}_fs{sex}', render(parts, mats, 96, 'front', shiny=True, female=fem)))
+            frames.append((f'{sid}_bs{sex}', render(parts, mats, 96, 'back', shiny=True, female=fem)))
+            frames.append((f'{sid}_i{sex}', render(parts, mats, 32, 'front', female=fem)))
+            frames.append((f'{sid}_is{sex}', render(parts, mats, 32, 'front', shiny=True, female=fem)))
     big = [f for f in frames if f[1].w == 96]
     small = [f for f in frames if f[1].w == 32]
     cols = 16
@@ -45,7 +50,7 @@ def main(only=None):
     sheet.image().save(os.path.join(out, 'mons.png'), optimize=True)
     with open(os.path.join(out, 'mons.json'), 'w') as f:
         json.dump({'frames': meta, 'meta': {'image': 'mons.png', 'size': {'w': W, 'h': H}, 'scale': '1'}}, f)
-    print(f'mons: {len(big)//4} species, sheet {W}x{H}')
+    print(f'mons: {len(big)//8} species (male + female), sheet {W}x{H}')
 
 
 def contact(path='/tmp/contact.png'):

@@ -45,11 +45,11 @@ it('pearl', 'Tide Pearl', 'items', 0, { kind: 'sell' }, 'A lovely pearl. Shops p
 it('star_shard', 'Star Shard', 'items', 0, { kind: 'sell' }, 'A shard that fell from the night sky. Worth a lot.', { sell: 3000 });
 
 // ── Key items ───────────────────────────────────────────────────────────────
-it('trail_boots', 'Trail Boots', 'key', 0, { kind: 'key' }, 'Hold the Run button (Shift) to dash.', { key: true });
+it('trail_boots', 'Trail Boots', 'key', 0, { kind: 'key' }, 'Hold {BTN:run} while walking to dash.', { key: true });
 it('bond_charm', 'Bond Charm', 'key', 0, { kind: 'key' }, 'Lets Morphs that sit out a battle still gain some XP.', { key: true });
 it('reach_map', 'Reach Map', 'key', 0, { kind: 'map' }, 'A map of the Riven Reach. Shows where you are.', { key: true });
 it('brush_hook', 'Brush Hook', 'key', 0, { kind: 'key' }, 'A curved blade for clearing brambles. Use it by facing a bramble.', { key: true });
-it('skiff', 'Skiff', 'key', 0, { kind: 'key' }, 'A folding boat. Face open water and press Confirm to launch it.', { key: true });
+it('skiff', 'Skiff', 'key', 0, { kind: 'key' }, 'A folding boat. Face open water and press {BTN:confirm} to launch it.', { key: true });
 it('marsh_parcel', 'Marsh Parcel', 'key', 0, { kind: 'key' }, 'A parcel of research notes for Warden Mossa.', { key: true });
 it('pips_bell', "Pip's Bell", 'key', 0, { kind: 'key' }, 'A little bell on a ribbon. Pip the Burrlet wore it.', { key: true });
 it('forge_pass', 'Forge Pass', 'key', 0, { kind: 'key' }, 'A pass for the Coldforge Ironworks.', { key: true });

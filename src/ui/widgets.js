@@ -1,7 +1,9 @@
 // Reusable UI widgets: panels, list menus, confirm prompts, bars.
 import { input } from '../core/input.js';
+import { GAME_W } from '../config.js';
 import { audio } from '../core/audio.js';
 import { txt, measure } from './text.js';
+import { sexSymbol } from '../battle/mon.js';
 
 let menuSeq = 0;
 
@@ -9,6 +11,23 @@ export function panel(scene, x, y, w, h, style = 'dark') {
   const p = scene.add.nineslice(Math.round(x), Math.round(y), `panel_${style}`, null, Math.round(w), Math.round(h), 5, 5, 5, 5);
   p.setOrigin(0, 0);
   return p;
+}
+
+// ♂ / ♀ after a name: blue for male, pink for female. x is where the name starts.
+export function sexMark(scene, x, y, mon, name) {
+  const sym = sexSymbol(mon);
+  return txt(scene, x + (name ? measure(scene, name) + 2 : 0), y, sym, { color: sym === '♀' ? 'pink' : 'blue' });
+}
+
+// Highlight bar for the selected row of a list (easy to see on small phone screens).
+export function selBar(scene, x, w, h = 13) {
+  const g = scene.add.graphics();
+  g.fillStyle(0xffd65c, 0.2); g.fillRoundedRect(0, 0, w, h, 3);
+  g.lineStyle(1, 0xffd65c, 0.9); g.strokeRoundedRect(0.5, 0.5, w - 1, h - 1, 3);
+  g.x = x;
+  const tw = scene.tweens.add({ targets: g, alpha: 0.6, duration: 650, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+  g.once('destroy', () => tw.remove());
+  return g;
 }
 
 // A vertical list menu with a cursor. Resolves with the chosen item's value,
@@ -31,10 +50,15 @@ export class ListMenu {
     this.pad = opts.pad ?? 7;
     this.height = this.visible * this.rowH + this.pad * 2 - 2;
     if (opts.anchor === 'bottom-right') {
-      this.x = opts.x - this.width; this.y = opts.y - this.height;
+      // on phones, keep clear of the A / B / RUN buttons
+      const right = Math.min(opts.x, input.touchSafeRight(GAME_W));
+      this.x = right - this.width; this.y = opts.y - this.height;
     }
     this.container = scene.add.container(0, 0).setDepth(this.depth).setScrollFactor(0);
     if (!opts.noPanel) { this.container.add(panel(scene, this.x, this.y, this.width, this.height, this.style)); }
+    this.barH = Math.min(this.rowH - 1, 17);
+    this.bar = selBar(scene, this.x + 3, this.width - 6, this.barH);
+    this.container.add(this.bar);
     this.rows = [];
     for (let i = 0; i < this.visible; i++) {
       const t = txt(scene, this.x + 14, this.y + this.pad + i * this.rowH, '');
@@ -57,11 +81,13 @@ export class ListMenu {
       const [t, r] = this.rows[i];
       if (!item) { t.setText(''); r.setText(''); continue; }
       t.setText(item.label);
-      t.setFont(`main_${item.disabled ? 'gray' : (item.color || 'white')}`);
+      const sel = this.scroll + i === this.index;
+      t.setFont(`main_${item.disabled ? 'gray' : (item.color || (sel ? 'gold' : 'white'))}`);
       r.setText(item.right !== undefined ? String(item.right) : '');
       r.setFont(`main_${item.rightColor || (item.disabled ? 'gray' : 'white')}`);
     }
     this.cursor.y = this.y + this.pad + (this.index - this.scroll) * this.rowH + 1;
+    this.bar.y = this.y + this.pad + (this.index - this.scroll) * this.rowH - Math.floor((this.barH - 9) / 2) - 1;
     this.upArrow.setVisible(this.scroll > 0);
     this.downArrow.setVisible(this.scroll + this.visible < this.items.length);
   }

@@ -9,9 +9,9 @@ import { SPECIES, SPECIES_LIST } from '../data/species.js';
 import { MOVES } from '../data/moves.js';
 import { ITEMS, POCKETS, canLearnDisc } from '../data/items.js';
 import { TYPE_COLORS } from '../data/types.js';
-import { calcStats, maxHp, monName, xpProgress, xpToNext, STAT_KEYS, addXp, learnMove, replaceMove, evolutionTarget, healMon } from '../battle/mon.js';
-import { txt, wrap, fmt, measure } from '../ui/text.js';
-import { panel, choose, ListMenu, Bar } from '../ui/widgets.js';
+import { calcStats, maxHp, monName, monFrame, sexSymbol, xpProgress, xpToNext, STAT_KEYS, addXp, learnMove, replaceMove, evolutionTarget, healMon } from '../battle/mon.js';
+import { txt, wrap, fmt, fmtKeys, measure } from '../ui/text.js';
+import { panel, selBar, sexMark, choose, ListMenu, Bar } from '../ui/widgets.js';
 import { UI } from './UIScene.js';
 import { REGION } from '../data/region.js';
 import { nameEntry } from '../ui/nameEntry.js';
@@ -165,13 +165,14 @@ export class MenuScene extends Phaser.Scene {
       const c = this.add.container(0, 0);
       c.add(this.dim(0.85));
       c.add(txt(this, 16, 10, title || (swapFrom !== null ? 'Move to where?' : 'Team'), { color: 'gold' }));
-      c.add(txt(this, GAME_W - 16, 10, pick ? 'Z: choose   X: back' : 'Z: options   X: back', { face: 'small', color: 'gray', align: 'right' }));
+      c.add(txt(this, GAME_W - 16, 10, fmtKeys(pick ? '{BTN:confirm}: choose   {BTN:cancel}: back' : '{BTN:confirm}: options   {BTN:cancel}: back'), { face: 'small', color: 'gray', align: 'right' }));
       const rows = party.map((m, k) => {
         const x = 16 + (k % 2) * 228, y = 26 + Math.floor(k / 2) * 76;
         const ok = !filter || filter(m);
         c.add(panel(this, x, y, 220, 70, swapFrom === k ? 'gold' : (k === 0 ? 'teal' : 'dark')));
-        c.add(this.add.image(x + 26, y + 30, 'mons', `${m.species}_${m.shiny ? 'is' : 'i'}`).setScale(1.3).setAlpha(ok ? 1 : 0.4));
+        c.add(this.add.image(x + 26, y + 30, 'mons', monFrame(m, 'i')).setScale(1.3).setAlpha(ok ? 1 : 0.4));
         c.add(txt(this, x + 52, y + 8, monName(m), { color: ok ? 'white' : 'gray' }));
+        c.add(sexMark(this, x + 52, y + 8, m, monName(m)));
         c.add(txt(this, x + 212, y + 8, `Lv${m.level}`, { align: 'right', color: 'gold' }));
         SPECIES[m.species].types.forEach((t, j) => c.add(this.add.image(x + 52 + j * 38, y + 22, 'ui', `type_${t}`).setOrigin(0, 0)));
         const bar = new Bar(this, x + 52, y + 36, 110, 4);
@@ -197,22 +198,26 @@ export class MenuScene extends Phaser.Scene {
         else if (input.pressed('cancel', o)) { audio.sfx('cancel'); return 'back'; }
         return undefined;
       });
-      c.destroy();
       if (action === 'back') {
+        c.destroy();
         if (swapFrom !== null) { swapFrom = null; continue; }
         return null;
       }
       if (pick) {
+        c.destroy();
         if (filter && !filter(party[i])) { await this.toast("That Morph can't be chosen."); continue; }
         return i;
       }
       if (swapFrom !== null) {
+        c.destroy();
         const t = party[swapFrom]; party[swapFrom] = party[i]; party[i] = t;
         swapFrom = null;
         continue;
       }
+      // the team stays on screen behind the options
       const opt = await choose(this, [{ label: 'Summary', value: 'sum' }, { label: 'Switch', value: 'swap' }, { label: 'Item', value: 'item' }, { label: 'Nickname', value: 'nick' }, { label: 'Cancel', value: null }],
         { x: GAME_W - 12, y: GAME_H - 12, anchor: 'bottom-right', depth: 20 });
+      c.destroy();
       if (opt === 'sum') { i = await this.summary(i); }
       if (opt === 'swap') { swapFrom = i; }
       if (opt === 'item') { await this.bag({ target: i }); }
@@ -242,8 +247,9 @@ export class MenuScene extends Phaser.Scene {
       c.add(this.dim(0.92));
       c.add(panel(this, 8, 8, 170, 254, 'dark'));
       c.add(txt(this, 18, 16, monName(m), { color: 'gold' }));
+      c.add(sexMark(this, 18, 16, m, monName(m)));
       c.add(txt(this, 168, 16, `Lv${m.level}`, { align: 'right' }));
-      c.add(this.add.image(93, 132, 'mons', `${m.species}_${m.shiny ? 'fs' : 'f'}`).setOrigin(0.5, 1).setScale(1.3));
+      c.add(this.add.image(93, 132, 'mons', monFrame(m, 'f')).setOrigin(0.5, 1).setScale(1.3));
       if (m.shiny) { c.add(txt(this, 18, 30, '★ Radiant', { color: 'gold', face: 'small' })); }
       sp.types.forEach((t, j) => c.add(this.add.image(18 + j * 40, 142, 'ui', `type_${t}`).setOrigin(0, 0)));
       c.add(txt(this, 18, 156, `No. ${String(sp.num).padStart(3, '0')}  ${sp.name}`, { face: 'small', color: 'gray' }));
@@ -294,7 +300,7 @@ export class MenuScene extends Phaser.Scene {
         c.add(txt(this, 198, 150, `Friendship: ${m.friendship >= 200 ? 'Adores you' : m.friendship >= 120 ? 'Very close' : m.friendship >= 80 ? 'Friendly' : 'Getting used to you'}`, { face: 'small' }));
         c.add(txt(this, 198, 164, `Caught on: ${m.metMap ? (this.cache.json.get('mapIndex')[m.metMap] || {}).name || m.metMap : 'a gift'}`, { face: 'small' }));
       }
-      c.add(txt(this, GAME_W - 12, GAME_H - 10, '< > page   ^ v Morph   X back', { face: 'small', color: 'gray', align: 'right' }));
+      c.add(txt(this, GAME_W - 12, GAME_H - 10, fmtKeys('< > page   ^ v Morph   {BTN:cancel} back'), { face: 'small', color: 'gray', align: 'right' }));
       const act = await this.loop(() => {
         const o = this.owner;
         if (input.nav('left', o)) { return 'l'; }
@@ -341,7 +347,7 @@ export class MenuScene extends Phaser.Scene {
         const it = ITEMS[id];
         icon.setFrame(id).setVisible(this.textures.get('icons').has(id));
         nameT.setText(it.name);
-        const dl = wrap(this, it.desc, 186);
+        const dl = wrap(this, fmtKeys(it.desc), 186);
         descLines.forEach((l, j) => l.setText(dl[j] || ''));
       };
       if (!ids.length) {
@@ -493,6 +499,7 @@ export class MenuScene extends Phaser.Scene {
     c.add(txt(this, 16, 14, `Seen ${seen.size}   Caught ${caught.size}`, { color: 'gold', face: 'main' }));
     const rows = [];
     for (let k = 0; k < 15; k++) { const t = txt(this, 30, 32 + k * 15, ''); const b = this.add.image(18, 36 + k * 15, 'ui', 'menu_party').setScale(0.5); c.add([t, b]); rows.push([t, b]); }
+    const bar = selBar(this, 11, 194, 14); c.addAt(bar, 3);
     const cur = this.add.image(10, 0, 'cursor').setOrigin(0, 0); c.add(cur);
     const pic = this.add.image(343, 116, 'mons', 'nibbit_f').setOrigin(0.5, 1).setScale(1.1); c.add(pic);
     const nm = txt(this, 343, 122, '', { align: 'center', color: 'gold' });
@@ -515,6 +522,8 @@ export class MenuScene extends Phaser.Scene {
         b.setVisible(caught.has(sp.id));
       });
       cur.setY(33 + (i - scroll) * 15);
+      bar.setY(29 + (i - scroll) * 15);
+      rows.forEach(([t], k) => { if (k === i - scroll && list[scroll + k] && seen.has(list[scroll + k].id)) { t.setFont('main_gold'); } });
       const sp = list[i];
       const s = seen.has(sp.id), cg = caught.has(sp.id);
       pic.setFrame(`${sp.id}_f`).setVisible(s);
@@ -609,9 +618,10 @@ export class MenuScene extends Phaser.Scene {
     c.add(this.dim(0.9));
     c.add(panel(this, 60, 20, 360, 230, 'dark'));
     c.add(txt(this, 76, 28, 'OPTIONS', { color: 'gold' }));
-    c.add(txt(this, 404, 28, '< > change   X back', { align: 'right', face: 'small', color: 'gray' }));
+    c.add(txt(this, 404, 28, fmtKeys('< > change   {BTN:cancel} back'), { align: 'right', face: 'small', color: 'gray' }));
     const rows = defs.map((d, k) => [txt(this, 90, 48 + k * 17, d.label), txt(this, 404, 48 + k * 17, '', { align: 'right', color: 'blue' })]);
     rows.forEach((r) => c.add(r));
+    const bar = selBar(this, 72, 338, 15); c.addAt(bar, 2);
     const cur = this.add.image(76, 0, 'cursor').setOrigin(0, 0); c.add(cur);
     const valText = (d) => {
       if (d.open) { return ''; }
@@ -621,8 +631,9 @@ export class MenuScene extends Phaser.Scene {
       return d.names ? d.names[vi] : String(S[d.k]).replace(/^./, (x) => x.toUpperCase());
     };
     const draw = () => {
-      rows.forEach(([, v], k) => v.setText(valText(defs[k])));
+      rows.forEach(([l, v], k) => { v.setText(valText(defs[k])); l.setFont(k === i ? 'main_gold' : 'main_white'); });
       cur.setY(49 + i * 17);
+      bar.setY(45 + i * 17);
     };
     draw();
     for (;;) {
@@ -673,7 +684,7 @@ export class MenuScene extends Phaser.Scene {
     c.add(this.dim(0.94));
     c.add(panel(this, 40, 8, 400, 254, 'dark'));
     c.add(txt(this, 56, 16, 'CONTROLS', { color: 'gold' }));
-    const kn = (a) => keyName(input.bindings[a][0] || input.bindings[a][1]);
+    const kn = (a) => input.hint(a);
     c.add(txt(this, 424, 16, `${kn('confirm')} change key   ${kn('cancel')} done`, { align: 'right', face: 'small', color: 'gray' }));
     c.add(txt(this, 262, 32, 'KEY 1', { align: 'center', face: 'small', color: 'gray' }));
     c.add(txt(this, 362, 32, 'KEY 2', { align: 'center', face: 'small', color: 'gray' }));
@@ -693,7 +704,9 @@ export class MenuScene extends Phaser.Scene {
     const status = txt(this, 240, 244, '', { align: 'center', color: 'gold' });
     c.add(status);
     const cur = this.add.image(56, 0, 'cursor').setOrigin(0, 0);
-    const box = this.add.rectangle(0, 0, 86, 14).setStrokeStyle(1, 0xffd65c).setOrigin(0.5, 0);
+    const box = this.add.rectangle(0, 0, 86, 14, 0xffd65c, 0.25).setStrokeStyle(1, 0xffd65c).setOrigin(0.5, 0);
+    const bar = selBar(this, 52, 364, 14);
+    c.addAt(bar, 2);
     c.add([cur, box]);
     let r = 0, col = 0;
     const say = (t) => status.setText(t);
@@ -701,6 +714,7 @@ export class MenuScene extends Phaser.Scene {
       rows.forEach(([k1, k2], i) => { k1.setText(keyName(bind[REBINDABLE[i]][0])); k2.setText(keyName(bind[REBINDABLE[i]][1])); });
       const y = r < nR ? Y(r) : Y(r) + 4;
       cur.setY(y + 1);
+      bar.setY(y - 3);
       box.setVisible(r < nR);
       if (r < nR) { box.setPosition(col === 0 ? 262 : 362, y - 2); }
     };
@@ -865,7 +879,7 @@ export class MenuScene extends Phaser.Scene {
       }
       const show = (k) => {
         icon.setFrame(k).setVisible(this.textures.get('icons').has(k));
-        const w = wrap(this, ITEMS[k].desc, 360);
+        const w = wrap(this, fmtKeys(ITEMS[k].desc), 360);
         dl[0].setText(w[0] || ''); dl[1].setText(w[1] || '');
         own.setText(`In bag: ${itemCount(k)}`);
       };
@@ -932,14 +946,14 @@ export class MenuScene extends Phaser.Scene {
         const x = 18 + (k % 6) * 50, y = 32 + Math.floor(k / 6) * 44;
         c.add(this.add.rectangle(x, y, 46, 40, 0x262a47).setOrigin(0, 0));
         const m = bx.slots[k];
-        if (m) { c.add(this.add.image(x + 23, y + 20, 'mons', `${m.species}_${m.shiny ? 'is' : 'i'}`)); }
+        if (m) { c.add(this.add.image(x + 23, y + 20, 'mons', monFrame(m, 'i'))); }
       }
       c.add(panel(this, 332, 8, 140, 254, 'dark'));
       c.add(txt(this, 402, 14, 'Team', { align: 'center', color: 'gold' }));
       G.state.party.forEach((m, k) => {
         const y = 30 + k * 38;
         c.add(this.add.rectangle(340, y, 124, 34, 0x262a47).setOrigin(0, 0));
-        c.add(this.add.image(358, y + 17, 'mons', `${m.species}_${m.shiny ? 'is' : 'i'}`));
+        c.add(this.add.image(358, y + 17, 'mons', monFrame(m, 'i')));
         c.add(txt(this, 378, y + 5, monName(m).slice(0, 10), { face: 'main' }));
         c.add(txt(this, 378, y + 19, `Lv${m.level}`, { face: 'small', color: 'gray' }));
       });
@@ -948,12 +962,12 @@ export class MenuScene extends Phaser.Scene {
       if (side === 'box') { sx = 17 + cx * 50; sy = 31 + cy * 44; }
       else { sx = 339; sy = 29 + pi * 38; sw = 126; sh = 36; }
       c.add(this.add.rectangle(sx, sy, sw, sh).setOrigin(0, 0).setStrokeStyle(2, held ? 0x7cea8c : 0xffd65c));
-      if (held) { c.add(this.add.image(sx + sw - 6, sy + 4, 'mons', `${held.species}_i`).setScale(0.9)); }
+      if (held) { c.add(this.add.image(sx + sw - 6, sy + 4, 'mons', monFrame(held, 'i')).setScale(0.9)); }
       // detail
       const m = side === 'box' ? bx.slots[cy * 6 + cx] : G.state.party[pi];
       const show = held || m;
-      if (show) { c.add(txt(this, 14, GAME_H - 22, `${monName(show)}  Lv${show.level}  ${SPECIES[show.species].types.join('/')}`, { face: 'small' })); }
-      c.add(txt(this, GAME_W - 12, GAME_H - 11, held ? 'Z: place   X: cancel' : 'Z: pick up   PgUp/PgDn: box   X: close', { face: 'small', color: 'gray', align: 'right' }));
+      if (show) { c.add(txt(this, 14, GAME_H - 22, `${monName(show)} ${sexSymbol(show)}  Lv${show.level}  ${SPECIES[show.species].types.join('/')}`, { face: 'small' })); }
+      c.add(txt(this, GAME_W - 12, GAME_H - 11, fmtKeys(held ? '{BTN:confirm}: place   {BTN:cancel}: cancel' : (input.lastDevice === 'key' ? '{BTN:confirm}: pick up   PgUp/PgDn: box   {BTN:cancel}: close' : '{BTN:confirm}: pick up   left edge: box   {BTN:cancel}: close')), { face: 'small', color: 'gray', align: 'right' }));
     };
     redraw();
     await this.loop(() => {

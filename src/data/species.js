@@ -234,9 +234,13 @@ s(67, 'strixage', 'Strixage', ['Wing', 'Mind'], [80, 55, 70, 95, 90, 70], 'mediu
 // ── Legendary ──────────────────────────────────────────────────────────────
 s(68, 'tiamat', 'Tiamat', ['Drake', 'Tide'], [105, 95, 100, 135, 110, 90], 'slow', 306, 3, null,
   [[1, 'primordial_tide'], [1, 'scale_rake'], [1, 'rift_nova'], [1, 'mend'], [60, 'hydro_burst'], [70, 'draconic_surge']],
-  'Primordial Morph', 'The first sea, given a shape. The old songs say the whole Reach was made from her sundered body — and that she only sleeps.');
+  'Draco Queen Morph', 'The first sea, given a shape. The old songs say the whole Reach was made from her sundered body — and that she only sleeps.');
 
 export const SPECIES_LIST = LIST;
+
+// Chance a Morph is female (0–1). Every Morph has male and female forms; Tiamat, the Draco Queen, is always female.
+for (const sp of LIST) { sp.female = 0.5; }
+SPECIES.tiamat.female = 1;
 
 export function validateSpecies() {
   const problems = [];

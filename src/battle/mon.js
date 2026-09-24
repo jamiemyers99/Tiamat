@@ -8,6 +8,21 @@ export const STAT_NAMES = { hp: 'HP', atk: 'Attack', def: 'Defense', spa: 'Sp. A
 
 let uidCounter = Date.now() % 100000;
 
+// 1 wild Morph in 100 is Radiant (shiny). They're caught like any other Morph.
+export const SHINY_ODDS = 1 / 100;
+
+export function rollSex(speciesId, rnd = Math.random) {
+  const f = SPECIES[speciesId]?.female ?? 0.5;
+  return f >= 1 ? 'f' : (f <= 0 ? 'm' : (rnd() < f ? 'f' : 'm'));
+}
+
+// Atlas frame for a Morph: view 'f' (front), 'b' (back) or 'i' (icon).
+export function monFrame(mon, view = 'f') {
+  return `${mon.species}_${view}${mon.shiny ? 's' : ''}${mon.sex === 'f' ? '_fem' : ''}`;
+}
+
+export function sexSymbol(mon) { return mon.sex === 'f' ? '♀' : (mon.sex === 'm' ? '♂' : ''); }
+
 export function xpForLevel(growth, L) {
   if (L <= 1) { return 0; }
   const c = L * L * L;
@@ -67,7 +82,8 @@ export function createMon(speciesId, level, opts = {}) {
     ot: opts.ot || null,
     metLevel: level,
     metMap: opts.metMap || null,
-    shiny: opts.shiny ?? (rnd() < 1 / 512),
+    shiny: opts.shiny ?? (rnd() < SHINY_ODDS),
+    sex: opts.sex || rollSex(speciesId, rnd),
     friendship: 70,
   };
   mon.hp = maxHp(mon);

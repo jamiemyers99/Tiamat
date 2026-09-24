@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { GAME_W, GAME_H } from './config.js';
 import { input } from './core/input.js';
+import { setHintProvider } from './ui/text.js';
 import { audio } from './core/audio.js';
 import { G } from './core/state.js';
 import { BootScene } from './scenes/BootScene.js';
@@ -34,6 +35,7 @@ const config = {
 };
 
 input.setBindings(G.settings.keys);
+setHintProvider((a) => input.hint(a), () => input.lastDevice === 'key');
 const game = new Phaser.Game(config);
 window.__tiamat = { game, G, input, createMon, healMon, state: stateMod };
 audio.init(game);

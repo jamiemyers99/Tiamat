@@ -4,7 +4,7 @@ import { GAME_W, GAME_H } from '../config.js';
 import { input } from '../core/input.js';
 import { audio } from '../core/audio.js';
 import { G, markCaught } from '../core/state.js';
-import { evolve, monName, replaceMove } from '../battle/mon.js';
+import { evolve, monName, monFrame, replaceMove } from '../battle/mon.js';
 import { SPECIES } from '../data/species.js';
 import { MOVES } from '../data/moves.js';
 import { txt, wrap, fmt } from '../ui/text.js';
@@ -31,8 +31,8 @@ export class EvolutionScene extends Phaser.Scene {
         rays.fillTriangle(GAME_W / 2, 110, GAME_W / 2 + Math.cos(a) * 400, 110 + Math.sin(a) * 400, GAME_W / 2 + Math.cos(a + 0.18) * 400, 110 + Math.sin(a + 0.18) * 400);
       }
     });
-    const oldF = `${mon.species}_${mon.shiny ? 'fs' : 'f'}`;
-    const newF = `${into}_${mon.shiny ? 'fs' : 'f'}`;
+    const oldF = monFrame(mon, 'f');
+    const newF = monFrame({ ...mon, species: into }, 'f');
     const spr = this.add.image(GAME_W / 2, 160, 'mons', oldF).setOrigin(0.5, 1).setScale(1.3);
     this.msgBg = panel(this, 8, GAME_H - 62, GAME_W - 16, 56, 'dark');
     this.lines = [0, 1, 2].map((i) => txt(this, 22, GAME_H - 52 + i * 14, ''));

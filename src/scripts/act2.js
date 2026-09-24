@@ -93,7 +93,7 @@ export default {
     await S.give('td08');
     await S.say('Brann', "TD08's Tide Pulse. And take this — my old Skiff. Folds up small enough for a pocket.");
     await S.give('skiff');
-    await S.say('Brann', "Face open water and press Confirm to launch it. The Gullcliff Road east is open to you now, too. Mind the rockfall.");
+    await S.say('Brann', "Face open water and press {BTN:confirm} to launch it. The Gullcliff Road east is open to you now, too. Mind the rockfall.");
   },
 
   // ── Coldforge Mines ────────────────────────────────────────────────────

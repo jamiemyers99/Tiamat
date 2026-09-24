@@ -5,7 +5,7 @@ import { input } from '../core/input.js';
 import { audio } from '../core/audio.js';
 import { G, itemCount, takeItem, addMoney, markSeen, markCaught, receiveMorph, flag } from '../core/state.js';
 import { Battle } from '../battle/engine.js';
-import { createMon, calcStats, maxHp, monName, xpProgress, replaceMove, evolutionTarget, STAT_KEYS } from '../battle/mon.js';
+import { createMon, calcStats, maxHp, monName, monFrame, sexSymbol, xpProgress, replaceMove, evolutionTarget, STAT_KEYS } from '../battle/mon.js';
 import { SPECIES } from '../data/species.js';
 import { MOVES } from '../data/moves.js';
 import { ITEMS } from '../data/items.js';
@@ -13,8 +13,8 @@ import { TRAINERS } from '../data/trainers.js';
 import { nameEntry } from '../ui/nameEntry.js';
 import { tierOf, wildIvs, trainerIvs, trainerSkill, wildSkill, settleCaught } from '../data/difficulty.js';
 import { TYPE_COLORS, effectiveness } from '../data/types.js';
-import { txt, wrap, fmt } from '../ui/text.js';
-import { panel, Bar, choose } from '../ui/widgets.js';
+import { txt, wrap, fmt, fmtKeys, measure } from '../ui/text.js';
+import { panel, Bar, choose, sexMark } from '../ui/widgets.js';
 import { timeOfDay } from '../world/Atmosphere.js';
 
 const EP = { x: 348, y: 142 };
@@ -156,31 +156,45 @@ export class BattleScene extends Phaser.Scene {
 
   // ─── panels ──────────────────────────────────────────────────────────
   _buildPanels() {
-    // enemy
-    const e = this.add.container(-200, 16).setDepth(40);
-    e.add(panel(this, 0, 0, 178, 38, 'dark'));
+    // enemy: name ♂/♀ (caught mark) ··· Lv  /  types ··· status  /  HP bar
+    const e = this.add.container(-210, 12).setDepth(40);
+    e.add(panel(this, 0, 0, 190, 46, 'dark'));
     this.eName = txt(this, 10, 6, '');
-    this.eLv = txt(this, 170, 6, '', { align: 'right', color: 'gold' });
-    this.eTypes = this.add.container(10, 21);
-    this.eHp = new Bar(this, 52, 22, 116, 5);
+    this.eSex = txt(this, 10, 6, '', { color: 'blue' });
+    this.eLv = txt(this, 182, 6, '', { align: 'right', color: 'gold' });
+    this.eCaught = this.add.image(0, 5, 'ui', 'menu_party').setOrigin(0, 0).setScale(0.625).setVisible(false);
+    this.eTypes = [0, 1].map((k) => this.add.image(10 + k * 37, 19, 'ui', 'type_Plain').setOrigin(0, 0));
+    this.eStatus = this.add.image(182, 19, 'ui', 'st_burn').setOrigin(1, 0).setVisible(false);
+    this.eHp = new Bar(this, 28, 33, 154, 5);
+    e.add([this.eName, this.eSex, this.eLv, this.eCaught, ...this.eTypes, this.eStatus, txt(this, 10, 32, 'HP', { face: 'small', color: 'gold' })]);
     this.eHp.addTo(e);
-    this.eStatus = this.add.image(10, 20, 'ui', 'st_burn').setOrigin(0, 0).setVisible(false);
-    this.eCaught = this.add.image(160, 7, 'ui', 'menu_party').setOrigin(0, 0).setScale(0.5).setVisible(false);
-    e.add([this.eName, this.eLv, this.eStatus, this.eCaught, txt(this, 36, 21, 'HP', { face: 'small', color: 'gold' })]);
     this.ePanel = e;
-    // player
-    const p = this.add.container(GAME_W + 10, 146).setDepth(40);
-    p.add(panel(this, 0, 0, 196, 50, 'dark'));
+    // player: name ♂/♀ ··· Lv  /  types ··· status  /  HP bar  /  HP numbers  /  XP bar
+    const p = this.add.container(GAME_W + 10, 140).setDepth(40);
+    p.add(panel(this, 0, 0, 204, 64, 'dark'));
     this.pName = txt(this, 10, 6, '');
-    this.pLv = txt(this, 188, 6, '', { align: 'right', color: 'gold' });
-    this.pHp = new Bar(this, 58, 22, 128, 5);
+    this.pSex = txt(this, 10, 6, '', { color: 'blue' });
+    this.pLv = txt(this, 196, 6, '', { align: 'right', color: 'gold' });
+    this.pTypes = [0, 1].map((k) => this.add.image(10 + k * 37, 19, 'ui', 'type_Plain').setOrigin(0, 0));
+    this.pStatus = this.add.image(196, 19, 'ui', 'st_burn').setOrigin(1, 0).setVisible(false);
+    this.pHp = new Bar(this, 28, 33, 168, 5);
+    this.pHpTxt = txt(this, 196, 41, '', { align: 'right' });
+    this.pXp = new Bar(this, 22, 57, 173, 2, { kind: 'xp' });
+    p.add([this.pName, this.pSex, this.pLv, ...this.pTypes, this.pStatus, this.pHpTxt, txt(this, 10, 32, 'HP', { face: 'small', color: 'gold' }),
+      txt(this, 10, 51, 'XP', { face: 'small', color: 'blue' })]);
     this.pHp.addTo(p);
-    this.pHpTxt = txt(this, 188, 30, '', { align: 'right' });
-    this.pXp = new Bar(this, 10, 44, 176, 2, { kind: 'xp' });
     this.pXp.addTo(p);
-    this.pStatus = this.add.image(10, 20, 'ui', 'st_burn').setOrigin(0, 0).setVisible(false);
-    p.add([this.pName, this.pLv, this.pHpTxt, this.pStatus, txt(this, 42, 21, 'HP', { face: 'small', color: 'gold' })]);
     this.pPanel = p;
+  }
+
+  // name, ♂/♀ and type badges for one side's panel
+  _nameRow(nameT, sexT, types, m) {
+    nameT.setText(monName(m));
+    const sym = sexSymbol(m);
+    sexT.setText(sym).setFont(`main_${sym === '♀' ? 'pink' : 'blue'}`).setX(nameT.x + measure(this, monName(m)) + 2);
+    const ts = SPECIES[m.species].types;
+    types.forEach((img, k) => { img.setVisible(!!ts[k]); if (ts[k]) { img.setFrame(`type_${ts[k]}`); } });
+    return sexT.x + (sym ? measure(this, sym) : 0);
   }
 
   _refreshPanel(side) {
@@ -188,13 +202,14 @@ export class BattleScene extends Phaser.Scene {
     const m = b.mon;
     const mx = maxHp(m);
     if (side === 1) {
-      this.eName.setText(monName(m));
+      const end = this._nameRow(this.eName, this.eSex, this.eTypes, m);
       this.eLv.setText(`Lv${m.level}`);
       this.eHp.set(m.hp / mx);
       this._status(this.eStatus, m.status);
-      this.eCaught.setVisible(this.battle.kind === 'wild' && G.state.index.caught.includes(m.species));
+      // small capsule after the name = you've caught this species before
+      this.eCaught.setX(end + 3).setVisible(this.battle.kind === 'wild' && G.state.index.caught.includes(m.species));
     } else {
-      this.pName.setText(monName(m));
+      this._nameRow(this.pName, this.pSex, this.pTypes, m);
       this.pLv.setText(`Lv${m.level}`);
       this.pHp.set(m.hp / mx);
       this.pHpTxt.setText(`${m.hp} / ${mx}`);
@@ -262,7 +277,7 @@ export class BattleScene extends Phaser.Scene {
   // ─── engine UI interface ─────────────────────────────────────────────
   async intro(b) {
     const e = b.e.mon;
-    this.enemySpr.setFrame(`${e.species}_${e.shiny ? 'fs' : 'f'}`).setVisible(true);
+    this.enemySpr.setFrame(monFrame(e, 'f')).setVisible(true);
     if (this.trainer) {
       const idx = this.cache.json.get('charIndex');
       const row = idx[this.trainer.sprite] ?? 0;
@@ -281,7 +296,8 @@ export class BattleScene extends Phaser.Scene {
       if (e.shiny) { this._sparkle(EP.x, EP.y - 50); }
       this._refreshPanel(1);
       this.tweens.add({ targets: this.ePanel, x: 10, duration: 350, ease: 'Back.easeOut' });
-      await this.message(`A wild ${SPECIES[e.species].name} appeared!${e.shiny ? ' It\'s shimmering with an odd light!' : ''}`);
+      const intro = e.species === 'tiamat' ? 'Tiamat, the Draco Queen, rises from the deep!' : `A wild ${SPECIES[e.species].name} appeared!`;
+      await this.message(`${intro}${e.shiny ? ' It\'s shimmering with an odd light!' : ''}`);
     }
     await this.sendOut(b, b.p, true);
     this._idle();
@@ -300,7 +316,7 @@ export class BattleScene extends Phaser.Scene {
     markSeen(m.species);
     if (battler.side === 1) {
       if (!first) { await this.message(`${this.trainer ? this.trainer.name : 'The foe'} sent out ${monName(m)}!`); }
-      this.enemySpr.setFrame(`${m.species}_${m.shiny ? 'fs' : 'f'}`).setPosition(EP.x, EP.y).setAlpha(1).setScale(0.1).setVisible(true);
+      this.enemySpr.setFrame(monFrame(m, 'f')).setPosition(EP.x, EP.y).setAlpha(1).setScale(0.1).setVisible(true);
       this._burst(EP.x, EP.y - 40, 'Plain', 14);
       await this.tween({ targets: this.enemySpr, scale: 1, duration: 260, ease: 'Back.easeOut' });
       audio.cry(SPECIES[m.species].num);
@@ -308,7 +324,7 @@ export class BattleScene extends Phaser.Scene {
       if (this.ePanel.x < 0) { this.tweens.add({ targets: this.ePanel, x: 10, duration: 350, ease: 'Back.easeOut' }); }
     } else {
       await this.message(first ? `Go, ${monName(m)}!` : `Your turn, ${monName(m)}!`, { quick: true });
-      this.playerSpr.setFrame(`${m.species}_${m.shiny ? 'bs' : 'b'}`).setPosition(PP.x, PP.y).setAlpha(1).setScale(0.1).setVisible(true);
+      this.playerSpr.setFrame(monFrame(m, 'b')).setPosition(PP.x, PP.y).setAlpha(1).setScale(0.1).setVisible(true);
       const cap = this.add.image(20, PP.y - 120, 'ui', 'throw_capsule').setDepth(45);
       await this.tween({ targets: cap, x: PP.x, y: PP.y - 50, angle: 540, duration: 380, ease: 'Sine.easeOut' });
       cap.destroy();
@@ -317,7 +333,7 @@ export class BattleScene extends Phaser.Scene {
       await this.tween({ targets: this.playerSpr, scale: 1.25, duration: 260, ease: 'Back.easeOut' });
       audio.cry(SPECIES[m.species].num);
       this._refreshPanel(0);
-      if (this.pPanel.x > GAME_W) { this.tweens.add({ targets: this.pPanel, x: GAME_W - 206, duration: 350, ease: 'Back.easeOut' }); }
+      if (this.pPanel.x > GAME_W) { this.tweens.add({ targets: this.pPanel, x: GAME_W - 214, duration: 350, ease: 'Back.easeOut' }); }
     }
     this._idle();
   }
@@ -578,7 +594,7 @@ export class BattleScene extends Phaser.Scene {
       const reward = Math.floor((tr.reward || 30) * Math.max(...b.e.party.map((m) => m.level)));
       this.trainerSpr.setPosition(GAME_W + 40, EP.y - 4).setVisible(true);
       this.enemySpr.setVisible(false);
-      this.tweens.add({ targets: this.ePanel, x: -200, duration: 300 });
+      this.tweens.add({ targets: this.ePanel, x: -210, duration: 300 });
       audio.playMusic(this.cache.audio.exists('bgm_victory') ? 'bgm_victory' : null, { fade: 100, restart: true });
       await this.tween({ targets: this.trainerSpr, x: EP.x + 4, duration: 500, ease: 'Cubic.easeOut' });
       await this.message(`You defeated ${tr.title ? tr.title + ' ' : ''}${tr.name}!`);
@@ -731,9 +747,9 @@ export class BattleScene extends Phaser.Scene {
       if (pk === null) { return null; }
       const ids = pockets[pk].ids.filter((k) => itemCount(k) > 0);
       if (!ids.length) { await this.message('Nothing in that pocket.', { quick: true }); continue; }
-      this.setPrompt(ITEMS[ids[0]].desc);
+      this.setPrompt(fmtKeys(ITEMS[ids[0]].desc));
       const id = await choose(this, ids.map((k) => ({ label: ITEMS[k].name, right: `×${itemCount(k)}`, value: k })),
-        { x: GAME_W - 12, y: MSG_Y - 4, anchor: 'bottom-right', depth: 80, visible: 6, width: 200, onMove: (it) => this.setPrompt(ITEMS[it.value].desc) });
+        { x: GAME_W - 12, y: MSG_Y - 4, anchor: 'bottom-right', depth: 80, visible: 6, width: 200, onMove: (it) => this.setPrompt(fmtKeys(ITEMS[it.value].desc)) });
       if (id === null) { continue; }
       const it = ITEMS[id];
       if (it.use.kind === 'capsule') {
@@ -764,14 +780,15 @@ export class BattleScene extends Phaser.Scene {
     const rows = party.map((m, i) => {
       const x = 16 + (i % 2) * 228, y = 30 + Math.floor(i / 2) * 58;
       const bg = panel(this, x, y, 220, 52, i === this.battle.p.index ? 'teal' : 'dark');
-      const ic = this.add.image(x + 20, y + 22, 'mons', `${m.species}_${m.shiny ? 'is' : 'i'}`);
+      const ic = this.add.image(x + 20, y + 22, 'mons', monFrame(m, 'i'));
       const nm = txt(this, x + 40, y + 8, monName(m));
+      const sx = sexMark(this, x + 40, y + 8, m, monName(m));
       const lv = txt(this, x + 210, y + 8, `Lv${m.level}`, { align: 'right', color: 'gold' });
       const bar = new Bar(this, x + 40, y + 24, 120, 4);
       bar.set(m.hp / maxHp(m));
       const hpt = txt(this, x + 210, y + 22, `${m.hp}/${maxHp(m)}`, { align: 'right', face: 'small' });
       const st = this.add.image(x + 40, y + 34, 'ui', `st_${m.hp <= 0 ? 'faint' : (m.status || 'burn')}`).setOrigin(0, 0).setVisible(m.hp <= 0 || !!m.status);
-      c.add([bg, ic, nm, lv, hpt, st]);
+      c.add([bg, ic, nm, sx, lv, hpt, st]);
       bar.addTo(c);
       return { x, y };
     });

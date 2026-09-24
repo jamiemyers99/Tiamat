@@ -79,8 +79,9 @@ your starter and gift Morphs are always strong. `npm run balance` prints the who
 
 - **The Riven Reach**: 49 hand-built maps — 7 towns, 6 routes, a forest, mines, a lake crossing,
   a mountain pass, a cult headquarters, the Abyssal Rift and Tiamat's Cradle.
-- **68 Morphs** across 15 types, with evolutions, move learning, Tech Discs,
-  shinies, day/night encounter tables and water encounters.
+- **68 Morphs** across 15 types, each with a male and a female form (Tiamat, the Draco Queen,
+  is always female), evolutions, move learning, Tech Discs, Radiant (shiny) Morphs —
+  1 wild Morph in 100 — and day/night and water encounter tables.
 - **Six Warden Trials** (Mossa, Brann, Iskra, Morrow, Hale, Seren), a rival who always
   picks the starter that beats yours, the Deepcall admins Vesk and Maren, and the
   Hierophant Oriel.

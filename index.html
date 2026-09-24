@@ -45,6 +45,9 @@
       #touch .m { right: calc(14px + env(safe-area-inset-right, 0px)); top: calc(12px + env(safe-area-inset-top, 0px));
                   width: 70px; height: 34px; border-radius: 10px; font-size: 12px; }
       #touch [data-k].down { background: rgba(255, 214, 92, .35); border-color: rgba(255, 214, 92, .7); }
+      /* in menus, battles and conversations the buttons fade so the text under them stays readable */
+      #touch.dim .pad div, #touch.dim .btn { background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.2); color: rgba(255,255,255,.5); }
+      #touch.dim [data-k].down { background: rgba(255, 214, 92, .3); border-color: rgba(255, 214, 92, .6); }
 
     </style>
   </head>

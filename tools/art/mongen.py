@@ -150,43 +150,100 @@ def raster(part, S, k):
 LIGHT = np.array([-0.55, -0.7, 0.65])
 LIGHT = LIGHT / np.linalg.norm(LIGHT)
 
+SHINY_ROT = {}
+FRONT_ONLY_MATS = ('belly', 'blush', 'nose', 'inner', 'muzzle', 'face')
+# seen from behind: the face side of the head (beak, muzzle, belly, inner ears...) is hidden
+BACK_HIDE_MATS = FRONT_ONLY_MATS + ('beak',)
+# how shiny each material is (specular highlight strength)
+GLOSS = {'stone': 0.55, 'bark': 0.25, 'moss': 0.2, 'leaf': 0.7, 'flame': 0.0, 'dark': 0.8, 'fin': 1.1, 'wing': 0.8}
+# female forms: accent colours shift hue, body warms slightly (like Pokémon gender differences)
+FEMALE_ACCENTS = ('accent', 'crest', 'dot', 'fin', 'horn', 'stem')
 
-def render(parts, mats, S=96, view='front', shiny=False, outline=True):
+
+def female_mats(mats):
+    out = dict(mats)
+    for key, col in mats.items():
+        c = hx(col)
+        if key in FEMALE_ACCENTS:
+            out[key] = shift(c, 0.04, 0.06, -42)
+        elif key in ('body', 'wing'):
+            out[key] = shift(c, 0.025, 0.02, -7)
+    return out
+
+
+def render(parts, mats, S=96, view='front', shiny=False, outline=True, female=False, shadow=None):
     """mats: name -> base colour hex. Returns Spr of size S×S."""
     k = S / 96.0
+    if shadow is None:
+        shadow = S >= 64
+    if female:
+        mats = female_mats(mats)
     ramps = {}
     for name, col in mats.items():
         c = hx(col)
         if shiny:
             c = shift(c, 0.02, 0.05, SHINY_ROT.get(name, 150))
-        ramps[name] = ramp(c, 6, 0.16, hue=16, sat=0.05)
+        ramps[name] = ramp(c, 7, 0.19, hue=18, sat=0.06)
+    NL = 6  # top ramp index
     out = Spr(S, S)
     owner = np.full((S, S), -1, dtype=int)
     zbuf = np.full((S, S), -1e9)
     shade_idx = np.zeros((S, S), dtype=int)
+    spec_map = np.zeros((S, S))
     matname = np.full((S, S), '', dtype=object)
     Xs, Ys = np.mgrid[0:S, 0:S][1], np.mgrid[0:S, 0:S][0]
     plist = [p for p in parts if p.view in ('both', view) and p.kind not in ('eye', 'mouth')]
+    zs = [p.z for p in plist]
     if view == 'back':
-        plist = [p for p in plist if p.mat not in FRONT_ONLY_MATS]
-    order = sorted(range(len(plist)), key=lambda i: plist[i].z)
+        keep = [i for i, p in enumerate(plist) if p.mat not in BACK_HIDE_MATS]
+        plist = [plist[i] for i in keep]
+        # what was behind the Morph (tail, far wing, back fins) is now nearest the camera
+        zs = [(50 - p.z) if p.z < 0 else p.z for p in plist]
+    order = sorted(range(len(plist)), key=lambda i: zs[i])
+    L = LIGHT.copy()
+    if view == 'back':
+        L[0] = -L[0]      # the sprite is mirrored afterwards, so light still comes from the top-left
     for idx in order:
         p = plist[idx]
         m, nx, ny, nz = raster(p, S, k)
         if not m.any():
             continue
-        L = LIGHT.copy()
-        if view == 'back':
-            L[0] = -L[0]
         d = (nx * L[0] + ny * L[1] + nz * L[2])
-        v = np.clip(d * 0.55 + 0.52, 0, 1)
+        v = np.clip(d * 0.56 + 0.5, 0, 1)
+        # rim light on the side away from the lamp: makes round forms read as 3D
+        rim = np.clip(1 - nz, 0, 1) ** 1.6 * np.clip(-(nx * L[0] + ny * L[1]), 0, 1)
+        v = np.clip(v + rim * 0.34, 0, 1)
+        # specular highlight (view vector = +z)
+        rz = 2 * d * nz - L[2]
+        spec = np.clip(rz, 0, 1) ** 18 * GLOSS.get(p.mat, 0.85)
         thr = BAYER4[Ys % 4, Xs % 4]
-        q = np.clip(np.floor(v * 5.0 + (thr - 0.5) * 0.55), 0, 5).astype(int)
-        mm = m & (p.z >= zbuf)
+        q = np.clip(np.floor(v * 6.0 + (thr - 0.5) * 0.6), 0, NL).astype(int)
+        mm = m & (zs[idx] >= zbuf)
         owner[mm] = idx
-        zbuf[mm] = p.z
+        zbuf[mm] = zs[idx]
         shade_idx[mm] = q[mm]
+        spec_map[mm] = spec[mm]
         matname[mm] = p.mat
+    # cast shadows: a part throws a soft shadow down-and-away from the light onto parts behind it
+    off = max(1, int(round(2.4 * k)))
+    ox = off if L[0] < 0 else -off
+    oy = off
+    src_owner = owner.copy()
+    for y in range(S):
+        yy = y - oy
+        if yy < 0:
+            continue
+        for x in range(S):
+            o = src_owner[y, x]
+            if o < 0:
+                continue
+            xx = x - ox
+            if not (0 <= xx < S):
+                continue
+            o2 = src_owner[yy, xx]
+            if o2 >= 0 and o2 != o and zs[o2] > zs[o] + 0.2 and plist[o].mat != 'flame':
+                shade_idx[y, x] = max(0, shade_idx[y, x] - 2)
+                spec_map[y, x] = 0
     # paint
     for y in range(S):
         for x in range(S):
@@ -194,10 +251,14 @@ def render(parts, mats, S=96, view='front', shiny=False, outline=True):
                 continue
             mn = matname[y, x]
             r = ramps.get(mn) or ramps['body']
-            out.a[y, x] = (*r[shade_idx[y, x]], 255)
+            c = r[shade_idx[y, x]]
+            if spec_map[y, x] > 0.5:
+                c = shift(r[NL], 0.1, -0.05, 0)
+            elif spec_map[y, x] > 0.2 and shade_idx[y, x] < NL:
+                c = r[min(NL, shade_idx[y, x] + 1)]
+            out.a[y, x] = (*c, 255)
     # inner edges: darken pixels of a front part that border a part behind it
     if outline:
-        src = out.a.copy()
         for y in range(S):
             for x in range(S):
                 o = owner[y, x]
@@ -207,27 +268,72 @@ def render(parts, mats, S=96, view='front', shiny=False, outline=True):
                     xx, yy = x + dx, y + dy
                     if 0 <= xx < S and 0 <= yy < S:
                         o2 = owner[yy, xx]
-                        if o2 >= 0 and o2 != o and plist[o2].z < plist[o].z and matname[yy, xx] != matname[y, x] or \
-                           (o2 >= 0 and o2 != o and plist[o2].z < plist[o].z - 0.5):
+                        if o2 >= 0 and o2 != o and zs[o2] < zs[o] and matname[yy, xx] != matname[y, x] or \
+                           (o2 >= 0 and o2 != o and zs[o2] < zs[o] - 0.5):
                             r = ramps.get(matname[y, x]) or ramps['body']
                             out.a[y, x] = (*r[max(0, shade_idx[y, x] - 2)], 255)
                             break
     # face details (front only)
     if view == 'front':
+        eyes = [p for p in parts if p.kind == 'eye']
+        mid = sum(e.kw['x'] for e in eyes) / len(eyes) if eyes else 48
         for p in parts:
             if p.kind == 'eye':
                 _eye(out, p, k)
+                if female:
+                    _lashes(out, p, k, -1 if p.kw['x'] <= mid else 1)
             elif p.kind == 'mouth':
                 _mouth(out, p, k)
     if outline:
         _outer_outline(out, owner, matname, ramps)
+    if shadow:
+        _ground_shadow(out, k)
     if view == 'back':
         out = out.flip()
     return out
 
 
-SHINY_ROT = {}
-FRONT_ONLY_MATS = ('belly', 'blush', 'nose', 'inner', 'muzzle', 'face')
+def _lashes(out, p, k, side):
+    """Female form: two little eyelashes at the outer top of each eye."""
+    kw = p.kw
+    if kw['style'] == 'sleepy':
+        return
+    cx, cy, r = kw['x'] * k, kw['y'] * k, max(1.2, kw['r'] * k)
+    dark = hx(kw['col'])
+    pts = [(cx + side * r * 0.55, cy - r * 1.05), (cx + side * r * 1.0, cy - r * 0.75)]
+    if r >= 2.5:
+        pts += [(cx + side * r * 0.85, cy - r * 1.35), (cx + side * r * 1.35, cy - r * 0.95)]
+    for x, y in pts:
+        xi, yi = int(round(x)), int(round(y))
+        if 0 <= xi < out.w and 0 <= yi < out.h:
+            out.px(xi, yi, dark)
+
+
+def _ground_shadow(out, k):
+    """Soft oval shadow on the ground under the Morph (drawn only where the sprite is empty)."""
+    S = out.w
+    alpha = out.a[:, :, 3] > 0
+    cols = np.where(alpha.any(axis=0))[0]
+    rows = np.where(alpha.any(axis=1))[0]
+    if not len(cols):
+        return
+    bottom = rows[-1]
+    # width of the bottom part of the body
+    band = alpha[max(0, bottom - int(10 * k)):bottom + 1]
+    bc = np.where(band.any(axis=0))[0]
+    x0, x1 = (bc[0], bc[-1]) if len(bc) else (cols[0], cols[-1])
+    cx = (x0 + x1) / 2
+    rx = max(6 * k, (x1 - x0) / 2 + 3 * k)
+    gy = min(S - 2, 90 * k)
+    ry = max(2, 3.2 * k)
+    for y in range(int(gy - ry - 1), int(gy + ry + 2)):
+        for x in range(int(cx - rx - 1), int(cx + rx + 2)):
+            if not (0 <= x < S and 0 <= y < S) or alpha[y, x]:
+                continue
+            dd = ((x + 0.5 - cx) / rx) ** 2 + ((y + 0.5 - gy) / ry) ** 2
+            if dd <= 1:
+                a = 150 if dd < 0.45 else 95
+                out.a[y, x] = (22, 20, 40, a)
 
 
 def _eye(out, p, k):

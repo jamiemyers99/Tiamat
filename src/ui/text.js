@@ -63,9 +63,20 @@ export function wrap(scene, str, maxWidth, face = 'main') {
   return lines;
 }
 
-// Fill in {PLAYER}, {RIVAL} etc.
-export function fmt(str, state) {
+// Control names for the device in use ({BTN:run} → 'RUN' on a phone, 'Shift' on a keyboard).
+// main.js plugs in input.hint so this file stays free of browser-only imports.
+let hintFn = (a) => a;
+let keyboardFn = () => false;
+export function setHintProvider(fn, isKeyboard) { hintFn = fn; if (isKeyboard) { keyboardFn = isKeyboard; } }
+export function fmtKeys(str) {
   return String(str)
+    .replace(/\{BTN:(\w+)\}/g, (_, a) => hintFn(a))
+    .replaceAll('{KEYNOTE}', keyboardFn() ? ' You can change any key under Controls in the menu.' : '');
+}
+
+// Fill in {PLAYER}, {RIVAL}, {BTN:…} etc.
+export function fmt(str, state) {
+  return fmtKeys(String(str)
     .replaceAll('{PLAYER}', state.player.name)
-    .replaceAll('{RIVAL}', state.rivalName || 'Wren');
+    .replaceAll('{RIVAL}', state.rivalName || 'Wren'));
 }

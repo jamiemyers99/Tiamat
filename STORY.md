@@ -4,7 +4,7 @@
 
 The **Riven Reach** is a green, sea-bitten land split down its eastern edge by a
 great chasm called **the Riven**. Every child in the Reach knows the old song:
-long ago the primordial sea-dragon **Tiamat** was sundered, and the Reach was
+long ago the primordial sea-dragon **Tiamat**, the Draco Queen, was sundered, and the Reach was
 built from her body — her scales became the hills, her tears the rivers, and the
 Riven is the wound that never closed. She did not die. She sleeps.
 

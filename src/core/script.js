@@ -73,16 +73,42 @@ export class ScriptAPI {
   async move(id, path, ms = WALK_MS) {
     const a = this.actor(id);
     if (!a) { return; }
+    // let a step the player already started (e.g. still holding a direction through a door) finish first
+    for (let i = 0; i < 40 && a.moving; i++) { await this.wait(16); }
     const steps = Array.isArray(path) ? path : String(path).split(',').map((s) => s.trim()).filter(Boolean);
     const map = { u: 'up', d: 'down', l: 'left', r: 'right' };
+    const D = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
     for (const st of steps) {
       const m = st.match(/^([udlr]|up|down|left|right)(\d*)$/);
       if (!m) { continue; }
       const dir = map[m[1]] || m[1];
       const n = +(m[2] || 1);
-      for (let i = 0; i < n; i++) { await a.walk(dir, ms); }
+      for (let i = 0; i < n; i++) {
+        // scripted player steps never walk into furniture, walls or people
+        if (id === 'player' && !this._playerCanStep(a.tx + D[dir][0], a.ty + D[dir][1])) { a.setFace(dir); break; }
+        await a.walk(dir, ms);
+      }
     }
     if (id === 'player') { G.state.player.x = a.tx; G.state.player.y = a.ty; G.state.player.face = a.face; }
+  }
+  _playerCanStep(x, y) {
+    const mv = this.w.mapView;
+    if (!mv || x < 0 || y < 0 || x >= mv.w || y >= mv.h) { return false; }
+    const b = mv.behavior(x, y);
+    if (['solid', 'water', 'counter'].includes(b)) { return false; }
+    return !this.w.npcAt(x, y);
+  }
+  // Walk to a tile (vertical first, then horizontal) — safe even if the actor isn't where the cutscene expected.
+  async walkTo(id, x, y, face, ms = WALK_MS) {
+    const a = this.actor(id);
+    if (!a) { return; }
+    for (let i = 0; i < 40 && a.moving; i++) { await this.wait(16); }
+    const path = [];
+    const dy = y - a.ty, dx = x - a.tx;
+    if (dy) { path.push(`${dy < 0 ? 'u' : 'd'}${Math.abs(dy)}`); }
+    if (dx) { path.push(`${dx < 0 ? 'l' : 'r'}${Math.abs(dx)}`); }
+    await this.move(id, path, ms);
+    if (face) { a.setFace(face); if (id === 'player') { G.state.player.face = face; } }
   }
   face(id, dir) {
     const a = this.actor(id);

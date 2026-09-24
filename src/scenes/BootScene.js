@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { buildSkin } from '../ui/skin.js';
 
-const COLORS = ['white', 'dark', 'gold', 'red', 'green', 'blue', 'gray', 'ink'];
+const COLORS = ['white', 'dark', 'gold', 'red', 'green', 'blue', 'pink', 'gray', 'ink'];
 
 export class BootScene extends Phaser.Scene {
   constructor() { super('Boot'); }

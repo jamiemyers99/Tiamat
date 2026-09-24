@@ -146,6 +146,13 @@ export function migrate(s) {
   out.vars = s.vars || {};
   out.bag = s.bag || {};
   out.boxes = Array.isArray(s.boxes) && s.boxes.length ? s.boxes : base.boxes;
+  // Morphs from saves made before male/female forms: pick a sex that stays the same every load
+  const giveSex = (m) => {
+    if (!m || m.sex) { return; }
+    m.sex = m.species === 'tiamat' ? 'f' : ((m.uid || 0) % 2 ? 'f' : 'm');
+  };
+  (out.party || []).forEach(giveSex);
+  out.boxes.forEach((b) => (b.slots || []).forEach(giveSex));
   out.version = SAVE_VERSION;
   return out;
 }

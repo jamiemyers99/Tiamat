@@ -3,7 +3,7 @@
   <info face="main_ink" size="7" bold="0" italic="0" charset="" unicode="1" stretchH="100" smooth="0" aa="0" padding="0,0,0,0" spacing="0,0"/>
   <common lineHeight="12" base="7" scaleW="160" scaleH="84" pages="1" packed="0"/>
   <pages><page id="0" file="main_ink.png"/></pages>
-  <chars count="102">
+  <chars count="103">
     <char id="33" x="0" y="0" width="1" height="7" xoffset="0" yoffset="0" xadvance="2" page="0" chnl="15"/>
     <char id="34" x="10" y="0" width="3" height="2" xoffset="0" yoffset="0" xadvance="4" page="0" chnl="15"/>
     <char id="35" x="20" y="0" width="5" height="7" xoffset="0" yoffset="0" xadvance="6" page="0" chnl="15"/>
@@ -104,7 +104,8 @@
     <char id="8594" x="10" y="72" width="5" height="6" xoffset="0" yoffset="0" xadvance="6" page="0" chnl="15"/>
     <char id="9733" x="20" y="72" width="5" height="6" xoffset="0" yoffset="0" xadvance="6" page="0" chnl="15"/>
     <char id="9792" x="30" y="72" width="5" height="7" xoffset="0" yoffset="0" xadvance="6" page="0" chnl="15"/>
-    <char id="9829" x="40" y="72" width="5" height="6" xoffset="0" yoffset="0" xadvance="6" page="0" chnl="15"/>
+    <char id="9794" x="40" y="72" width="5" height="7" xoffset="0" yoffset="0" xadvance="6" page="0" chnl="15"/>
+    <char id="9829" x="50" y="72" width="5" height="6" xoffset="0" yoffset="0" xadvance="6" page="0" chnl="15"/>
     <char id="32" x="0" y="0" width="0" height="0" xoffset="0" yoffset="0" xadvance="3" page="0" chnl="15"/>
   </chars>
 </font>

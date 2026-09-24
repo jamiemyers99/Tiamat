@@ -204,7 +204,7 @@ export default {
       return;
     }
     if (S.flag('tiamat_calmed') && !S.flag('tiamat_caught')) {
-      await S.say(null, 'Deep beneath the water, something vast turns in its sleep. Tiamat stirs as you draw near...');
+      await S.say(null, 'Deep beneath the water, the Draco Queen turns in her sleep. Tiamat stirs as you draw near...');
       if (await S.ask(null, 'Wake Tiamat?')) { await tiamatBattle(S); }
       return;
     }

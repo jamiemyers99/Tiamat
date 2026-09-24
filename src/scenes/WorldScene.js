@@ -198,10 +198,13 @@ export class WorldScene extends Phaser.Scene {
     this._updateGrass();
     if (this.debugText) { this.debugText.setText(`${mv.id} ${this.player.tx},${this.player.ty} ${Math.floor(G.state.clock / 60)}:${String(Math.floor(G.state.clock % 60)).padStart(2, '0')} ${timeOfDay(G.state.clock)} ${input.top()}`); }
     this._updateNpcs(delta);
+    // a Menu press mid-step is remembered and opens the menu as soon as the step ends
+    if (!this.busy && input.pressed('menu', 'world')) { this._menuAt = this.time.now; }
     if (this.busy || !input.has('world') || this.player.moving) { return; }
 
     if (DEBUG && input.pressed('debug', 'world')) { this.openDebug(); return; }
-    if (input.pressed('menu', 'world')) { this.openMenu(); return; }
+    if (this._menuAt && this.time.now - this._menuAt < 800) { this._menuAt = 0; this.openMenu(); return; }
+    this._menuAt = 0;
     if (input.pressed('confirm', 'world')) { this.interact(); return; }
     const dir = input.heldDir('world');
     if (dir) { this.tryMove(dir); } else { this._heldSince = null; this._turnDir = null; }

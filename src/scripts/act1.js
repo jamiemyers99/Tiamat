@@ -17,7 +17,7 @@ export default {
     S.set('woke_up');
     await S.wait(400);
     await S.say(null, '{PLAYER} woke up to birdsong and the smell of toast.|Today is your naming day — the day every child in Rootmere becomes a Tamer!');
-    await S.say(null, 'Tip: arrow keys or WASD to walk, Z / Enter / Space to talk, X to go back, and C, Esc or Tab for the menu. You can change any key in the menu under Controls.');
+    await S.say(null, 'Tip: use {BTN:move} to walk, {BTN:confirm} to talk, {BTN:cancel} to go back and {BTN:menu} to open the menu.{KEYNOTE}');
   },
 
   // ── Rootmere ────────────────────────────────────────────────────────────
@@ -31,7 +31,7 @@ export default {
     await S.say('Mum', "I just saw Wren stomp off in a huff — so you won, did you? Or lost? Either way, you've got your very first Morph!");
     await S.say('Mum', "Oh, I nearly forgot. Your father's old walking boots. He wore them from one end of the Reach to the other.");
     await S.give('trail_boots');
-    await S.say('Mum', 'Hold Shift (or B on a pad) to run in them. And come home whenever you need a rest — the kettle is always on.');
+    await S.say('Mum', 'Hold {BTN:run} while you walk to run in them. And come home whenever you need a rest — the kettle is always on.');
     S.set('mum_boots');
     await S.move('rm_mum', 'l3');
     S.hide('rm_mum');
@@ -55,7 +55,7 @@ export default {
     await S.wait(250);
     await S.emote('marsh', '!');
     await S.say('Dr. Marsh', "Ah, {PLAYER}! There you are. Happy naming day!");
-    await S.move('player', 'u3');
+    await S.walkTo('player', 6, 5, 'up');
     await S.say('Wren', "Finally! Grandma wouldn't let me choose until you got here. I've been waiting for AGES.");
     await S.say('Dr. Marsh', "Patience, Wren. Now — every Tamer in Rootmere receives their first Morph on their naming day.");
     await S.say('Dr. Marsh', "On the table are three capsules: Spriglet, the Nature Morph; Cindlet, the Ember Morph; and Puddlet, the Tide Morph.");

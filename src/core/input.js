@@ -57,6 +57,7 @@ class InputManager {
     this.setBindings(DEFAULT_KEYS);
     window.addEventListener('keydown', (e) => {
       const k = e.key.toLowerCase();
+      this.lastDevice = 'key';
       if (this.captureListener) { e.preventDefault(); const cb = this.captureListener; this.captureListener = null; cb(k); return; }
       if (this.textListener && this.textListener(e)) { e.preventDefault(); return; }
       const act = this.keymap[k];
@@ -97,6 +98,8 @@ class InputManager {
     if (!root) { return; }
     const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     this.isTouch = isTouch;
+    this.lastDevice = isTouch ? 'touch' : 'key';
+    root.addEventListener('pointerdown', () => { this.lastDevice = 'touch'; }, true);
     if (isTouch) { root.classList.add('on'); document.documentElement.classList.add('touch'); }
     const buzz = () => { try { if (navigator.vibrate) { navigator.vibrate(8); } } catch { /* not supported */ } };
     // D-pad: one finger steers; slide between arrows without lifting.
@@ -151,6 +154,7 @@ class InputManager {
   }
 
   _pollPad() {
+    const had = this.padDown.size;
     this.padDown.clear();
     const pads = navigator.getGamepads ? navigator.getGamepads() : [];
     for (const p of pads) {
@@ -169,12 +173,41 @@ class InputManager {
       if (b(4)) { this.padDown.add('pageup'); }
       if (b(5)) { this.padDown.add('pagedown'); }
     }
+    if (this.padDown.size && !had) { this.lastDevice = 'pad'; }
+  }
+
+  // How to name a control to the player on the device they're using:
+  // hint('run') → 'RUN' (phone), 'Shift' (keyboard, follows rebinding) or 'X' (gamepad).
+  hint(action) {
+    const dev = this.lastDevice || (this.isTouch ? 'touch' : 'key');
+    if (dev === 'touch') { return { confirm: 'A', cancel: 'B', menu: 'MENU', run: 'RUN', info: 'A', move: 'the pad' }[action] || action; }
+    if (dev === 'pad') { return { confirm: 'A', cancel: 'B', menu: 'Start', run: 'X', info: 'Y', move: 'the stick or D-pad' }[action] || action; }
+    const b = this.bindings || DEFAULT_KEYS;
+    if (action === 'move') {
+      const sets = [0, 1].map((j) => ['up', 'left', 'down', 'right'].map((d) => b[d][j]));
+      const name = (set) => {
+        if (set.some((k) => !k)) { return null; }
+        if (set.join() === 'arrowup,arrowleft,arrowdown,arrowright') { return 'the arrow keys'; }
+        return set.every((k) => k.length === 1) ? set.join('').toUpperCase() : set.map(keyName).join('/');
+      };
+      return sets.map(name).filter(Boolean).join(' or ') || 'the arrow keys';
+    }
+    const keys = (b[action] || []).filter(Boolean).map(keyName);
+    return keys.length ? keys.join(' / ') : action;
   }
 
   // Called once per frame before scenes update.
   update(time) {
     this._pollPad();
     this.prev = this.down;
+    if (this.isTouch) {
+      const inWorld = this.top() === 'world';
+      if (inWorld !== this._touchWorld) {
+        this._touchWorld = inWorld;
+        const root = document.getElementById('touch');
+        if (root) { root.classList.toggle('dim', !inWorld); }
+      }
+    }
     this.down = new Set([...this.keysDown, ...this.touchDown, ...this.padDown, ...this.latched]);
     this.latched.clear();
     this.pressedSet.clear();
@@ -187,6 +220,19 @@ class InputManager {
         this.repeatAt[a] = time + 90;
       }
     }
+  }
+
+  // Game-space x where the right-hand touch buttons begin (menus anchored bottom-right stay left of it).
+  touchSafeRight(gameW) {
+    if (!this.isTouch) { return gameW; }
+    const cv = document.querySelector('#game canvas');
+    if (!cv || !cv.offsetWidth) { return gameW; }
+    const scale = cv.offsetWidth / gameW;
+    let left = Infinity;
+    document.querySelectorAll('#touch .a, #touch .b, #touch .run').forEach((el) => { left = Math.min(left, el.offsetLeft); });
+    if (!Number.isFinite(left)) { return gameW; }
+    const gx = Math.floor((left - cv.offsetLeft) / scale) - 4;
+    return Math.max(Math.round(gameW * 0.6), Math.min(gameW, gx));
   }
 
   // ── focus stack ──

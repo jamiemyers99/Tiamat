@@ -5,7 +5,7 @@ template (per outfit style), then recoloured from a per-character palette.
 Sheet layout per character: rows = down, left, right, up; cols = stand, stepA, stepB.
 """
 from spr import Spr, C
-from pal import hx, shift
+from pal import hx, shift, ramp
 
 W, H = 16, 24
 
@@ -668,12 +668,125 @@ def make_palette(skin='light', hair='#6b4a2e', top='#3f6fc8', legs='#3a3f58', sh
     }
 
 
-def _rows_to_spr(rows, pal, y0=0, spr=None):
+def _rows_to_spr(rows, pal, y0=0, spr=None, mat=None):
     s = spr or Spr(W, H)
     for y, row in enumerate(rows):
         for x, ch in enumerate(row):
             if ch != '.' and ch in pal:
                 s.px(x, y + y0, pal[ch])
+                if mat is not None and 0 <= y + y0 < H:
+                    mat[y + y0][x] = ch
+    return s
+
+
+# ── 3D shading pass ─────────────────────────────────────────────────────────
+# Palette letters grouped into materials; each material is shaded as its own rounded volume.
+GROUPS = {'s': 'skin', 'S': 'skin', 'h': 'hair', 'H': 'hair', 'i': 'hair', 'a': 'hat', 'A': 'hat', 'j': 'hat',
+          'c': 'top', 'C': 'top', 'x': 'top', 'k': 'belt', 'p': 'legs', 'P': 'legs', 'b': 'shoes', 'B': 'shoes'}
+BASE_KEY = {'skin': 's', 'hair': 'h', 'hat': 'a', 'top': 'c', 'belt': 'k', 'legs': 'p', 'shoes': 'b'}
+# authored shade letters keep their meaning: darker / lighter than the base tone
+LETTER_LEVEL = {'S': -1, 'H': -1, 'A': -1, 'C': -1, 'P': -1, 'B': -1, 'i': 1, 'j': 1, 'x': 1}
+GLOSSY = {'hair': 1, 'hat': 1, 'shoes': 1}
+LX, LY = -0.62, -0.78          # light from the top-left
+
+
+def _dist(mask):
+    """City-block distance from each masked pixel to the nearest unmasked pixel (BFS)."""
+    Hh, Ww = len(mask), len(mask[0])
+    INF = 99
+    d = [[INF if mask[y][x] else 0 for x in range(Ww)] for y in range(Hh)]
+    q = [(x, y) for y in range(Hh) for x in range(Ww) if not mask[y][x]]
+    # pixels on the canvas edge count as next to the outside
+    for y in range(Hh):
+        for x in range(Ww):
+            if mask[y][x] and (x in (0, Ww - 1) or y in (0, Hh - 1)):
+                d[y][x] = 1
+                q.append((x, y))
+    head = 0
+    while head < len(q):
+        x, y = q[head]; head += 1
+        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            xx, yy = x + dx, y + dy
+            if 0 <= xx < Ww and 0 <= yy < Hh and d[yy][xx] > d[y][x] + 1:
+                d[yy][xx] = d[y][x] + 1
+                q.append((xx, yy))
+    return d
+
+
+def shade3d(s, mat, pal):
+    """Re-light a composed 16×24 frame so every part reads as a rounded 3D form:
+    lit top-left, shadowed bottom-right, rim-lit edge, glossy highlights on hair and shoes,
+    a contact shadow under the head and colour-matched (sel-out) outlines."""
+    ramps = {}
+    for g, key in BASE_KEY.items():
+        ramps[g] = ramp(pal[key], 7, 0.15, hue=16, sat=0.05)
+    out = s.a.copy()
+    for g in ramps:
+        mask = [[GROUPS.get(mat[y][x]) == g for x in range(W)] for y in range(H)]
+        if not any(any(r) for r in mask):
+            continue
+        d = _dist(mask)
+        for y in range(H):
+            for x in range(W):
+                if not mask[y][x]:
+                    continue
+                hgt = min(d[y][x], 4)
+                # slope of the pseudo height field → surface normal
+                def hv(xx, yy):
+                    return min(d[yy][xx], 4) if 0 <= xx < W and 0 <= yy < H and mask[yy][xx] else 0
+                gx = (hv(x + 1, y) - hv(x - 1, y)) / 2
+                gy = (hv(x, y + 1) - hv(x, y - 1)) / 2
+                nx, ny, nz = -gx, -gy, 1.1
+                ln = (nx * nx + ny * ny + nz * nz) ** 0.5
+                nx, ny, nz = nx / ln, ny / ln, nz / ln
+                lam = nx * LX + ny * LY + nz * 0.55
+                lvl = 3 + LETTER_LEVEL.get(mat[y][x], 0)
+                if lam > 0.62:
+                    lvl += 1
+                elif lam < 0.2:
+                    lvl -= 1
+                if lam < -0.05:
+                    lvl -= 1
+                # the very top-left rim catches extra light; glossy materials get a highlight
+                if GLOSSY.get(g) and lam > 0.8 and hgt <= 2:
+                    lvl += 1
+                # soft falloff toward the bottom of clothes (ambient occlusion)
+                if hv(x, y + 1) == 0 and hv(x, y - 1) > 0 and g in ('top', 'legs'):
+                    lvl -= 1
+                lvl = max(0, min(6, lvl))
+                if g == 'skin':   # faces stay clean and bright
+                    lvl = max(2, min(4, lvl))
+                out[y, x] = (*ramps[g][lvl], 255)
+    # the head throws a little shadow onto the shoulders / top of the body
+    head_bottom = {}
+    for x in range(W):
+        for y in range(H):
+            if GROUPS.get(mat[y][x]) in ('skin', 'hair', 'hat') and y < 13:
+                head_bottom[x] = y
+    for x, yb in head_bottom.items():
+        for yy in (yb + 2, yb + 3):
+            if 0 <= yy < H and GROUPS.get(mat[yy][x]) in ('top', 'belt') and x >= 5:
+                r = ramps[GROUPS[mat[yy][x]]]
+                cur = tuple(int(v) for v in out[yy, x][:3])
+                idx = min(range(7), key=lambda i: sum((a - b) ** 2 for a, b in zip(r[i], cur)))
+                out[yy, x] = (*r[max(0, idx - 1)], 255)
+    # sel-out: outlines take a dark tint of the colour they wrap
+    for y in range(H):
+        for x in range(W):
+            if mat[y][x] != 'o':
+                continue
+            best = None
+            for dx, dy in ((0, -1), (-1, 0), (1, 0), (0, 1)):
+                xx, yy = x + dx, y + dy
+                if 0 <= xx < W and 0 <= yy < H and GROUPS.get(mat[yy][xx]):
+                    best = GROUPS[mat[yy][xx]]
+                    break
+            if best:
+                o = pal['o']
+                t = 0.22 if best == 'skin' else 0.42
+                c = tuple(int(o[i] * (1 - t) + ramps[best][0][i] * t) for i in range(3))
+                out[y, x] = (*c, 255)
+    s.a = out
     return s
 
 
@@ -691,15 +804,18 @@ def frame(head, body, direction, idx, pal):
         brows = brows_set[idx]
     bob = 1 if idx in (1, 2) else 0
     s = Spr(W, H)
-    # soft shadow
-    for x in range(4, 12):
-        s.px(x, 23, (20, 24, 34), 70)
-    for x in range(3, 13):
-        s.px(x, 22, (20, 24, 34), 50) if x in (3, 12) else None
-    _rows_to_spr(brows, pal, 12, s)
-    _rows_to_spr(hrows, pal, bob, s)
+    mat = [['.'] * W for _ in range(H)]
+    _rows_to_spr(brows, pal, 12, s, mat)
+    _rows_to_spr(hrows, pal, bob, s, mat)
     if direction == 'right':
         s = s.flip()
+        mat = [row[::-1] for row in mat]
+    shade3d(s, mat, pal)
+    # soft oval ground shadow (behind the feet)
+    for x in range(3, 13):
+        for y, a in ((22, 60 if 4 <= x <= 11 else 0), (23, 95 if 4 <= x <= 11 else 45)):
+            if a and s.a[y, x, 3] == 0:
+                s.px(x, y, (18, 20, 34), a)
     return s
 
 

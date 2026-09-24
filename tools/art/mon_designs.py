@@ -452,6 +452,10 @@ D['tiamat'] = (dict(body='#1e3a8a', belly='#bfe8ff', accent='#6fe0c8', wing='#2a
     E(27, 34, 11, 8.5, 'body', z=2, rot=-0.15), E(16, 38, 8, 5, 'body', z=2.2), E(18, 42, 7, 2.6, 'belly', z=2.3),
     Leaf(34, 34, 16, 8, -0.35, 'fin', z=1.6), Leaf(33, 30, 14, 6, -0.9, 'fin', z=1.5),
     Cap(31, 28, 42, 12, 2.6, 1, 'stone', z=1.7), Cap(26, 26, 32, 8, 2.4, 1, 'stone', z=2.6),
+    # the Draco Queen's crown: a band of gold spikes with a sea-glass gem
+    Cap(17, 29, 27, 26.5, 1.5, 1.5, 'stone', z=2.65),
+    Tri([(16.5, 29.5), (17, 22), (20, 28.5)], 'stone', z=2.66), Tri([(20, 28.5), (21.5, 19.5), (24, 27.5)], 'stone', z=2.66),
+    Tri([(23.5, 27.5), (26, 21), (27.5, 26.5)], 'stone', z=2.66), Spot(21.5, 27.5, 1.3, 'accent', z=2.7),
     Cap(12, 41, 3, 47, 1.1, 0.5, 'accent', z=2.4), Cap(15, 43, 8, 53, 1.1, 0.5, 'accent', z=2.4),
     Spot(47, 74, 2.4, 'accent', z=1), Spot(40, 56, 2, 'accent', z=1.5), Spot(62, 86, 2.4, 'accent', z=-0.6), Spot(80, 80, 2, 'accent', z=-1.2),
     Eye(23, 33, 3, 'fierce', iris='#6fe0c8')])
