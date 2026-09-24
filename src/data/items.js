@@ -52,6 +52,7 @@ it('reach_map', 'Reach Map', 'key', 0, { kind: 'map' }, 'A map of the Riven Reac
 it('brush_hook', 'Brush Hook', 'key', 0, { kind: 'key' }, 'A curved blade for clearing brambles. Use it by facing a bramble.', { key: true });
 it('skiff', 'Skiff', 'key', 0, { kind: 'key' }, 'A folding boat. Face open water and press {BTN:confirm} to launch it.', { key: true });
 it('marsh_parcel', 'Marsh Parcel', 'key', 0, { kind: 'key' }, 'A parcel of research notes for Warden Mossa.', { key: true });
+it('forge_ember', 'Forge Ember', 'key', 0, { kind: 'key' }, 'A glowing coal from Gearhollow\'s great forge, kept alight in a little lantern.', { key: true });
 it('pips_bell', "Pip's Bell", 'key', 0, { kind: 'key' }, 'A little bell on a ribbon. Pip the Burrlet wore it.', { key: true });
 it('forge_pass', 'Forge Pass', 'key', 0, { kind: 'key' }, 'A pass for the Coldforge Ironworks.', { key: true });
 it('rift_key', 'Chapel Key', 'key', 0, { kind: 'key' }, 'A heavy key stamped with a wave. Opens the Sunken Chapel.', { key: true });

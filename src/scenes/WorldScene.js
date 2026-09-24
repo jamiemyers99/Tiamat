@@ -9,6 +9,7 @@ import { Actor, DIRS, OPP } from '../world/Actor.js';
 import { Lighting, Weather, timeOfDay } from '../world/Atmosphere.js';
 import { UI } from './UIScene.js';
 import { playerStyleKey } from '../data/players.js';
+import { worldMorphSex } from '../data/rescue.js';
 import { ScriptAPI, runScript, evalCond } from '../core/script.js';
 import { rollEncounter } from '../data/encounters.js';
 import { TRAINERS } from '../data/trainers.js';
@@ -136,7 +137,10 @@ export class WorldScene extends Phaser.Scene {
   _spawnNpc(o) {
     const pr = o.props;
     const visible = this._npcVisible(pr, pr.id || `npc${o.id}`);
-    const actor = new Actor(this, pr.sprite || 'man', o.x, o.y, pr.face || 'down');
+    let sprite = pr.sprite || 'man';
+    // Morphs standing in the world keep the same male/female form every time you load
+    if (sprite.startsWith('mon:') && sprite.split(':').length === 2) { sprite += `:${worldMorphSex(sprite.slice(4))}`; }
+    const actor = new Actor(this, sprite, o.x, o.y, pr.face || 'down');
     const npc = { id: pr.id || `npc${o.id}`, def: pr, actor, home: [o.x, o.y], timer: 1000 + Math.random() * 2000, pathIdx: 0, obj: o };
     actor.setVisible(visible);
     npc.active = visible;
@@ -165,7 +169,7 @@ export class WorldScene extends Phaser.Scene {
 
   _spawnBramble(o) {
     const f = o.props.flag || `bramble_${this.mapView.id}_${o.x}_${o.y}`;
-    if (flag(f)) { this.mapView.setBehavior(o.x, o.y, 'none'); return; }
+    if (flag(f) || (o.props.hide && evalCond(o.props.hide, false))) { this.mapView.setBehavior(o.x, o.y, 'none'); return; }
     const sprite = this.add.image(o.x * TILE + 8, o.y * TILE + 16, 'ui', 'bramble').setOrigin(0.5, 1).setDepth(DEPTH.actors + (o.y * TILE + 16) / 100);
     this.mapView.setBehavior(o.x, o.y, 'solid');
     this.itemsOnMap.push({ o, flag: f, bramble: true, sprite });
@@ -311,8 +315,25 @@ export class WorldScene extends Phaser.Scene {
     const running = !G.state.player.surfing && itemCount('trail_boots') > 0 && (G.settings.autoRun ? !input.isDown('run') : input.isDown('run'));
     const ms = G.state.player.surfing ? SURF_MS : (running ? RUN_MS : WALK_MS);
     this._stepSfx();
+    if (b === 'grass') { this.rustle(nx, ny, ms); }
     await p.walk(dir, ms);
     await this.afterStep();
+  }
+
+  // Tall grass parts as you push into it, then settles (and a couple of leaf bits flick up).
+  rustle(x, y, ms = WALK_MS) {
+    const edge = this.mapView.behavior(x, y - 1) !== 'grass';
+    const px = x * TILE + 8, py = y * TILE + TILE;
+    const img = this.add.image(px, py, 'ui', `grass_rustle_${edge ? 'e' : ''}0`).setOrigin(0.5, 1)
+      .setDepth(DEPTH.actors + py / 100 - 0.05);
+    const step = Math.max(60, ms / 2);
+    this.time.delayedCall(step, () => img.setFrame(`grass_rustle_${edge ? 'e' : ''}1`));
+    this.time.delayedCall(step * 2, () => img.setFrame(`grass_rustle_${edge ? 'e' : ''}2`));
+    this.time.delayedCall(step * 3, () => img.destroy());
+    for (let i = 0; i < 2; i++) {
+      const leaf = this.add.rectangle(px - 3 + i * 6, py - 10, 2, 2, i ? 0x6fc655 : 0xb6ee80).setDepth(DEPTH.actors + py / 100 + 0.2);
+      this.tweens.add({ targets: leaf, x: leaf.x + (i ? 5 : -5), y: leaf.y - 6 - Math.random() * 3, alpha: 0, duration: 380, ease: 'Quad.easeOut', onComplete: () => leaf.destroy() });
+    }
   }
 
   _stepSfx() {
@@ -585,7 +606,8 @@ export class WorldScene extends Phaser.Scene {
     const mon = rollEncounter(mv.id, kind, G.state.clock);
     if (!mon) { return; }
     const lead = G.state.party.find((m) => m.hp > 0);
-    if (G.state.repel > 0 && lead && mon.level < lead.level) { return; }
+    if (!lead) { return; }   // no Morphs yet: nothing jumps out
+    if (G.state.repel > 0 && mon.level < lead.level) { return; }
     this.lastEnc = 0;
     await this.S.wild(mon.species, mon.level, { kindEnc: kind });
   }

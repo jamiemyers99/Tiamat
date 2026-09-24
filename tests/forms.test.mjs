@@ -126,3 +126,20 @@ test('the Index tracks male and female forms separately; old saves are rebuilt f
   assert.equal(markCaught(other.id, 'm'), true, 'a new form of a known species');
   assert.ok(hasCaughtForm(other.id, 'm'));
 });
+
+test('the two starters you did not choose can be rescued', async () => {
+  const { RESCUES, openRescues, worldMorphSex } = await import('../src/data/rescue.js');
+  const { SCRIPTS } = await import('../src/scripts/index.js');
+  const { TRAINERS } = await import('../src/data/trainers.js');
+  assert.deepEqual(Object.keys(RESCUES).sort(), ['cindlet', 'puddlet', 'spriglet']);
+  const s = { vars: { starter: 'cindlet' }, flags: {}, trainerId: 12345 };
+  assert.deepEqual(openRescues(s).sort(), ['puddlet', 'spriglet']);
+  s.flags.rescued_puddlet = true;
+  assert.deepEqual(openRescues(s), ['spriglet']);
+  for (const id of ['rescue.spriglet', 'rescue.puddlet', 'rescue.cindlet', 'gearhollow.smith', 'rescue.hint']) { assert.ok(SCRIPTS[id], id); }
+  assert.ok(TRAINERS.r3_poacher_a && TRAINERS.r3_poacher_b);
+  assert.equal(worldMorphSex('spriglet', s), worldMorphSex('spriglet', s), 'same form every load');
+  const forms = new Set();
+  for (let id = 10000; id < 10040; id++) { forms.add(worldMorphSex('puddlet', { trainerId: id })); }
+  assert.equal(forms.size, 2, 'both forms turn up across saves');
+});

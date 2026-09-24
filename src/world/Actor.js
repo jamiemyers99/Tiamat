@@ -15,7 +15,16 @@ export class Actor {
     this.face = face;
     this.moving = false;
     this.step = 0;
-    this.sprite = scene.add.sprite(0, 0, 'chars', 0).setOrigin(0.5, 1);
+    // A Morph standing in the world ('mon:<species>' or 'mon:<species>:f'): drawn with its party icon,
+    // flipped to face the way it's going, with a little idle bounce.
+    if (String(sprite).startsWith('mon:')) {
+      const [, species, sex] = String(sprite).split(':');
+      this.mon = species;
+      this.sprite = scene.add.sprite(0, 0, 'mons', `${species}_i${sex === 'f' ? '_fem' : ''}`).setOrigin(0.5, 1);
+      this.bounce = scene.tweens.add({ targets: this.sprite, scaleY: 0.9, duration: 420, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+    } else {
+      this.sprite = scene.add.sprite(0, 0, 'chars', 0).setOrigin(0.5, 1);
+    }
     this.skiff = null;
     this.hidden = false;
     this._place();
@@ -23,6 +32,7 @@ export class Actor {
   }
 
   setSprite(key) {
+    if (this.mon) { return; }
     const idx = this.scene.cache.json.get('charIndex');
     this.row = idx[key] ?? this.row;
     this.spriteKey = key;
@@ -30,6 +40,7 @@ export class Actor {
   }
 
   _frame(f) {
+    if (this.mon) { this.sprite.setFlipX(this.face === 'right'); return; }
     this.sprite.setFrame(this.row * 12 + DIR_ROW[this.face] * 3 + f);
   }
 
@@ -144,5 +155,5 @@ export class Actor {
     return [this.tx + dx, this.ty + dy];
   }
 
-  destroy() { this.sprite.destroy(); if (this.skiff) { this.skiff.destroy(); } }
+  destroy() { if (this.bounce) { this.bounce.remove(); } this.sprite.destroy(); if (this.skiff) { this.skiff.destroy(); } }
 }

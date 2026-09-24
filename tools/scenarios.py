@@ -362,3 +362,60 @@ async def forms(t, port):
     await t.shot('index')
     await t.key('z', 60, 400)
     await t.shot('index_female')
+
+
+# ── starter rescue quests + tall grass (rustle and wind) ──
+async def rescue(t, port):
+    await t.p.goto(f'http://localhost:{port}/?map=route1&x=8&y=26&debug')
+    await t.wait(3000)
+    await t.js("""(() => { const T = window.__tiamat, G = T.G; G.settings.textSpeed = 'instant'; G.settings.battleAnims = false;
+      G.state.vars.starter = 'cindlet'; G.state.flags.got_starter = true; G.state.flags.got_index = true;
+      G.state.party = [T.createMon('cindreaver', 34)]; G.state.bag.tonic = 2; G.state.bag.brush_hook = 1; G.state.bag.capsule = 0; })()""")
+    # grass: step north into the patch and catch the rustle mid-step
+    await t.shot('grass_still')
+    await t.p.keyboard.down('ArrowUp'); await t.wait(110); await t.shot('grass_rustle'); await t.wait(200); await t.p.keyboard.up('ArrowUp')
+    await t.wait(900); await t.shot('grass_standing')
+    await t.js(AUTO)
+    # Spriglet (Thornwild)
+    await goto(t, 'thornwild', 6, 26, 'left')
+    print('spriglet visible:', await t.js(f"{W}.npcById('tw_spriglet').active"), 'brambles:', await t.js(f"{W}.itemsOnMap.filter(i => i.bramble).length"))
+    await t.shot('spriglet_brambles')
+    await run_script(t, 'rescue.spriglet')
+    print('spriglet:', await t.js("JSON.stringify(window.__tiamat.G.state.party.map(m => [m.species, m.level, m.sex]))"), 'flag', await t.js("!!window.__tiamat.G.state.flags.rescued_spriglet"), 'npc', await t.js(f"{W}.npcById('tw_spriglet').active"), 'tonics', await t.js("window.__tiamat.G.state.bag.tonic"))
+    # Puddlet (Route 3)
+    await goto(t, 'route3', 8, 17, 'down')
+    print('puddlet visible:', await t.js(f"{W}.npcById('r3_puddlet').active"))
+    await t.shot('puddlet_acolytes')
+    await t.js(f"void {W}.S.battle('r3_poacher_a')"); await t.wait(500); await idle(t, 60000, 'poacher a')
+    await t.js(f"void {W}.S.battle('r3_poacher_b')"); await t.wait(500); await idle(t, 60000, 'poacher b')
+    await run_script(t, 'rescue.puddlet')
+    print('puddlet:', await t.js("JSON.stringify(window.__tiamat.G.state.party.map(m => [m.species, m.level, m.sex]))"), await t.js("!!window.__tiamat.G.state.flags.rescued_puddlet"))
+    # Cindlet (Coldforge Mines + Gearhollow smith), as if the starter had been Spriglet
+    await t.js("window.__tiamat.G.state.vars.starter = 'spriglet'")
+    await goto(t, 'coldforge_mines', 2, 13, 'down')
+    print('cindlet visible:', await t.js(f"{W}.npcById('cf_cindlet').active"))
+    await t.shot('cindlet_mines')
+    await run_script(t, 'rescue.cindlet')
+    await goto(t, 'gearhollow', 38, 13, 'up')
+    await run_script(t, 'gearhollow.smith')
+    print('ember:', await t.js("window.__tiamat.G.state.bag.forge_ember"))
+    await goto(t, 'coldforge_mines', 2, 13, 'down')
+    await run_script(t, 'rescue.cindlet')
+    print('cindlet:', await t.js("JSON.stringify(window.__tiamat.G.state.party.map(m => [m.species, m.level, m.sex]))"), await t.js("!!window.__tiamat.G.state.flags.rescued_cindlet"))
+    await t.js("clearInterval(window.__auto); window.__tiamat.input.keysDown.delete('confirm')")
+    await t.js(f"(() => {{ const w = {W}; w.scene.launch('Menu', {{ mode: 'index', species: 'spriglet', onClose: () => {{}} }}); w.scene.bringToTop('Menu'); }})()")
+    await t.wait(1200)
+    await t.shot('index_spriglet')
+
+
+async def rustle(t, port):
+    await t.p.goto(f'http://localhost:{port}/?map=route1&x=7&y=23&debug')
+    await t.wait(3000)
+    await wait_for(t, f"{W}.player", 20000, 'player')
+    await t.js(f"{W}.player.setFace('up'); window.__tiamat.G.state.player.face = 'up'")
+    await t.wait(200)
+    await t.p.keyboard.down('ArrowUp'); await t.wait(70); await t.shot('rustle_a')
+    print('rustle:', await t.js(f"{W}.children.list.filter(o => o.frame && String(o.frame.name).startsWith('grass_rustle')).map(o => o.frame.name).join(',')"))
+    print('player on screen:', await t.js(f"(() => {{ const w = {W}, c = w.cameras.main, p = w.player.sprite; return [Math.round((p.x - c.worldView.x) * c.zoom), Math.round((p.y - c.worldView.y) * c.zoom), c.zoom]; }})()"))
+    await t.wait(90); await t.shot('rustle_b'); await t.p.keyboard.up('ArrowUp')
+    await t.wait(1500); await t.shot('wind_1'); await t.wait(700); await t.shot('wind_2')

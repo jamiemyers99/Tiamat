@@ -157,26 +157,69 @@ def boulder(kind='rock', variant=0):
     return s, 0, oy, 1, 1
 
 
+# Tall grass, Gen-4 style: two staggered rows of leafy fans (three curved, pointed blades each)
+# over a deep base, lit from the upper left and outlined. `frame` 0-7 is the wind phase (tips lean
+# with WAVE), `edge` leaves the gaps between the back row's tips open on the top row of a patch so
+# the patch has a jagged outline, and `spread` pushes the blades apart (the rustle when stepped in).
+TG_BACK = ['#123a20', '#1f5a2c', '#2d7a35', '#46953f', '#6fb456']   # outline, shade, body, light, tip
+TG_FRONT = ['#163f22', '#2e7a35', '#44a044', '#6fc655', '#b6ee80']
+TG_BASE = '#1b4c28'
+WAVE = [0, 0, 0, 1, 1, 1, 0, 0]
+
+
+def _blade(L, tx, ty, bx, by, pal, width, lean=0):
+    n = max(1, by - ty)
+    for y in range(ty, by + 1):
+        t = (y - ty) / n
+        k = 1 - (1 - t) ** 2                     # curves: leans most near the tip
+        x = tx + (bx - tx) * k + lean * max(0.0, 1 - (y - ty) / 4)
+        w = 1 if y - ty < 1 else (min(2, width) if y - ty < 3 else width)
+        x0 = int(round(x - (w - 1) / 2))
+        for i in range(w):
+            if y == ty:
+                c = pal[4]
+            elif i == 0 and w > 1:
+                c = pal[3]
+            elif i == w - 1 and w > 2:
+                c = pal[1]
+            else:
+                c = pal[2]
+            L.px(x0 + i, y, c)
+
+
+def _fan(L, cx, top, bottom, pal, lean, spread):
+    # side blades first (behind), then the tall middle one
+    _blade(L, cx - 3 - spread, top + 2 + spread, cx - 1, bottom, pal, 2, lean)
+    _blade(L, cx + 3 + spread, top + 2 + spread, cx + 1, bottom, pal, 2, lean)
+    _blade(L, cx + (lean if spread else 0), top + spread, cx, bottom, pal, 3, lean)
+
+
+def _grass_row(xs, tops, bottom, pal, lean, spread):
+    """Draw a row of fans three times side by side, outline it, keep the middle tile (seamless wrap)."""
+    L = Spr(48, 16)
+    for rep in range(3):
+        for cx, top in zip(xs, tops):
+            _fan(L, cx + rep * 16, top, bottom, pal, lean, spread)
+    L.outline(pal[0])
+    out = Spr(16, 16)
+    out.a[:, :] = L.a[:, 16:32]
+    return out
+
+
 @lru_cache(None)
-def tall_grass(variant=0, frame=0):
-    """Full 16×16 tall-grass tuft (drawn over ground)."""
+def tall_grass(variant=0, frame=0, edge=False, spread=0):
+    """16x16 tall-grass tile."""
+    lean = 0 if spread else WAVE[frame % 8]
+    v = variant % 2
     s = Spr(16, 16)
-    g = ramp('#3f9a3e', 5, 0.14, hue=16)
-    # dense base
-    for x in range(16):
-        top = 7 + (x * 5 + variant * 3) % 4
-        for y in range(top, 16):
-            s.px(x, y, g[1] if (y - top) > 3 else g[2])
-    # blades
-    blades = [(1, 3), (4, 1), (7, 2), (10, 0), (13, 2), (15, 4), (3, 5), (8, 4), (12, 5)]
-    for i, (bx, by) in enumerate(blades):
-        sway = (1 if frame and i % 2 == 0 else 0)
-        for y in range(by, 12):
-            x = bx + (sway if y < by + 3 else 0)
-            s.px(x, y, g[3] if y < by + 2 else g[2])
-        s.px(bx + sway, by, g[4])
-    for x in range(0, 16, 2):
-        s.px(x, 15, g[0])
+    s.rect(0, 4 if edge else 0, 16, 16 - (4 if edge else 0), TG_BASE)
+    back = _grass_row([4, 12], [0, 1] if v == 0 else [1, 0], 11, TG_BACK, lean, spread)
+    front = _grass_row([0, 8], [6, 5] if v == 0 else [5, 6], 15, TG_FRONT, lean, spread)
+    s.blit(back, 0, 0)
+    s.blit(front, 0, 0)
+    if not edge:
+        return s
+    # top row of a patch: nothing above the back row's blades
     return s
 
 
@@ -187,6 +230,12 @@ def tall_grass_front():
     s = Spr(16, 16)
     s.a[9:16] = full.a[9:16]
     return s
+
+
+@lru_cache(None)
+def grass_rustle(k=0, edge=False):
+    """Frames shown on a grass tile as something walks into it: blades pushed apart, then settling."""
+    return tall_grass(0, 0, edge, spread=[2, 1, 1][k] if k < 3 else 0)
 
 
 @lru_cache(None)

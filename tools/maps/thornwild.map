@@ -71,5 +71,8 @@ item 40 26 item=prime_capsule qty=1 flag=item_thornwild_40_26
 item 24 4 item=strong_tonic qty=1 flag=item_thornwild_24_4 hidden=1
 item 5 34 item=capsule qty=3 flag=item_thornwild_5_34
 item 36 12 item=nerve_balm qty=1 flag=item_thornwild_36_12
+npc 4 26 id=tw_spriglet sprite=mon:spriglet face=right move=still script=rescue.spriglet show="!var:starter=spriglet" hide=rescued_spriglet
+bramble 5 26 hide=var:starter=spriglet
+bramble 4 27 hide=var:starter=spriglet
 item 38 15 item=strong_tonic qty=1 flag=item_thornwild_38_15 hidden=1 in=tree
 item 35 8 item=rekindle_seed qty=1 flag=item_thornwild_35_8 hidden=1 in=bush

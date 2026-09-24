@@ -311,6 +311,10 @@ def thornwild():
     m.item(24, 4, 'strong_tonic', hidden=True)
     m.item(5, 34, 'capsule', 3)
     m.item(36, 12, 'nerve_balm')
+    # starter rescue: a Spriglet boxed in by brambles in the south-west glade (Brush Hook clears them)
+    m.npc(4, 26, 'tw_spriglet', 'mon:spriglet', face='right', script='rescue.spriglet',
+          show='!var:starter=spriglet', hide='rescued_spriglet')
+    m.obj('bramble 5 26 hide=var:starter=spriglet'); m.obj('bramble 4 27 hide=var:starter=spriglet')
     return m
 
 
@@ -449,6 +453,11 @@ def route3():
     m.trainer(30, 14, 'r3_twin', 'twin', face='left', sight=4)
     m.trainer(41, 18, 'r3_fisher', 'fisher', face='left', sight=3)
     m.trainer(20, 10, 'r3_ace', 'ace', face='down', sight=2)
+    # starter rescue: a Puddlet stranded in a rock pool, two Deepcall acolytes trying to take it
+    m.npc(8, 20, 'r3_puddlet', 'mon:puddlet', face='up', script='rescue.puddlet',
+          show='!var:starter=puddlet', hide='rescued_puddlet')
+    m.trainer(7, 19, 'r3_poacher_a', 'acolyte', face='up', sight=3, show='!var:starter=puddlet', hide='rescued_puddlet')
+    m.trainer(9, 19, 'r3_poacher_b', 'acolyte_b', face='up', sight=3, show='!var:starter=puddlet', hide='rescued_puddlet')
     m.item(41, 23, 'star_shard')
     m.item(4, 16, 'strong_tonic')
     m.item(48, 19, 'prime_capsule', hidden=True)
@@ -494,6 +503,9 @@ def coldforge_mines():
     m.npc(38, 23, 'cf_digger', 'acolyte', face='up', hide='vesk1_done', text='The scale-iron sings when you strike it... can you hear it? The Mother is waking.')
     m.trigger(36, 21, 'mines.vesk', w=6, once='vesk1_seen')
     m.npc(4, 28, 'cf_foreman', 'miner', face='right', script='mines.foreman')
+    # starter rescue: a freezing Cindlet by the icy seep (needs an ember from Gearhollow's forge)
+    m.npc(2, 14, 'cf_cindlet', 'mon:cindlet', face='right', script='rescue.cindlet',
+          show='!var:starter=cindlet', hide='rescued_cindlet')
     m.item(21, 4, 'td03')
     m.item(26, 12, 'homing_thread')
     m.item(2, 17, 'prime_capsule')
@@ -539,6 +551,7 @@ def gearhollow():
     m.npc(21, 3, 'gh_gate', 'engineer', face='down', script='gearhollow.northgate', hide='sigil_spark')
     m.trigger(20, 4, 'gearhollow.northgate', w=2, cond='!sigil_spark')
     m.npc(34, 11, 'gh_worker', 'engineer', face='down', script='gearhollow.worker')
+    m.npc(38, 12, 'gh_smith', 'miner', face='down', script='gearhollow.smith')
     m.npc(16, 16, 'gh_man', 'man', move='wander', radius=2,
           text="Warden Iskra built the Haven's healing machine, the Ironworks crane AND my kettle. My kettle talks now. I wish it didn't.")
     m.npc(35, 20, 'gh_kid', 'kid_b', move='wander', radius=2,

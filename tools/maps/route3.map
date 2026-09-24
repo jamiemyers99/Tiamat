@@ -46,6 +46,9 @@ npc 24 18 id=r3_sailor sprite=sailor face=up move=still trainer=r3_sailor sight=
 npc 30 14 id=r3_twin sprite=twin face=left move=still trainer=r3_twin sight=4
 npc 41 18 id=r3_fisher sprite=fisher face=left move=still trainer=r3_fisher sight=3
 npc 20 10 id=r3_ace sprite=ace face=down move=still trainer=r3_ace sight=2
+npc 8 20 id=r3_puddlet sprite=mon:puddlet face=up move=still script=rescue.puddlet show="!var:starter=puddlet" hide=rescued_puddlet
+npc 7 19 id=r3_poacher_a sprite=acolyte face=up move=still trainer=r3_poacher_a sight=3 show="!var:starter=puddlet" hide=rescued_puddlet
+npc 9 19 id=r3_poacher_b sprite=acolyte_b face=up move=still trainer=r3_poacher_b sight=3 show="!var:starter=puddlet" hide=rescued_puddlet
 item 41 23 item=star_shard qty=1 flag=item_route3_41_23
 item 4 16 item=strong_tonic qty=1 flag=item_route3_4_16
 item 48 19 item=prime_capsule qty=1 flag=item_route3_48_19 hidden=1

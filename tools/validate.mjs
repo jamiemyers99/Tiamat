@@ -76,7 +76,9 @@ for (const m of Object.values(maps)) {
       if (!walkable(b, false)) { err(`${m.id}: warp ${o.x},${o.y} → ${p.to} lands on ${b}`); }
     }
     if (o.type === 'npc') {
-      if (!CHAR_NAMES.has(p.sprite)) { err(`${m.id}: npc ${p.id} unknown sprite ${p.sprite}`); }
+      if (String(p.sprite).startsWith('mon:')) {
+        if (!SPECIES[p.sprite.split(':')[1]]) { err(`${m.id}: npc ${p.id} unknown Morph ${p.sprite}`); }
+      } else if (!CHAR_NAMES.has(p.sprite)) { err(`${m.id}: npc ${p.id} unknown sprite ${p.sprite}`); }
       if (p.script) { scriptRefs.add(p.script); }
       if (p.trainer && !TRAINERS[p.trainer]) { err(`${m.id}: npc ${p.id} unknown trainer ${p.trainer}`); }
       if (!p.script && !p.text && !p.trainer) { warn(`${m.id}: npc ${p.id} says nothing`); }

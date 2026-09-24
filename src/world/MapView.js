@@ -61,11 +61,14 @@ export class MapView {
     for (const t of worldTs.tiles || []) {
       if (t.animation) { animDefs[t.id + worldTs.firstgid] = t.animation.map((f) => f.tileid + worldTs.firstgid); }
     }
-    const ground = this.layers.ground;
-    for (let y = 0; y < this.h; y++) {
-      for (let x = 0; x < this.w; x++) {
-        const tile = ground.getTileAt(x, y);
-        if (tile && animDefs[tile.index]) { this.anims.push({ tile, frames: animDefs[tile.index] }); }
+    // water (ground layer) and swaying tall grass (decor layer)
+    for (const layer of [this.layers.ground, this.layers.decor]) {
+      if (!layer) { continue; }
+      for (let y = 0; y < this.h; y++) {
+        for (let x = 0; x < this.w; x++) {
+          const tile = layer.getTileAt(x, y);
+          if (tile && animDefs[tile.index]) { this.anims.push({ tile, frames: animDefs[tile.index] }); }
+        }
       }
     }
     this.animFrame = 0;
@@ -77,7 +80,7 @@ export class MapView {
     this.animTimer += delta;
     if (this.animTimer >= 240) {
       this.animTimer -= 240;
-      this.animFrame = (this.animFrame + 1) % 4;
+      this.animFrame = (this.animFrame + 1) % 8;   // water has 4 frames, grass 8
       for (const a of this.anims) { a.tile.index = a.frames[this.animFrame % a.frames.length]; }
     }
   }

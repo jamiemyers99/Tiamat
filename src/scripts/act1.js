@@ -119,6 +119,7 @@ export default {
     if (S.state.sigils.length >= 6 && !S.flag('cradle_done')) {
       await S.say('Dr. Marsh', "Six Sigils... Be careful, {PLAYER}. I've read the old records. The Sigils were never meant to be together.");
     }
+    await S.run('rescue.hint');
   },
   'lab.wren': async (S) => {
     await S.say('Wren', "Hurry up and choose! Whatever you pick, I'm taking the one that beats it.");

@@ -114,6 +114,9 @@ def ui_frames():
     F = []
     # overworld bits
     F.append(('grass_front', D.tall_grass_front()))
+    for k in range(3):
+        F.append((f'grass_rustle_{k}', D.grass_rustle(k)))
+        F.append((f'grass_rustle_e{k}', D.grass_rustle(k, True)))
     ball = Spr(16, 16); ball.blit(capsule('#e2555f', size=9), 2, 5); F.append(('item_ball', ball))
     br = Spr(16, 20)
     thorn = ramp('#4a6a2a', 5, 0.14)

@@ -4,6 +4,7 @@ import Phaser from 'phaser';
 import { GAME_W, GAME_H, MONEY_CAP } from '../config.js';
 import { input, DEFAULT_KEYS, REBINDABLE, ESSENTIAL, keyName } from '../core/input.js';
 import { audio } from '../core/audio.js';
+import { RESCUES, openRescues } from '../data/rescue.js';
 import { G, saveGame, saveSettings, itemCount, giveItem, takeItem, addMoney, flag, hasCaughtForm, hasSeenForm } from '../core/state.js';
 import { NATURES, natureText } from '../data/natures.js';
 import { playerStyleKey } from '../data/players.js';
@@ -607,6 +608,8 @@ export class MenuScene extends Phaser.Scene {
         }
       }
     }
+    // starters you can still rescue
+    for (const sp of openRescues()) { out[sp] = [`${RESCUES[sp].where} (needs help!)`, ...(out[sp] || [])]; }
     return out;
   }
 

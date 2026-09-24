@@ -128,6 +128,7 @@ class Layers:
     def __init__(self, w, h):
         self.w, self.h = w, h
         self.decor = Spr(w * T, h * T)
+        self.grass = {}          # (x, y) -> (variant, top edge) for tall-grass tiles
         self.above = Spr(w * T, h * T)
         self.meta = [[0] * w for _ in range(h)]
         self.draws = []   # (sortkey, fn)
@@ -259,7 +260,8 @@ def build_map(src, all_src, tileset, links):
             for x in range(W):
                 c = L[y][x]
                 if c == 'G':
-                    lay.decor.blit(D.tall_grass((x * 3 + y) % 2, 0), x * T, y * T)
+                    # drawn per tile when slicing, so it can sway in the wind (see below)
+                    lay.grass[(x, y)] = ((x * 3 + y) % 2, y == 0 or L[y - 1][x] != 'G')
                     lay.meta[y][x] = MI['grass']
                 elif c == 'F':
                     lay.decor.blit(D.flowers((x * 5 + y * 3) % 5), x * T, y * T)
@@ -416,7 +418,18 @@ def build_map(src, all_src, tileset, links):
             else:
                 gid = tileset.add(frames[0])
             ground_ids[y][x] = gid + 1
-            decor_ids[y][x] = tileset.add(lay.decor.a[sl]) + 1
+            if (x, y) in lay.grass:
+                # tall grass: 8 wind frames; the gust travels east, one tile per frame
+                variant, edge = lay.grass[(x, y)]
+                gframes = []
+                for f in range(8):
+                    g = Spr(T, T)
+                    g.a[:] = D.tall_grass(variant, (f - x - y // 3) % 8, edge).a
+                    g.blit(lay.decor.a[sl], 0, 0)
+                    gframes.append(g.a)
+                decor_ids[y][x] = tileset.add_anim(gframes) + 1
+            else:
+                decor_ids[y][x] = tileset.add(lay.decor.a[sl]) + 1
             above_ids[y][x] = tileset.add(lay.above.a[sl]) + 1
     return dict(src=src, W=W, H=H, ground=ground_ids, decor=decor_ids, above=above_ids, meta=lay.meta,
                 objects=objects, lights=lights)

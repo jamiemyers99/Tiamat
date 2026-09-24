@@ -75,6 +75,7 @@ npc 39 18 id=cf_vesk sprite=vesk face=down move=still script=mines.vesk hide=ves
 npc 38 23 id=cf_digger sprite=acolyte face=up move=still text="The scale-iron sings when you strike it... can you hear it? The Mother is waking." hide=vesk1_done
 trigger 36 21 script=mines.vesk w=6 h=1 once=vesk1_seen
 npc 4 28 id=cf_foreman sprite=miner face=right move=still script=mines.foreman
+npc 2 14 id=cf_cindlet sprite=mon:cindlet face=right move=still script=rescue.cindlet show="!var:starter=cindlet" hide=rescued_cindlet
 item 21 4 item=td03 qty=1 flag=item_coldforge_mines_21_4
 item 26 12 item=homing_thread qty=1 flag=item_coldforge_mines_26_12
 item 2 17 item=prime_capsule qty=1 flag=item_coldforge_mines_2_17
