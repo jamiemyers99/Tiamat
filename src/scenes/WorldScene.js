@@ -108,6 +108,8 @@ export class WorldScene extends Phaser.Scene {
       UI.banner(mv.name);
     }
     if (mv.props.kind !== 'interior' && mv.props.fly) { setFlag(`visited_${id}`); }
+    const seen = G.state.seenMaps || (G.state.seenMaps = []);
+    if (!seen.includes(id)) { seen.push(id); }
     this.justWarped = true;
     this._updateGrass();
     // on-enter map script

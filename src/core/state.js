@@ -2,6 +2,7 @@
 import { natureFromId } from '../data/natures.js';
 import { refreshStarterMoves, healMon, movesForLevel, makeMove, preEvolutions } from '../battle/mon.js';
 import { SPECIES } from '../data/species.js';
+import { REGION } from '../data/region.js';
 import { SAVE_PREFIX, SETTINGS_KEY, SAVE_VERSION, MONEY_CAP, BOX_COUNT, BOX_SIZE } from '../config.js';
 
 export const DEFAULT_SETTINGS = {
@@ -47,6 +48,7 @@ export function newState() {
     sexTally: { m: 0, f: 0 },
     starterMoves2: true,
     mythicSwap: true,
+    seenMaps: [],
     xpShareOn: false,
     sigils: [],
     playMs: 0,
@@ -201,7 +203,7 @@ export function deleteSlot(i) {
 // Upgrade older saves in place. v5 is the first save format of the rebuilt game; SAVE_REV goes up
 // every time an upgrade step is added. Each step runs on its own: if one ever fails, the rest still
 // run and the save still loads (it is never deleted).
-export const SAVE_REV = 4;
+export const SAVE_REV = 5;
 
 function upgrade(name, fn) {
   try { fn(); } catch (e) { console.warn(`[save] upgrade step "${name}" was skipped:`, e); }
@@ -251,6 +253,18 @@ export function migrate(s) {
     upgrade('aldous gift', () => swapAldousGift(out, all));
   }
   out.mythicSwap = true;
+  // rev 5: the Reach Map remembers which places you've found. Older saves: everything along the road up to
+  // the furthest town you've visited (and wherever you are now) counts as found.
+  if (!Array.isArray(s.seenMaps)) {
+    upgrade('seen maps', () => {
+      const pts = REGION.points;
+      let far = 0;
+      pts.forEach((p, k) => {
+        if ((p.fly && out.flags[`visited_${p.fly}`]) || p.maps.includes(out.player.map)) { far = Math.max(far, k); }
+      });
+      out.seenMaps = [...new Set([...pts.slice(0, far + 1).flatMap((p) => p.maps), out.player.map].filter(Boolean))];
+    });
+  }
   out.version = SAVE_VERSION;
   out.rev = SAVE_REV;
   return out;

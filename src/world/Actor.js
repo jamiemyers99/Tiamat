@@ -53,7 +53,9 @@ export class Actor {
   _depth() {
     this.sprite.setDepth(DEPTH.actors + this.sprite.y / 100);
     if (this.skiff) {
-      this.skiff.setPosition(this.sprite.x, this.sprite.y + 1).setDepth(this.sprite.depth - 0.01);
+      // boat behind the rider, its front hull in front, so the rider sits inside it
+      this.skiff.setPosition(this.sprite.x, this.sprite.y + 3).setDepth(this.sprite.depth - 0.01);
+      this.skiffFront.setPosition(this.sprite.x, this.sprite.y + 3).setDepth(this.sprite.depth + 0.01);
     }
   }
 
@@ -140,20 +142,23 @@ export class Actor {
   setSkiff(on) {
     if (on && !this.skiff) {
       this.skiff = this.scene.add.image(this.sprite.x, this.sprite.y, 'ui', 'skiff').setOrigin(0.5, 1);
-      this.sprite.setCrop(0, 0, 16, 17);
+      this.skiffFront = this.scene.add.image(this.sprite.x, this.sprite.y, 'ui', 'skiff_front').setOrigin(0.5, 1);
+      // the whole 32x32 rider stays visible down to the waist; the legs are inside the boat
+      this.sprite.setCrop(0, 0, this.sprite.frame.width, this.sprite.frame.height - 7);
     } else if (!on && this.skiff) {
       this.skiff.destroy(); this.skiff = null;
+      this.skiffFront.destroy(); this.skiffFront = null;
       this.sprite.setCrop();
     }
     this._depth();
   }
 
-  setVisible(v) { this.hidden = !v; this.sprite.setVisible(v); if (this.skiff) { this.skiff.setVisible(v); } }
+  setVisible(v) { this.hidden = !v; this.sprite.setVisible(v); if (this.skiff) { this.skiff.setVisible(v); this.skiffFront.setVisible(v); } }
 
   facingTile() {
     const [dx, dy] = DIRS[this.face];
     return [this.tx + dx, this.ty + dy];
   }
 
-  destroy() { if (this.bounce) { this.bounce.remove(); } this.sprite.destroy(); if (this.skiff) { this.skiff.destroy(); } }
+  destroy() { if (this.bounce) { this.bounce.remove(); } this.sprite.destroy(); if (this.skiff) { this.skiff.destroy(); this.skiffFront.destroy(); } }
 }

@@ -127,12 +127,24 @@ def ui_frames():
     br.px(6, 9, '#c83a4a'); br.px(10, 12, '#c83a4a')
     br.outline(None, darken=0.3)
     F.append(('bramble', br))
-    sk = Spr(22, 12)
+    # the Skiff, sized for the 32x32 people: the whole boat sits behind the rider, the front of the hull
+    # is drawn again in front so the rider looks seated inside it
     hull = ramp('#b4643c', 5, 0.14)
-    sk.poly([(0, 3), (22, 3), (19, 11), (3, 11)], hull[2]); sk.hline(1, 20, 3, hull[4]); sk.hline(2, 19, 4, hull[3])
-    sk.rect(4, 5, 14, 3, '#6b4a30')
+    sk = Spr(34, 16)
+    sk.poly([(0, 4), (34, 4), (30, 15), (4, 15)], hull[2]); sk.hline(1, 32, 4, hull[4]); sk.hline(2, 31, 5, hull[3])
+    sk.rect(5, 6, 24, 3, '#5a3a24'); sk.hline(3, 30, 11, hull[1])
     sk.outline(None, darken=0.3)
     F.append(('skiff', sk))
+    skf = Spr(34, 16)
+    skf.a[8:16] = sk.a[8:16]
+    F.append(('skiff_front', skf))
+    # Reach Map waypoint pin
+    pin = Spr(11, 16)
+    pin.shaded_ellipse(5.5, 5.5, 5, 5, ramp('#e2555f', 5, 0.16))
+    pin.poly([(1.5, 7), (9.5, 7), (5.5, 15)], '#c8404a')
+    pin.ellipse(5.5, 5.5, 2, 2, '#ffffff')
+    pin.outline('#1c1a28')
+    F.append(('map_pin', pin))
     # capsules for battle throws
     for name, col in [('capsule', '#e2555f'), ('prime_capsule', '#3d8bfd'), ('apex_capsule', '#f5c542'),
                       ('dusk_capsule', '#3a4a5a'), ('swift_capsule', '#4fc7b8'), ('covenant_capsule', '#6a4cd8')]:

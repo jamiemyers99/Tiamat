@@ -570,3 +570,23 @@ async def moveanims2(t, port):
             await t.wait(250 if ms > 200 else 200)
             await t.shot(f'{mid}_{ms}')
         await t.js("window.__a"); await t.wait(1000)
+
+
+async def skiffmap(t, port):
+    await t.p.goto(f'http://localhost:{port}/?map=route3&x=8&y=17&debug')
+    await wait_for(t, f"window.__tiamat && {W}.player", 40000, 'world')
+    await t.wait(800)
+    # on the water in the Skiff
+    await t.js(f"(() => {{ const w = {W}, p = w.player; window.__tiamat.G.state.player.surfing = true; p.warp(10, 23, 'left'); p.setSkiff(true); }})()")
+    await t.wait(400); await t.shot('skiff_left')
+    await t.js(f"{W}.player.setFace('down')"); await t.wait(200); await t.shot('skiff_down')
+    await t.js(f"{W}.player.setFace('up')"); await t.wait(200); await t.shot('skiff_up')
+    # the Reach Map: visited Rootmere, Brindlewood, Saltreach; Wing Whistle in the bag
+    await t.js(f"""(() => {{ const G = window.__tiamat.G, w = {W}; w.player.setSkiff(false); G.state.player.surfing = false; w.player.warp(8, 17, 'down');
+      ['rootmere', 'brindlewood', 'saltreach'].forEach((m) => G.state.flags['visited_' + m] = true); G.state.bag.wing_whistle = 1; G.state.bag.reach_map = 1;
+      G.state.seenMaps = ['home_2f', 'rootmere', 'route1', 'brindlewood', 'route2', 'thornwild', 'saltreach', 'route3'];
+      w.scene.launch('Menu', {{ mode: 'map', onClose: () => {{}} }}); w.scene.bringToTop('Menu'); }})()""")
+    await t.wait(1200); await t.shot('map_here')
+    await t.key('ArrowLeft', 60, 80); await t.shot('map_moving'); await t.wait(500); await t.shot('map_left')
+    await t.key('ArrowUp', 60, 600); await t.shot('map_up')
+    await t.key('ArrowRight', 60, 600); await t.shot('map_right')

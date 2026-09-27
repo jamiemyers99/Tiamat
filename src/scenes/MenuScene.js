@@ -851,46 +851,122 @@ export class MenuScene extends Phaser.Scene {
   }
 
   // ─── Reach map ────────────────────────────────────────────────────────
-  async reachMap() {
+  // The Reach Map. Only places you've found can be picked (the rest sit under fog, marked "???"); a pin
+  // glides to the place you pick, and for towns you can fly to a dotted flight path is drawn from where you are.
+  async reachMap(startId = null) {
     const c = this.add.container(0, 0);
     c.add(this.dim(0.95));
-    c.add(this.add.image(GAME_W / 2, GAME_H / 2, 'regionmap').setOrigin(0.5));
+    const ox = (GAME_W - 400) / 2, oy = (GAME_H - 240) / 2 - 8;
+    c.add(this.add.image(GAME_W / 2, oy + 120, 'regionmap').setOrigin(0.5));
     const here = G.state.player.map;
     const loc = REGION.locate(here);
-    const info = txt(this, 12, GAME_H - 16, '', { color: 'gold' });
-    c.add(info);
     const pts = REGION.points;
-    let i = Math.max(0, pts.findIndex((p) => p.id === loc));
-    const ox = (GAME_W - 400) / 2, oy = (GAME_H - 240) / 2;
-    const marker = this.add.image(0, 0, 'cursor').setOrigin(0.5, 1).setAngle(90).setScale(1.3);
-    const you = this.add.rectangle(0, 0, 6, 6, 0xe2555f).setStrokeStyle(1, 0xffffff);
-    c.add([you, marker]);
+    const seen = new Set(G.state.seenMaps || []);
+    const found = (p) => p.id === loc || p.maps.some((m) => seen.has(m)) || (p.fly && flag(`visited_${p.fly}`));
+    const P = (p) => ({ x: ox + p.x, y: oy + p.y });
+    // fog over places not found yet
+    for (const p of pts) {
+      if (found(p)) { continue; }
+      const q = P(p);
+      const fog = this.add.image(q.x, q.y, 'glow').setTint(0x0b0c16).setAlpha(0.85).setScale(0.75);
+      c.add([fog, txt(this, q.x, q.y - 4, '???', { face: 'small', color: 'white', align: 'center' })]);
+    }
+    // markers: towns you can fly to (gold), other found places (white)
+    const canFly = (p) => this.canFly(p, loc);
+    for (const p of pts) {
+      if (!found(p)) { continue; }
+      const q = P(p);
+      const dot = p.town ? this.add.rectangle(q.x, q.y, 6, 6, canFly(p) ? 0xffd65c : 0xe8ecf4).setStrokeStyle(1, 0x1c1a28)
+        : this.add.circle(q.x, q.y, 2.5, 0xe8ecf4).setStrokeStyle(1, 0x1c1a28);
+      c.add(dot);
+    }
+    // you are here
     const lp = pts.find((p) => p.id === loc);
-    if (lp) { you.setPosition(ox + lp.x, oy + lp.y); this.tweens.add({ targets: you, alpha: 0.2, duration: 400, yoyo: true, repeat: -1 }); }
+    const you = this.add.image(0, 0, 'chars', 0).setOrigin(0.5, 1).setScale(0.75);
+    const idx = this.cache.json.get('charIndex');
+    you.setFrame((idx[playerStyleKey(G.state.player.style || 0)] ?? 0) * 12);
+    if (lp) { const q = P(lp); you.setPosition(q.x, q.y + 2); } else { you.setVisible(false); }
+    // flight path, waypoint ring and pin
+    const path = this.add.graphics();
+    const ring = this.add.image(0, 0, 'p_ring').setTint(0xffd65c).setScale(1.2);
+    const pin = this.add.image(0, 0, 'ui', 'map_pin').setOrigin(0.5, 1).setScale(1.4);
+    c.add([path, you, ring, pin]);
+    this.tweens.add({ targets: ring, scale: 3, alpha: 0, duration: 900, repeat: -1 });
+    const bob = this.tweens.add({ targets: pin, y: '-=3', duration: 380, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+    // info panel
+    c.add(panel(this, 8, GAME_H - 40, GAME_W - 16, 34, 'dark'));
+    const title = txt(this, 16, GAME_H - 36, '', { color: 'gold' });
+    const desc = txt(this, 16, GAME_H - 24, '', { face: 'small' });
+    const hint = txt(this, GAME_W - 16, GAME_H - 36, '', { face: 'small', align: 'right', color: 'green' });
+    c.add([title, desc, hint]);
+    const choices = pts.filter(found);
+    let i = Math.max(0, choices.findIndex((p) => p.id === (startId || loc)));
+    let first = true;
     const draw = () => {
-      const p = pts[i];
-      marker.setPosition(ox + p.x, oy + p.y - 4);
-      const fly = this.canFly(p, loc) ? '  [Confirm: fly]' : '';
-      info.setText(`${p.name}${p.id === loc ? '  (you are here)' : ''}  —  ${p.desc}${fly}`);
+      const p = choices[i];
+      const q = P(p);
+      bob.pause();
+      if (first) { pin.setPosition(q.x, q.y - 3); first = false; } else {
+        this.tweens.add({ targets: pin, x: q.x, y: q.y - 3, duration: 160, ease: 'Quad.easeOut', onComplete: () => bob.resume() });
+      }
+      ring.setPosition(q.x, q.y);
+      path.clear();
+      const fly = canFly(p);
+      if (fly && lp) {
+        const a = P(lp);
+        const n = Math.max(2, Math.floor(Math.hypot(q.x - a.x, q.y - a.y) / 6));
+        path.fillStyle(0xffd65c, 1);
+        for (let k = 1; k < n; k++) {
+          const t = k / n;
+          path.fillRect(a.x + (q.x - a.x) * t - 1, a.y + (q.y - a.y) * t - Math.sin(t * Math.PI) * 14 - 1, 2, 2);
+        }
+      }
+      title.setText(p.name);
+      desc.setText(p.desc);
+      const status = p.id === loc ? 'YOU ARE HERE'
+        : fly ? `${input.hint('confirm') || 'A'}: FLY HERE`
+          : p.fly && !itemCount('wing_whistle') ? ''
+            : p.fly && flag(`visited_${p.fly}`) ? "CAN'T FLY FROM INDOORS" : '';
+      hint.setText(status).setFont(`small_${fly || p.id === loc ? 'green' : 'gray'}`);
     };
     draw();
+    // pick the nearest found place in the direction pressed
+    const step = (dx, dy) => {
+      const a = P(choices[i]);
+      let best = -1, bestScore = Infinity;
+      choices.forEach((p, k) => {
+        if (k === i) { return; }
+        const q = P(p);
+        const vx = q.x - a.x, vy = q.y - a.y;
+        const along = vx * dx + vy * dy;
+        if (along <= 0) { return; }
+        const side = Math.abs(vx * dy - vy * dx);
+        const score = along + side * 2.2;
+        if (score < bestScore) { bestScore = score; best = k; }
+      });
+      if (best >= 0) { i = best; audio.sfx('cursor'); draw(); } else { audio.blip('bump'); }
+    };
     const res = await this.loop(() => {
       const o = this.owner;
-      if (input.nav('left', o) || input.nav('up', o)) { i = (i + pts.length - 1) % pts.length; audio.sfx('cursor'); draw(); }
-      else if (input.nav('right', o) || input.nav('down', o)) { i = (i + 1) % pts.length; audio.sfx('cursor'); draw(); }
-      else if (input.pressed('confirm', o) && this.canFly(pts[i], loc)) { return 'fly'; }
-      else if (input.pressed('cancel', o) || input.pressed('confirm', o)) { audio.sfx('cancel'); return true; }
+      if (input.nav('left', o)) { step(-1, 0); }
+      else if (input.nav('right', o)) { step(1, 0); }
+      else if (input.nav('up', o)) { step(0, -1); }
+      else if (input.nav('down', o)) { step(0, 1); }
+      else if (input.pressed('confirm', o)) {
+        if (canFly(choices[i])) { return 'fly'; }
+        audio.blip('bump');
+      } else if (input.pressed('cancel', o)) { audio.sfx('cancel'); return true; }
       return undefined;
     });
     if (res === 'fly') {
-      const p = pts[i];
+      const p = choices[i];
       if (await this.confirm(`Blow the Wing Whistle and fly to ${p.name}?`)) {
         c.destroy();
         await this.flyTo(p);
         return true;
       }
       c.destroy();
-      return this.reachMap();
+      return this.reachMap(p.id);
     }
     c.destroy();
     return true;
