@@ -499,3 +499,23 @@ async def batch3b(t, port):
     await t.js("clearInterval(window.__auto); window.__tiamat.input.keysDown.delete('confirm')")
     await t.js(f"(() => {{ const w = {W}; w.scene.launch('Menu', {{ mode: 'index', species: 'twinklit', onClose: () => {{}} }}); w.scene.bringToTop('Menu'); }})()")
     await t.wait(1200); await t.shot('index_twinklit')
+
+
+async def poachers(t, port):
+    await t.p.goto(f'http://localhost:{port}/?map=route3&x=8&y=17&debug')
+    await wait_for(t, f"window.__tiamat && {W}.player", 40000, 'world')
+    await t.wait(800)
+    await t.js("""(() => { const T = window.__tiamat, G = T.G; G.settings.textSpeed = 'instant'; G.settings.battleAnims = false;
+      G.state.vars.starter = 'cindlet'; G.state.flags.got_starter = true; G.state.party = [T.createMon('cindreaver', 40, { moves: ['umbral_flare', 'blaze_mane', 'ember_fang', 'shadow_spark'] })]; })()""")
+    await t.js(f"{W}.refreshNpcs()")
+    await t.js(AUTO)
+    for tid in ['r3_poacher_a', 'r3_poacher_b']:
+        print('npcs:', await t.js(f"{W}.mapView.id + ' ' + {W}.npcs.map(n => n.id).join(',')"))
+        await t.js(f"(() => {{ const w = {W}; const n = w.npcById('{tid}'); w.player.setFace('down'); if (n) void w.talkTo(n); }})()")
+        await t.wait(600)
+        await idle(t, 60000, tid)
+        print(tid, 'map:', await t.js(f"{W}.mapView.id"), 'beaten:', await t.js(f"!!window.__tiamat.G.state.defeated['{tid}']"), 'visible:', await t.js(f"(() => {{ const n = {W}.npcById('{tid}'); return n ? n.active : 'no npc'; }})()"))
+    print('fled flag:', await t.js("!!window.__tiamat.G.state.flags.r3_poachers_fled"))
+    await t.shot('after_poachers')
+    await run_script(t, 'rescue.puddlet')
+    print('puddlet:', await t.js("!!window.__tiamat.G.state.flags.rescued_puddlet"))

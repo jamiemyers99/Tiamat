@@ -456,8 +456,11 @@ def route3():
     # starter rescue: a Puddlet stranded in a rock pool, two Deepcall acolytes trying to take it
     m.npc(8, 20, 'r3_puddlet', 'mon:puddlet', face='up', script='rescue.puddlet',
           show='!var:starter=puddlet', hide='rescued_puddlet')
-    m.trainer(7, 19, 'r3_poacher_a', 'acolyte', face='up', sight=3, show='!var:starter=puddlet', hide='rescued_puddlet')
-    m.trainer(9, 19, 'r3_poacher_b', 'acolyte_b', face='up', sight=3, show='!var:starter=puddlet', hide='rescued_puddlet')
+    # once both are beaten they run off down the beach (rescue.poacher / poachersLeave)
+    m.trainer(7, 19, 'r3_poacher_a', 'acolyte', face='up', sight=3, script='rescue.poacher',
+              show='!var:starter=puddlet', hide='r3_poachers_fled|rescued_puddlet')
+    m.trainer(9, 19, 'r3_poacher_b', 'acolyte_b', face='up', sight=3, script='rescue.poacher',
+              show='!var:starter=puddlet', hide='r3_poachers_fled|rescued_puddlet')
     m.item(41, 23, 'star_shard')
     m.item(4, 16, 'strong_tonic')
     m.item(48, 19, 'prime_capsule', hidden=True)

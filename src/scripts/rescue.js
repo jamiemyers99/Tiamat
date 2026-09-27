@@ -3,6 +3,7 @@ import { partnerIvs } from '../data/difficulty.js';
 import { RESCUES, worldMorphSex, openRescues } from '../data/rescue.js';
 import { ITEMS } from '../data/items.js';
 import { SPECIES } from '../data/species.js';
+import { TRAINERS } from '../data/trainers.js';
 
 const HEALS = ['tonic', 'strong_tonic', 'grand_tonic', 'full_tonic', 'panacea'];
 
@@ -17,7 +18,41 @@ async function join(S, species) {
   return true;
 }
 
+// The two Deepcall acolytes guarding the Puddlet: once both are beaten they run off down the beach.
+const POACHERS = ['r3_poacher_a', 'r3_poacher_b'];
+const bothBeaten = (S) => POACHERS.every((id) => S.state.defeated[id]);
+async function poachersLeave(S) {
+  if (!bothBeaten(S) || S.flag('r3_poachers_fled')) { return; }
+  await S.say('Sloane', 'Two of us, and we STILL lost to a kid?!');
+  await S.say('Bram', "Forget the puddle, Sloane. The Mother has bigger fish to fry. Run!");
+  const p = S.w.player;
+  // each walks away from the player along the beach, then they're gone for good
+  await Promise.all(POACHERS.map((id) => {
+    const a = S.actor(id);
+    if (!a || a.hidden) { return null; }
+    return S.move(id, `${a.tx >= p.tx ? 'r' : 'l'}5`, 110);
+  }));
+  S.set('r3_poachers_fled');
+  await S.say(null, 'The Deepcall acolytes ran off down the beach!');
+}
+
 export default {
+  'rescue.poacher': async (S, ctx) => {
+    const id = ctx.npc.def.trainer;
+    const tr = TRAINERS[id];
+    if (!S.state.defeated[id]) {
+      await S.say(tr.name, tr.intro);
+      const r = await S.battle(id);
+      if (r !== 'win') { return; }
+    } else {
+      await S.say(tr.name, tr.after);
+    }
+    await poachersLeave(S);
+  },
+  // coming back later: if both were already beaten, they've left
+  'map:route3': async (S) => {
+    if (bothBeaten(S) && !S.flag('r3_poachers_fled')) { S.set('r3_poachers_fled'); }
+  },
   // ── Spriglet: cornered in the Thornwild brambles by a hungry Mantipule ──
   'rescue.spriglet': async (S) => {
     const id = RESCUES.spriglet.npc;
@@ -53,6 +88,7 @@ export default {
       await S.say(null, 'A Puddlet, stuck in a rock pool that has almost dried out. The Deepcall acolytes have it cornered!');
       return;
     }
+    await poachersLeave(S);
     await S.say(null, "The acolytes are gone. The Puddlet is huddled in the last puddle of its rock pool — its skin is dry and dull.");
     await S.emote(id, '...');
     await S.say(null, "It needs the sea, but it's too frightened to move.");
