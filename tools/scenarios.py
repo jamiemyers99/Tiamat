@@ -519,3 +519,54 @@ async def poachers(t, port):
     await t.shot('after_poachers')
     await run_script(t, 'rescue.puddlet')
     print('puddlet:', await t.js("!!window.__tiamat.G.state.flags.rescued_puddlet"))
+
+
+# ── every move's animation: plays all of them in a battle, screenshots a few mid-flight ──
+B = "window.__tiamat.game.scene.getScene('Battle')"
+
+async def moveanims(t, port):
+    await t.p.goto(f'http://localhost:{port}/?map=route1&x=8&y=26&debug')
+    await wait_for(t, f"window.__tiamat && {W}.player", 40000, 'world')
+    await t.wait(600)
+    await t.js("(() => { const T = window.__tiamat; T.G.settings.textSpeed = 'instant'; T.G.state.party = [T.createMon('cindreaver', 30)]; })()")
+    await t.js(f"void {W}.S.wild('lambkin', 20)")
+    for _ in range(12):
+        if await t.js(PROMPT): break
+        await t.key('z', 60, 450)
+    shots = ['moonbeam_pounce', 'cosmic_insight', 'black_pyre', 'primordial_tide', 'champions_gauntlet', 'eye_of_the_storm',
+             'ember_fang', 'thunder_arc', 'whiteout_gale', 'rubble_fall', 'psy_blast', 'hydro_burst', 'scythe_rend', 'heal_bud']
+    for mid in shots:
+        await t.js(f"(() => {{ const b = {B}.battle; window.__a = {B}.moveAnim(b, b.p, b.e, window.__tiamat.MOVES['{mid}']); }})()")
+        await t.wait(330 if mid not in ('moonbeam_pounce', 'cosmic_insight', 'primordial_tide') else 650)
+        await t.shot(f'fx_{mid}')
+        await t.js("window.__a")
+        await t.wait(900)
+    # enemy attacking the player
+    await t.js(f"(() => {{ const b = {B}.battle; window.__a = {B}.moveAnim(b, b.e, b.p, window.__tiamat.MOVES['glacier_surge']); }})()")
+    await t.wait(360); await t.shot('fx_enemy_glacier_surge'); await t.wait(900)
+    # every move, both directions, collecting errors
+    await t.js(f"""(() => {{ const T = window.__tiamat, B = {B}, b = B.battle; window.__errs = []; window.__done = 0;
+      const orig = console.warn; console.warn = (...a) => {{ if (String(a[0]).includes('moveFx')) window.__errs.push(a.join(' ')); orig(...a); }};
+      B.animOn = true;
+      (async () => {{ for (const id of Object.keys(T.MOVES)) {{ try {{ await B.moveAnim(b, window.__done % 2 ? b.e : b.p, window.__done % 2 ? b.p : b.e, T.MOVES[id]); }} catch (e) {{ window.__errs.push(id + ': ' + e); }}
+        window.__done++; }} }})(); }})()""")
+    await wait_for(t, "window.__done >= Object.keys(window.__tiamat.MOVES).length", 400000, 'all moves')
+    print('moves animated:', await t.js("window.__done"), 'errors:', await t.js("JSON.stringify(window.__errs.slice(0, 10))"))
+    print('sprites back in place:', await t.js(f"(() => {{ const B = {B}; return [Math.round(B.playerSpr.x), Math.round(B.playerSpr.y), B.playerSpr.alpha, Math.round(B.enemySpr.x), Math.round(B.enemySpr.y), B.enemySpr.alpha, B.children.list.length]; }})()"))
+
+
+async def moveanims2(t, port):
+    await t.p.goto(f'http://localhost:{port}/?map=route1&x=8&y=26&debug')
+    await wait_for(t, f"window.__tiamat && {W}.player", 40000, 'world')
+    await t.wait(600)
+    await t.js("(() => { const T = window.__tiamat; T.G.settings.textSpeed = 'instant'; T.G.state.party = [T.createMon('cindreaver', 30)]; })()")
+    await t.js(f"void {W}.S.wild('lambkin', 20)")
+    for _ in range(12):
+        if await t.js(PROMPT): break
+        await t.key('z', 60, 450)
+    for mid in ['moonbeam_pounce', 'guillotine_scythe', 'siege_ram', 'glimmer_kiss', 'tesla_coil', 'maelstrom']:
+        await t.js(f"(() => {{ const b = {B}.battle; window.__a = {B}.moveAnim(b, b.p, b.e, window.__tiamat.MOVES['{mid}']); }})()")
+        for ms in (200, 450, 750):
+            await t.wait(250 if ms > 200 else 200)
+            await t.shot(f'{mid}_{ms}')
+        await t.js("window.__a"); await t.wait(1000)

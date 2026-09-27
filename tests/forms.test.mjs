@@ -184,3 +184,42 @@ test('old saves: Aldous\'s Nyxen becomes Twinklit, storage is healed, moves are 
   const again = migrate(s);
   assert.equal(again.boxes[0].slots[1].species, 'nyxen', 'runs only once');
 });
+
+test('every move has an animation and sounds; signature moves have their own', async () => {
+  const { readFileSync } = await import('node:fs');
+  const { MOVES } = await import('../src/data/moves.js');
+  const { SPECIES_LIST } = await import('../src/data/species.js');
+  const { ITEMS } = await import('../src/data/items.js');
+  const { recipeFor, soundsOf, SIGNATURE, KINDS, MOVE_KIND, OPS } = await import('../src/data/moveAnims.js');
+  const sfx = new Set(JSON.parse(readFileSync(new URL('../public/assets/audio/index.json', import.meta.url))).sfx);
+  for (const mv of Object.values(MOVES)) {
+    const r = recipeFor(mv);
+    assert.ok(r.length >= 2, `${mv.id} has an animation`);
+    for (const st of r) { assert.ok(OPS.includes(st.op), `${mv.id}: unknown effect ${st.op}`); }
+    const snd = soundsOf(r);
+    assert.ok(snd.length, `${mv.id} has a sound`);
+    for (const k of snd) { assert.ok(sfx.has(k), `${mv.id}: missing sound ${k}`); }
+  }
+  // moves only one Morph line learns (and no Tech Disc teaches) all have their own recipe and sound
+  const prev = {}; for (const sp of SPECIES_LIST) { if (sp.evo) { prev[sp.evo.into] = sp.id; } }
+  const root = (id) => { while (prev[id]) { id = prev[id]; } return id; };
+  const lines = {}; for (const sp of SPECIES_LIST) { for (const [, mv] of sp.learn) { (lines[mv] = lines[mv] || new Set()).add(root(sp.id)); } }
+  const discs = new Set(Object.values(ITEMS).filter((i) => i.use && i.use.kind === 'teach').map((i) => i.use.move));
+  const exclusive = Object.keys(MOVES).filter((m) => lines[m] && lines[m].size === 1 && !discs.has(m));
+  const common = new Set(Object.keys(KINDS).map((k) => JSON.stringify(KINDS[k]('Plain'))));
+  const seen = new Set();
+  for (const id of exclusive) {
+    assert.ok(SIGNATURE[id], `${id} needs its own animation`);
+    assert.ok(!MOVE_KIND[id], `${id} shouldn't also use a shared kind`);
+    const r = SIGNATURE[id];
+    assert.ok(soundsOf(r).includes(`sig_${id}`), `${id} needs its own sound`);
+    const key = JSON.stringify(r.filter((s) => s.op !== 'sfx'));
+    assert.ok(!seen.has(key), `${id} animation is a copy of another signature move`);
+    seen.add(key);
+    assert.ok(!common.has(JSON.stringify(r)), `${id} animation is a shared one`);
+  }
+  // no signature sound is used by any other move
+  for (const mv of Object.values(MOVES)) {
+    for (const k of soundsOf(recipeFor(mv))) { if (k.startsWith('sig_')) { assert.equal(k, `sig_${mv.id}`, `${mv.id} borrows ${k}`); } }
+  }
+});

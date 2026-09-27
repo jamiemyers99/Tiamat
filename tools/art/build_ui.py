@@ -196,6 +196,8 @@ def ui_frames():
     mi('options', lambda s: (s.ellipse(8, 8, 5.5, 5.5, '#9aa0b4'), s.ellipse(8, 8, 2, 2, '#1c1a28'), [s.rect(7, 0, 2, 3, '#9aa0b4'), s.rect(7, 13, 2, 3, '#9aa0b4'), s.rect(0, 7, 3, 2, '#9aa0b4'), s.rect(13, 7, 3, 2, '#9aa0b4')]))
     mi('map', lambda s: (s.rect(2, 3, 12, 10, '#e8d8a8'), s.vline(6, 3, 12, '#b8a878'), s.vline(10, 3, 12, '#b8a878'), s.px(8, 7, '#e2555f'), s.px(4, 9, '#4caf50')))
     mi('exit', lambda s: (s.rect(4, 2, 8, 12, '#8a5a3a'), s.rect(5, 3, 6, 10, '#b87a4a'), s.px(9, 8, '#f0d24a')))
+    # ── move animation sprites (mostly white/grey so the game tints them by move type) ──
+    F.extend(fx_frames())
     # battle shadow ellipse
     sh = Spr(64, 14)
     import numpy as np
@@ -203,6 +205,147 @@ def ui_frames():
     d = ((xs + 0.5 - 32) / 32) ** 2 + ((ys + 0.5 - 7) / 7) ** 2
     sh.a[d <= 1] = (0, 0, 0, 90)
     F.append(('battle_shadow', sh))
+    return F
+
+
+def fx_frames():
+    import math
+    F = []
+    W, L, M, D, O = '#ffffff', '#e8ecf4', '#c4cad8', '#8e96aa', '#3a3f52'
+    def add(name, s, outline=None):
+        if outline:
+            s.outline(outline)
+        F.append((f'fx_{name}', s))
+    # crescent slash (32x32)
+    s = Spr(32, 32)
+    for a in range(0, 150):
+        t = a / 150.0
+        ang = math.radians(200 + 140 * t)
+        w = math.sin(t * math.pi) * 3.2
+        for r in [13 - w * 0.5 + k * 0.5 for k in range(int(w * 2) + 1)]:
+            s.px(16 + math.cos(ang) * r, 16 + math.sin(ang) * r, W if r > 12 else L)
+    add('slash', s)
+    # three claw scratches (24x24)
+    s = Spr(24, 24)
+    for k in range(3):
+        for i in range(18):
+            x, y = 3 + i + k * 4 - 4, 3 + i
+            w = 1 if i in (0, 17) else 2
+            s.rect(x, y, w, 1, W if 3 < i < 15 else L)
+    add('claw', s)
+    # impact starburst (24x24)
+    s = Spr(24, 24)
+    pts = []
+    for i in range(16):
+        r = 11 if i % 2 == 0 else 5
+        a = i * math.pi / 8
+        pts.append((12 + math.cos(a) * r, 12 + math.sin(a) * r))
+    s.poly(pts, L)
+    s.shaded_ellipse(12, 12, 4, 4, [W, W, W, W, W])
+    add('impact', s)
+    # fist (16x16) and foot (16x16)
+    s = Spr(16, 16)
+    s.rect(3, 4, 10, 9, L); s.rect(3, 4, 10, 2, W)
+    for k in range(4):
+        s.vline(4 + k * 2 + (1 if k else 0), 5, 8, M)
+    s.rect(1, 7, 3, 4, L)
+    add('fist', s, O)
+    s = Spr(16, 16)
+    s.rect(5, 2, 5, 8, L); s.rect(3, 9, 11, 5, L); s.hline(3, 13, 13, M); s.rect(5, 2, 5, 2, W)
+    add('foot', s, O)
+    # jaw of teeth (32x12): the top jaw; flipped for the bottom
+    s = Spr(32, 12)
+    s.rect(0, 0, 32, 4, M)
+    for k in range(8):
+        s.poly([(k * 4, 3), (k * 4 + 4, 3), (k * 4 + 2, 11)], W)
+    add('jaw', s, O)
+    # rock chunks (not tinted)
+    for n, (w, h) in enumerate([(12, 10), (9, 8), (16, 13)]):
+        s = Spr(w, h)
+        s.poly([(1, h * 0.5), (w * 0.3, 0.5), (w * 0.8, 1), (w - 1, h * 0.55), (w * 0.7, h - 1), (w * 0.2, h - 1)], '#8a7c6c')
+        s.poly([(2, h * 0.45), (w * 0.35, 1.5), (w * 0.6, 2), (w * 0.4, h * 0.5)], '#b3a590')
+        add(f'rock{n}', s, '#3a3026')
+    # icicle shard (8x18), flame tongue (12x16), leaf (11x7), feather (13x6), needle (13x3)
+    s = Spr(8, 18)
+    s.poly([(4, 0), (7, 5), (5, 17), (3, 17), (1, 5)], L); s.vline(4, 1, 15, W)
+    add('icicle', s, '#5a7a9a')
+    s = Spr(12, 16)
+    s.poly([(6, 0), (9, 5), (11, 10), (8, 15), (4, 15), (1, 10), (3, 5)], L)
+    s.poly([(6, 5), (8, 10), (6, 14), (4, 10)], W)
+    add('flame', s)
+    s = Spr(11, 7)
+    s.poly([(0, 3), (5, 0), (10, 3), (5, 6)], L); s.hline(1, 9, 3, M)
+    add('leaf', s)
+    s = Spr(13, 6)
+    s.poly([(0, 3), (4, 0), (12, 2), (12, 4), (4, 6)], L); s.hline(1, 12, 3, M)
+    add('feather', s)
+    s = Spr(13, 3)
+    s.hline(0, 9, 1, L); s.px(10, 1, W); s.px(11, 1, W); s.px(12, 1, W); s.hline(0, 3, 0, M); s.hline(0, 3, 2, M)
+    add('needle', s)
+    # bubble (10x10), orb (16x16), sparkle (9x9), heart (9x8), note (8x10), z (7x7), arrow (8x10), seed (5x6), cog (12x12)
+    s = Spr(10, 10)
+    s.ellipse(5, 5, 4.5, 4.5, L); s.ellipse(5, 5, 3.3, 3.3, (0, 0, 0, 0)) if False else None
+    for y in range(10):
+        for x in range(10):
+            d = ((x + 0.5 - 5) ** 2 + (y + 0.5 - 5) ** 2) ** 0.5
+            if 3.4 < d <= 4.6:
+                s.px(x, y, L)
+            elif d <= 3.4:
+                s.px(x, y, (220, 235, 255, 70))
+    s.px(3, 3, W); s.px(3, 4, W); s.px(4, 3, W)
+    add('bubble', s)
+    s = Spr(16, 16)
+    for y in range(16):
+        for x in range(16):
+            d = ((x + 0.5 - 8) ** 2 + (y + 0.5 - 8) ** 2) ** 0.5
+            if d <= 7.5:
+                a = int(255 * max(0, 1 - d / 7.5) ** 0.6)
+                s.px(x, y, (255, 255, 255, a))
+    add('orb', s)
+    s = Spr(9, 9)
+    s.poly([(4.5, 0), (5.5, 3.5), (9, 4.5), (5.5, 5.5), (4.5, 9), (3.5, 5.5), (0, 4.5), (3.5, 3.5)], W)
+    add('sparkle', s)
+    s = Spr(9, 8)
+    s.ellipse(2.5, 2.5, 2.5, 2.5, L); s.ellipse(6.5, 2.5, 2.5, 2.5, L); s.poly([(0, 3), (9, 3), (4.5, 8)], L); s.px(2, 1, W)
+    add('heart', s, O)
+    s = Spr(8, 10)
+    s.ellipse(2.5, 8, 2.4, 1.8, L); s.vline(4, 1, 8, L); s.rect(4, 1, 4, 2, L)
+    add('note', s, O)
+    s = Spr(7, 7)
+    s.hline(0, 6, 0, L); s.line(6, 0, 0, 6, L); s.hline(0, 6, 6, L)
+    add('z', s, O)
+    s = Spr(8, 10)
+    s.poly([(4, 0), (8, 4), (5.5, 4), (5.5, 10), (2.5, 10), (2.5, 4), (0, 4)], L)
+    add('arrow', s, O)
+    s = Spr(5, 6)
+    s.ellipse(2.5, 3, 2.3, 2.8, '#c8a868'); s.px(1, 1, '#e8d8a8')
+    add('seed', s, '#4a3a1a')
+    s = Spr(12, 12)
+    for i in range(8):
+        a = i * math.pi / 4
+        s.rect(6 + math.cos(a) * 4.5 - 1, 6 + math.sin(a) * 4.5 - 1, 2, 2, M)
+    s.ellipse(6, 6, 4, 4, L); s.ellipse(6, 6, 1.5, 1.5, D)
+    add('cog', s, O)
+    # shield bubble (40x40)
+    s = Spr(40, 40)
+    for y in range(40):
+        for x in range(40):
+            d = ((x + 0.5 - 20) ** 2 + (y + 0.5 - 20) ** 2) ** 0.5
+            if 17.5 < d <= 19.5:
+                s.px(x, y, (255, 255, 255, 230))
+            elif d <= 17.5:
+                s.px(x, y, (255, 255, 255, int(40 + 60 * (d / 17.5) ** 3)))
+    add('shield', s)
+    # web (24x24)
+    s = Spr(24, 24)
+    for i in range(8):
+        a = i * math.pi / 4
+        s.line(12, 12, 12 + math.cos(a) * 11, 12 + math.sin(a) * 11, L)
+    for r in (4, 7.5, 11):
+        pts = [(12 + math.cos(i * math.pi / 4) * r, 12 + math.sin(i * math.pi / 4) * r) for i in range(9)]
+        for (x0, y0), (x1, y1) in zip(pts, pts[1:]):
+            s.line(x0, y0, x1, y1, M)
+    add('web', s)
     return F
 
 

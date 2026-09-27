@@ -12,6 +12,8 @@ import { ITEMS } from '../data/items.js';
 import { TRAINERS } from '../data/trainers.js';
 import { nameEntry } from '../ui/nameEntry.js';
 import { pickMove } from '../ui/moveScreen.js';
+import { MoveFx } from '../battle/moveFx.js';
+import { recipeFor, soundsOf } from '../data/moveAnims.js';
 import { tierOf, wildIvs, trainerIvs, trainerSkill, wildSkill, settleCaught } from '../data/difficulty.js';
 import { TYPE_COLORS, effectiveness } from '../data/types.js';
 import { txt, wrap, fmt, fmtKeys, measure } from '../ui/text.js';
@@ -407,34 +409,16 @@ export class BattleScene extends Phaser.Scene {
   _sprite(battler) { return battler.side === 0 ? this.playerSpr : this.enemySpr; }
   _pos(battler) { return battler.side === 0 ? { x: PP.x, y: PP.y - 55 } : { x: EP.x, y: EP.y - 45 }; }
 
+  // Every move plays its own animation + sounds (data/moveAnims.js, battle/moveFx.js).
   async moveAnim(b, att, def, move, eff = 1) {
-    if (!this.animOn) { audio.sfx('attack'); return; }
-    const aSpr = this._sprite(att);
-    const from = this._pos(att);
-    const to = this._pos(def);
-    audio.sfx('attack');
-    if (move.cat === 'status') {
-      const target = move.fx.target === 'self' || move.fx.heal || move.fx.protect ? att : def;
-      const p = this._pos(target);
-      if (move.fx.protect) {
-        const ring = this.add.image(p.x, p.y, 'p_ring').setScale(4).setTint(0x8ad8ff).setAlpha(0.8).setDepth(50);
-        await this.tween({ targets: ring, scale: 9, alpha: 0, duration: 400 });
-        ring.destroy();
-        return;
-      }
-      this._burst(p.x, p.y, move.type, 18, 60);
-      await this.wait(350);
+    const recipe = recipeFor(move);
+    if (!this.animOn) {
+      for (const k of soundsOf(recipe).slice(0, 2)) { audio.sfx(k, { throttle: 0 }); }
+      await this.wait(120);
       return;
     }
-    if (move.cat === 'phys') {
-      const dx = att.side === 0 ? 26 : -26;
-      const dy = att.side === 0 ? -14 : 8;
-      await this.tween({ targets: aSpr, x: aSpr.x + dx, y: aSpr.y + dy, duration: 110, yoyo: true, ease: 'Quad.easeOut' });
-      this._burst(to.x, to.y, move.type, 12, 70);
-    } else {
-      await this._projectile(from, to, move.type);
-      this._burst(to.x, to.y, move.type, 16, 80);
-    }
+    const fx = new MoveFx(this, { move, from: this._pos(att), to: this._pos(def), aSpr: this._sprite(att), dSpr: this._sprite(def), side: att.side });
+    try { await fx.run(recipe); } catch (e) { fx.cleanup(); console.warn('[moveFx]', move.id, e); }
   }
 
   _projectile(from, to, type) {
@@ -513,6 +497,7 @@ export class BattleScene extends Phaser.Scene {
   }
 
   async charge(b, battler) {
+    audio.sfx('mv_charge');
     const spr = this._sprite(battler);
     await this.tween({ targets: spr, y: spr.y - 120, alpha: 0, duration: 300 });
     spr.y += 120; spr.setAlpha(1);

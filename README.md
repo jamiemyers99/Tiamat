@@ -113,6 +113,10 @@ your starter and gift Morphs are always strong. `npm run balance` prints the who
 - **Battle info**: every move shows its type and how well it will work on the foe; the team menu shows whether
   each Morph is super effective against (or weak to) the foe; Tamer battles show the foe's remaining team as
   capsules. Morphs in storage are always fully healed.
+- **Move animations and sounds**: every one of the 193 moves animates like the classics — slashes, bites, beams,
+  lightning, waves, falling rocks, psychic rings, fire, ice, heals, shields and more, coloured by type — with its
+  own sound effects (all synthesised in `tools/audio/sfx.py`). Moves only one Morph line can learn (starter,
+  signature, mythical and Tiamat's) each have a one-of-a-kind animation and sound (`src/data/moveAnims.js`).
 - **Tall grass**: leafy Gen-4-style tufts that sway as the wind passes and part when you push through.
 - **Secrets**: items hidden inside bushes, rocks and trees — face one and press A (or your confirm
   key) to search it. One bush just north of Rootmere hides an **XP Share**: attach it from the Bag and
