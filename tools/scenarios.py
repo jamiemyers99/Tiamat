@@ -590,3 +590,22 @@ async def skiffmap(t, port):
     await t.key('ArrowLeft', 60, 80); await t.shot('map_moving'); await t.wait(500); await t.shot('map_left')
     await t.key('ArrowUp', 60, 600); await t.shot('map_up')
     await t.key('ArrowRight', 60, 600); await t.shot('map_right')
+
+
+async def loadmenu(t, port):
+    await t.p.goto(f'http://localhost:{port}/?map=route1&x=8&y=26&debug')
+    await wait_for(t, f"window.__tiamat && {W}.player", 40000, 'world')
+    await t.wait(600)
+    await t.js("""(() => { const T = window.__tiamat; const s = T.state.newState(); s.player.name = 'Jamie'; s.player.map = 'rootmere'; s.player.x = 12; s.player.y = 12;
+      s.party = [T.createMon('cindlet', 9)]; s.flags.got_starter = true; s.playMs = 4000000; localStorage.setItem(T.state.slotKey(0), JSON.stringify(s));
+      T.G.state.party = [T.createMon('beakling', 5)]; T.G.slot = 0; })()""")
+    await t.key('c', 60, 700); await t.shot('menu')
+    for _ in range(4): await t.key('ArrowDown', 60, 150)
+    await t.key('z', 60, 600); await t.shot('load_slots')
+    await t.key('z', 60, 600); await t.shot('load_confirm')
+    await t.key('z', 60, 400)
+    await wait_for(t, f"{W}.mapView && {W}.mapView.id === 'rootmere' && {W}.player", 20000, 'loaded rootmere')
+    await t.wait(1200); await t.shot('after_load')
+    print('after load:', await t.js(f"[{W}.mapView.id, {W}.player.tx, {W}.player.ty, window.__tiamat.G.state.player.name, window.__tiamat.G.state.party.map(m => m.species).join(), {W}.busy]"))
+    await t.key('ArrowDown', 200, 400)
+    print('can move:', await t.js(f"[{W}.player.tx, {W}.player.ty]"))

@@ -5,7 +5,7 @@ import { GAME_W, GAME_H, MONEY_CAP } from '../config.js';
 import { input, DEFAULT_KEYS, REBINDABLE, ESSENTIAL, keyName } from '../core/input.js';
 import { audio } from '../core/audio.js';
 import { RESCUES, openRescues } from '../data/rescue.js';
-import { G, saveGame, saveSettings, itemCount, giveItem, takeItem, addMoney, flag, hasCaughtForm, hasSeenForm } from '../core/state.js';
+import { G, saveGame, readSlot, loadGame, saveSettings, itemCount, giveItem, takeItem, addMoney, flag, hasCaughtForm, hasSeenForm } from '../core/state.js';
 import { NATURES, natureText } from '../data/natures.js';
 import { playerStyleKey } from '../data/players.js';
 import { SPECIES, SPECIES_LIST } from '../data/species.js';
@@ -65,6 +65,33 @@ export class MenuScene extends Phaser.Scene {
     if (after) { after(); }
   }
 
+  // Load a saved journey from the pause menu (the same three slots as the title screen).
+  async loadMenu() {
+    const slots = [0, 1, 2].map((i) => {
+      const s = readSlot(i);
+      if (!s) { return { label: `Slot ${i + 1}  — Empty`, value: i, disabled: true }; }
+      if (s.corrupt) { return { label: `Slot ${i + 1}  — Damaged`, value: i, disabled: true }; }
+      const h = Math.floor((s.playMs || 0) / 3600000), m = Math.floor(((s.playMs || 0) % 3600000) / 60000);
+      const cur = i === G.slot ? ' (this one)' : '';
+      return { label: `${s.player.name}${cur}`, right: `${(s.sigils || []).length}★  ${h}:${String(m).padStart(2, '0')}`, value: i, name: s.player.name };
+    });
+    const c = this.add.container(0, 0);
+    c.add(this.dim(0.6));
+    c.add(txt(this, GAME_W / 2, 70, 'Load which journey?', { align: 'center', color: 'gold' }));
+    const pick = await choose(this, slots, { x: GAME_W / 2 - 100, y: 86, depth: 30 });
+    c.destroy();
+    if (pick === null || pick === undefined) { return; }
+    const ok = await this.confirm(`Load ${slots[pick].name}'s journey (Slot ${pick + 1})? Anything since your last save will be lost.`);
+    if (!ok) { return; }
+    if (!loadGame(pick)) { audio.sfx('cancel'); await this.toast('That save could not be loaded.'); return; }
+    audio.sfx('select');
+    this.exitThen(() => {
+      const w = this.scene.get('World');
+      w.cameras.main.fadeOut(350, 0, 0, 0);
+      w.cameras.main.once('camerafadeoutcomplete', () => { input.focus = ['world']; w.scene.restart({}); });
+    });
+  }
+
   // Close every open sub-menu at once and then run fn (used by fly / escape).
   exitThen(fn) {
     this._afterClose = fn;
@@ -100,6 +127,7 @@ export class MenuScene extends Phaser.Scene {
     if (itemCount('reach_map')) { items.push({ label: 'Map', value: 'map', icon: 'menu_map' }); }
     items.push({ label: G.state.player.name, value: 'card', icon: 'menu_card' });
     items.push({ label: 'Save', value: 'save', icon: 'menu_save' });
+    items.push({ label: 'Load', value: 'load', icon: 'menu_load' });
     items.push({ label: 'Controls', value: 'controls', icon: 'menu_keys' });
     items.push({ label: 'Options', value: 'options', icon: 'menu_options' });
     items.push({ label: 'Close', value: 'close', icon: 'menu_exit' });
@@ -129,6 +157,7 @@ export class MenuScene extends Phaser.Scene {
       if (v === 'card') { await this.card(); }
       if (v === 'options') { await this.options(); }
       if (v === 'controls') { await this.controls(); }
+      if (v === 'load') { await this.loadMenu(); }
       if (v === 'save') {
         const yes = await this.confirm('Save your progress?');
         if (yes) {

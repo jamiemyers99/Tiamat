@@ -202,6 +202,8 @@ def ui_frames():
     mi('index', lambda s: (s.rect(3, 2, 10, 12, '#e2555f'), s.rect(4, 3, 8, 5, '#8ad8ff'), s.px(5, 10, '#ffffff'), s.px(7, 10, '#f5c542')))
     mi('card', lambda s: (s.rect(1, 4, 14, 9, '#3d8bfd'), s.rect(2, 5, 4, 5, '#f3cfae'), s.hline(8, 13, 6, '#ffffff'), s.hline(8, 12, 9, '#ffffff')))
     mi('save', lambda s: (s.rect(2, 2, 12, 12, '#5a6a9a'), s.rect(4, 2, 8, 5, '#e8ecf0'), s.rect(4, 9, 8, 5, '#2a2f4a')))
+    mi('load', lambda s: (s.rect(1, 5, 14, 9, '#c8964a'), s.rect(1, 3, 6, 3, '#c8964a'), s.rect(2, 7, 12, 6, '#e8b86a'),
+                          s.poly([(8, 1), (12, 5), (9.5, 5), (9.5, 9), (6.5, 9), (6.5, 5), (4, 5)], '#6fd86a')))
     mi('keys', lambda s: (s.rect(0, 3, 16, 10, '#4a5070'), s.rect(1, 4, 14, 8, '#6a7090'),
                           [s.rect(2 + i * 3, 5, 2, 2, '#e8ecf0') for i in range(4)],
                           [s.rect(3 + i * 3, 8, 2, 2, '#e8ecf0') for i in range(3)], s.rect(4, 11, 8, 1, '#e8ecf0')))
