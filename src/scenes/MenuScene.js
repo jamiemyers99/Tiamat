@@ -12,7 +12,8 @@ import { SPECIES, SPECIES_LIST } from '../data/species.js';
 import { MOVES } from '../data/moves.js';
 import { ITEMS, POCKETS, canLearnDisc } from '../data/items.js';
 import { TYPE_COLORS } from '../data/types.js';
-import { calcStats, maxHp, monName, monFrame, sexSymbol, xpProgress, xpToNext, STAT_KEYS, addXp, learnMove, replaceMove, evolutionTarget, healMon } from '../battle/mon.js';
+import { calcStats, maxHp, monName, monFrame, sexSymbol, xpProgress, xpToNext, STAT_KEYS, addXp, learnMove, replaceMove, evolutionTarget, healMon, rememberableMoves } from '../battle/mon.js';
+import { pickMove } from '../ui/moveScreen.js';
 import { txt, wrap, fmt, fmtKeys, measure } from '../ui/text.js';
 import { panel, selBar, sexMark, choose, ListMenu, Bar } from '../ui/widgets.js';
 import { UI } from './UIScene.js';
@@ -219,13 +220,38 @@ export class MenuScene extends Phaser.Scene {
         continue;
       }
       // the team stays on screen behind the options
-      const opt = await choose(this, [{ label: 'Summary', value: 'sum' }, { label: 'Switch', value: 'swap' }, { label: 'Item', value: 'item' }, { label: 'Nickname', value: 'nick' }, { label: 'Cancel', value: null }],
+      const opt = await choose(this, [{ label: 'Summary', value: 'sum' }, { label: 'Moves', value: 'moves' }, { label: 'Switch', value: 'swap' }, { label: 'Item', value: 'item' }, { label: 'Nickname', value: 'nick' }, { label: 'Cancel', value: null }],
         { x: GAME_W - 12, y: GAME_H - 12, anchor: 'bottom-right', depth: 20 });
       c.destroy();
       if (opt === 'sum') { i = await this.summary(i); }
       if (opt === 'swap') { swapFrom = i; }
       if (opt === 'item') { await this.bag({ target: i }); }
       if (opt === 'nick') { await this.nickname(party[i]); }
+      if (opt === 'moves') { await this.moveReminder(party[i]); }
+    }
+  }
+
+  // Move Reminder (like the newer classics): swap in any move this Morph learned before, or should
+  // have learned by its level — including moves from the stages it evolved from.
+  async moveReminder(m) {
+    const nm = monName(m);
+    for (;;) {
+      const choices = rememberableMoves(m);
+      if (!choices.length) { await this.toast(`${nm} has no other moves to remember yet.`); return; }
+      const id = await pickMove(this, m, { title: `Which move should ${nm} remember? (${choices.length} to choose from)`, choices, owner: this.owner });
+      if (!id) { return; }
+      if (m.moves.length < 4) {
+        learnMove(m, id);
+        audio.sfx('level_up');
+        await this.toast(`${nm} remembered ${MOVES[id].name}!`);
+        continue;
+      }
+      const idx = await pickMove(this, m, { title: `Forget which move to make room for ${MOVES[id].name}?`, newMove: id, owner: this.owner });
+      if (idx === null || idx === -1) { continue; }
+      const old = MOVES[m.moves[idx].id].name;
+      replaceMove(m, idx, id);
+      audio.sfx('level_up');
+      await this.toast(`${nm} forgot ${old} and remembered ${MOVES[id].name}!`);
     }
   }
 
@@ -495,8 +521,7 @@ export class MenuScene extends Phaser.Scene {
     const nm = monName(m);
     const mv = MOVES[moveId];
     await this.toast(`${nm} wants to learn ${mv.name}, but already knows four moves.`);
-    const idx = await choose(this, [...m.moves.map((x, k) => ({ label: `Forget ${MOVES[x.id].name}`, value: k })), { label: 'Keep old moves', value: -1 }],
-      { x: GAME_W - 12, y: GAME_H - 12, anchor: 'bottom-right', depth: 30, width: 190 });
+    const idx = await pickMove(this, m, { title: `Which move should ${nm} forget to learn ${mv.name}?`, newMove: moveId, owner: this.owner });
     if (idx === null || idx === -1) { await this.toast(`${nm} did not learn ${mv.name}.`); return; }
     const old = MOVES[m.moves[idx].id].name;
     replaceMove(m, idx, moveId);
@@ -566,7 +591,7 @@ export class MenuScene extends Phaser.Scene {
       if (!both) { fm.setX(458); } else { fm.setX(446); }
       formHint.setVisible(s && both);
       nm.setText(s ? sp.name : '???');
-      cls.setText(cg ? sp.cls : '');
+      cls.setText(cg ? (sp.mythical ? `${sp.cls}  -  MYTHICAL` : sp.cls) : '');
       t1.setVisible(cg).setFrame(`type_${sp.types[0]}`);
       t2.setVisible(cg && sp.types.length > 1).setFrame(`type_${sp.types[1] || sp.types[0]}`);
       t1.setX(343 - (sp.types.length > 1 ? 40 : 18));
@@ -1037,7 +1062,7 @@ export class MenuScene extends Phaser.Scene {
           const k = cy * 6 + cx;
           const here = bx.slots[k];
           if (!held && here) { held = here; bx.slots[k] = null; heldFrom = { box, k }; }
-          else if (held) { bx.slots[k] = held; held = here || null; heldFrom = held ? { box, k } : null; }
+          else if (held) { healMon(held); bx.slots[k] = held; held = here || null; heldFrom = held ? { box, k } : null; }   // storage heals
         } else {
           const here = G.state.party[pi];
           if (!held && here) {
@@ -1057,7 +1082,7 @@ export class MenuScene extends Phaser.Scene {
         if (held) {
           // put it back where it came from
           if (heldFrom && heldFrom.party) { G.state.party.push(held); }
-          else if (heldFrom) { G.state.boxes[heldFrom.box].slots[heldFrom.k] = held; }
+          else if (heldFrom) { healMon(held); G.state.boxes[heldFrom.box].slots[heldFrom.k] = held; }
           held = null; redraw(); audio.sfx('cancel');
           return undefined;
         }

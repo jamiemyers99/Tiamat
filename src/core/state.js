@@ -1,6 +1,6 @@
 // Game state, save slots and settings.
 import { natureFromId } from '../data/natures.js';
-import { refreshStarterMoves } from '../battle/mon.js';
+import { refreshStarterMoves, healMon, movesForLevel, makeMove, preEvolutions } from '../battle/mon.js';
 import { SPECIES } from '../data/species.js';
 import { SAVE_PREFIX, SETTINGS_KEY, SAVE_VERSION, MONEY_CAP, BOX_COUNT, BOX_SIZE } from '../config.js';
 
@@ -46,6 +46,7 @@ export function newState() {
     index: { seen: [], caught: [], seenSex: {}, caughtSex: {} },
     sexTally: { m: 0, f: 0 },
     starterMoves2: true,
+    mythicSwap: true,
     xpShareOn: false,
     sigils: [],
     playMs: 0,
@@ -147,7 +148,7 @@ export function receiveMorph(mon) {
   if (G.state.party.length < 6) { G.state.party.push(mon); return 'party'; }
   for (let b = 0; b < G.state.boxes.length; b++) {
     const i = G.state.boxes[b].slots.indexOf(null);
-    if (i >= 0) { G.state.boxes[b].slots[i] = mon; return `box:${b}`; }
+    if (i >= 0) { healMon(mon); G.state.boxes[b].slots[i] = mon; return `box:${b}`; }   // storage heals, like the PC
   }
   return null;
 }
@@ -157,7 +158,7 @@ export function slotKey(i) { return `${SAVE_PREFIX}${i}`; }
 
 export function saveGame(slot = G.slot) {
   try {
-    const data = JSON.stringify({ ...G.state, version: SAVE_VERSION, savedAt: Date.now() });
+    const data = JSON.stringify({ ...G.state, version: SAVE_VERSION, rev: SAVE_REV, savedAt: Date.now() });
     localStorage.setItem(slotKey(slot), data);
     G.slot = slot;
     return true;
@@ -166,12 +167,21 @@ export function saveGame(slot = G.slot) {
   }
 }
 
+// Loading never throws a save away: before an older save is upgraded, its original text is kept as
+// "<slot>.bak", and if the main copy can't be read the backup is loaded instead.
 export function readSlot(i) {
+  let raw = null;
+  try { raw = localStorage.getItem(slotKey(i)); } catch { return null; }
+  if (!raw) { return null; }
   try {
-    const raw = localStorage.getItem(slotKey(i));
-    if (!raw) { return null; }
-    return migrate(JSON.parse(raw));
+    const parsed = JSON.parse(raw);
+    if ((parsed.rev || 0) < SAVE_REV) { try { localStorage.setItem(`${slotKey(i)}.bak`, raw); } catch { /* storage full */ } }
+    return migrate(parsed);
   } catch {
+    try {
+      const bak = localStorage.getItem(`${slotKey(i)}.bak`);
+      if (bak) { return migrate(JSON.parse(bak)); }
+    } catch { /* fall through */ }
     return { corrupt: true };
   }
 }
@@ -185,10 +195,18 @@ export function loadGame(i) {
 }
 
 export function deleteSlot(i) {
-  try { localStorage.removeItem(slotKey(i)); } catch { /* ignore */ }
+  try { localStorage.removeItem(slotKey(i)); localStorage.removeItem(`${slotKey(i)}.bak`); } catch { /* ignore */ }
 }
 
-// Upgrade older saves in place. v5 is the first save format of the rebuilt game.
+// Upgrade older saves in place. v5 is the first save format of the rebuilt game; SAVE_REV goes up
+// every time an upgrade step is added. Each step runs on its own: if one ever fails, the rest still
+// run and the save still loads (it is never deleted).
+export const SAVE_REV = 4;
+
+function upgrade(name, fn) {
+  try { fn(); } catch (e) { console.warn(`[save] upgrade step "${name}" was skipped:`, e); }
+}
+
 export function migrate(s) {
   if (!s || typeof s !== 'object') { throw new Error('bad save'); }
   const base = newState();
@@ -200,31 +218,80 @@ export function migrate(s) {
   out.flags = s.flags || {};
   out.vars = s.vars || {};
   out.bag = s.bag || {};
+  out.defeated = s.defeated || {};
+  out.party = (Array.isArray(s.party) ? s.party : []).filter((m) => m && SPECIES[m.species]);
   out.boxes = Array.isArray(s.boxes) && s.boxes.length ? s.boxes : base.boxes;
-  // Morphs from saves made before male/female forms: pick a sex that stays the same every load
-  const giveSex = (m) => {
-    if (!m) { return; }
+  out.boxes.forEach((b) => { b.slots = Array.from({ length: BOX_SIZE }, (_, k) => { const m = (b.slots || [])[k]; return m && SPECIES[m.species] ? m : null; }); });
+  const all = () => [...out.party, ...out.boxes.flatMap((b) => b.slots)].filter(Boolean);
+  // Morphs from saves made before male/female forms and natures: a sex and nature that stay the same every load
+  upgrade('sex+nature', () => all().forEach((m) => {
     if (!m.sex) { m.sex = m.species === 'tiamat' ? 'f' : ((m.uid || 0) % 2 ? 'f' : 'm'); }
-    // Morphs from before natures existed get a stable one
     if (!m.nature) { m.nature = natureFromId(m.uid, SPECIES[m.species]?.types || []); }
-  };
-  (out.party || []).forEach(giveSex);
-  out.boxes.forEach((b) => (b.slots || []).forEach(giveSex));
+  }));
   // starter lines got their own signature moves: swap them into older saves once
   if (!s.starterMoves2) {
-    (out.party || []).forEach(refreshStarterMoves);
-    out.boxes.forEach((b) => (b.slots || []).forEach(refreshStarterMoves));
+    upgrade('starter moves', () => all().forEach(refreshStarterMoves));
     out.starterMoves2 = true;
   }
   // the Index learned about male/female forms: rebuild it once from the Morphs you own
   if (!ix.caughtSex) {
-    const forms = rebuildForms(out);
-    out.index.caughtSex = forms.caughtSex;
-    out.index.seenSex = { ...forms.seenSex, ...(ix.seenSex || {}) };
+    upgrade('index forms', () => {
+      const forms = rebuildForms(out);
+      out.index.caughtSex = forms.caughtSex;
+      out.index.seenSex = { ...forms.seenSex, ...(ix.seenSex || {}) };
+    });
   }
   for (const id of out.index.caught) { if (!out.index.seen.includes(id)) { out.index.seen.push(id); } }
+  // rev 3: Morphs in storage are always fully healed
+  if ((s.rev || 0) < 3) { upgrade('heal storage', () => out.boxes.forEach((b) => b.slots.forEach((m) => { if (m) { healMon(m); } }))); }
+  // rev 4: every Morph remembers the moves it knows (for the Move Reminder)
+  upgrade('learned moves', () => all().forEach((m) => { if (!Array.isArray(m.learned)) { m.learned = (m.moves || []).map((x) => x.id); } }));
+  // rev 4: Aldous's gift is now the mythical Twinklit line — the Nyxen he gave in older saves becomes one
+  if (out.flags.got_nyxen && !s.mythicSwap) {
+    upgrade('aldous gift', () => swapAldousGift(out, all));
+  }
+  out.mythicSwap = true;
   out.version = SAVE_VERSION;
+  out.rev = SAVE_REV;
   return out;
+}
+
+// Older saves got a Nyxen from Aldous; turn that Morph into the Twinklit line (same level, sex, nature,
+// genes, nickname and XP; stage picked by level; moves re-learned for its new species). The gift is the
+// Nyxen-line Morph with no capture spot recorded (gifts never have one), looking in storage first.
+const NYX_LINE = ['nyxen', 'vesperel', 'noctheart'];
+function swapAldousGift(out, all) {
+  const boxed = out.boxes.flatMap((b) => b.slots).filter(Boolean);
+  if ([...boxed, ...out.party].some((m) => SPECIES[m.species]?.mythical)) { return; }   // already has it
+  const mine = [...boxed, ...out.party].filter((m) => NYX_LINE.includes(m.species));
+  const strong = (m) => Object.values(m.ivs || {}).every((v) => v >= 20);
+  const gift = mine.find((m) => !m.metMap) || mine.find(strong);
+  if (!gift) { return; }
+  const species = gift.level >= 38 ? 'seraphelis' : gift.level >= 18 ? 'lumelynx' : 'twinklit';
+  gift.species = species;
+  gift.moves = movesForLevel(species, gift.level).map(makeMove);
+  gift.learned = gift.moves.map((x) => x.id);
+  gift.metMap = 'brindlewood';
+  gift.status = null;
+  healMon(gift);
+  const ix = out.index;
+  for (const id of [species, ...preEvolutions(species)]) {
+    if (!ix.caught.includes(id)) { ix.caught.push(id); }
+    if (!ix.seen.includes(id)) { ix.seen.push(id); }
+    ix.caughtSex[id] = [...new Set([...(ix.caughtSex[id] || []), gift.sex])];
+    ix.seenSex[id] = [...new Set([...(ix.seenSex[id] || []), gift.sex])];
+  }
+  // the Nyxen line stays "caught" only if you still own one of that line (there is no releasing Morphs)
+  const owned = all();
+  for (const id of NYX_LINE) {
+    const later = NYX_LINE.slice(NYX_LINE.indexOf(id));
+    const stillHave = owned.some((m) => later.includes(m.species));
+    if (!stillHave) {
+      ix.caught = ix.caught.filter((x) => x !== id);
+      delete ix.caughtSex[id];
+    }
+  }
+  out.flags.got_twinklit = true;
 }
 
 // Money dropped when the whole team faints — like Pokémon it scales with progress, so a new Tamer

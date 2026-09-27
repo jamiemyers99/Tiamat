@@ -19,7 +19,7 @@ test('type chart is well-formed and the starter triangle holds', () => {
 
 test('every species is valid: types, learnsets, evolutions', () => {
   validateSpecies();
-  assert.equal(Object.keys(SPECIES).length, 102);
+  assert.equal(Object.keys(SPECIES).length, 105);
   for (const s of Object.values(SPECIES)) {
     for (const t of s.types) { assert.ok(TYPES.includes(t), `${s.id} type ${t}`); }
     for (const [lv, mv] of s.learn) { assert.ok(MOVES[mv], `${s.id} learns unknown ${mv}`); assert.ok(lv >= 1); }

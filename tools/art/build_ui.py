@@ -11,7 +11,7 @@ from buildings import icon, text_small, text_width
 TYPES = {
     'Plain': '#a8a29a', 'Nature': '#4caf50', 'Ember': '#ff7a3d', 'Tide': '#3d8bfd', 'Static': '#f5c542',
     'Stone': '#b38b5d', 'Frost': '#7fd6f2', 'Wing': '#8fa8ff', 'Swarm': '#9bbf3a', 'Toxin': '#a560c8',
-    'Brawl': '#d0503a', 'Mind': '#f06292', 'Umbra': '#5e4b8b', 'Iron': '#8e9aaf', 'Drake': '#6a4cd8',
+    'Brawl': '#d0503a', 'Mind': '#f06292', 'Umbra': '#5e4b8b', 'Iron': '#8e9aaf', 'Drake': '#6a4cd8', 'Fae': '#f7a8dc',
 }
 
 
@@ -235,6 +235,24 @@ def icon_frames():
     simple('pips_bell', lambda s: (s.shaded_ellipse(8, 9, 4, 4, ramp('#f5c542', 5, 0.15)), s.px(8, 12, '#3a2a1a'), s.line(5, 4, 11, 4, '#e2555f')))
     simple('forge_pass', lambda s: (s.rect(2, 4, 12, 8, '#8e9aaf'), s.rect(3, 5, 4, 4, '#f5c542'), s.hline(8, 12, 6, '#ffffff'), s.hline(8, 12, 9, '#ffffff')))
     simple('rift_key', lambda s: (s.ellipse(5, 8, 3.5, 3.5, '#6fe0c8'), s.ellipse(5, 8, 1.5, 1.5, '#1c1a28'), s.hline(8, 14, 8, '#6fe0c8'), s.vline(12, 8, 11, '#6fe0c8'), s.vline(14, 8, 10, '#6fe0c8')))
+    # XP Share: a gold medallion on a chain, a glowing teal gem with a star glint
+    def xp_share(s):
+        for x in range(4, 13):
+            y = 1 + int(round(((x - 8) / 4.0) ** 2 * 3))
+            s.px(x, y, '#e8c86a')
+        s.shaded_ellipse(8, 10, 5, 5, ramp('#f5c542', 5, 0.16))
+        s.shaded_ellipse(8, 10, 3, 3, ramp('#4fd8c8', 5, 0.16))
+        s.px(8, 8, '#ffffff'); s.px(7, 9, '#e8fffb'); s.px(9, 9, '#e8fffb'); s.px(8, 10, '#ffffff'); s.px(8, 9, '#ffffff')
+        s.px(12, 6, '#fff7c0'); s.px(3, 13, '#fff7c0')
+    simple('xp_share', xp_share)
+    # Forge Ember: a little iron lantern with a glowing coal
+    simple('forge_ember', lambda s: (s.rect(4, 4, 8, 10, '#4a4a58'), s.rect(5, 5, 6, 8, '#2a2230'), s.shaded_ellipse(8, 10, 2.5, 2.5, ramp('#ff8a2a', 5, 0.2)),
+                                     s.px(8, 8, '#ffe07a'), s.px(7, 9, '#ffd04a'), s.rect(6, 2, 4, 2, '#4a4a58'), s.hline(3, 12, 14, '#5a5a6a')))
+    # Wing Whistle: a wooden whistle with a feather
+    simple('wing_whistle', lambda s: (s.rect(2, 8, 9, 4, '#c8884a'), s.rect(2, 8, 9, 1, '#e8a86a'), s.rect(10, 7, 3, 6, '#a8683a'), s.px(5, 10, '#3a2a1a'),
+                                      s.line(9, 7, 14, 1, '#f0f0f8'), s.line(10, 7, 15, 2, '#c8d8f0'), s.line(11, 5, 13, 4, '#f0f0f8')))
+    # Seal Shard: a glowing crystal fragment
+    simple('seal_shard', lambda s: (s.poly([(8, 1), (12, 6), (10, 14), (5, 14), (4, 6)], '#8a6ad8'), s.poly([(8, 1), (10, 6), (8, 13), (6, 6)], '#b89af0'), s.px(7, 4, '#ffffff')))
     # discs by type
     import re
     td_types = {'td01': 'Plain', 'td02': 'Plain', 'td03': 'Stone', 'td04': 'Static', 'td05': 'Frost', 'td06': 'Ember', 'td07': 'Nature',

@@ -8,8 +8,9 @@ from mon_designs import D
 from mon_designs_a import NEW as NEW_A
 from mon_designs_b import NEW as NEW_B
 from mon_designs_c import NEW as NEW_C
+from mon_designs_d import NEW as NEW_D
 
-for _extra in (NEW_A, NEW_B, NEW_C):
+for _extra in (NEW_A, NEW_B, NEW_C, NEW_D):
     for _k in _extra:
         assert _k not in D, f'duplicate Morph design {_k}'
     D.update(_extra)

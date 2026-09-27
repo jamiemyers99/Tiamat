@@ -376,8 +376,11 @@ export class WorldScene extends Phaser.Scene {
       const pr = t.props;
       if (pr.once && flag(pr.once)) { continue; }
       if (pr.cond && !evalCond(pr.cond, true)) { continue; }
-      await this.run(pr.script, { trigger: t });
+      if (this._triggerRunning === t) { continue; }   // never start the same event twice at once
+      // one-time events are marked done as they start, so nothing can re-fire them mid-scene
       if (pr.once) { setFlag(pr.once); }
+      this._triggerRunning = t;
+      try { await this.run(pr.script, { trigger: t }); } finally { this._triggerRunning = null; }
       return;
     }
     // trainers

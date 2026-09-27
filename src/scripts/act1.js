@@ -179,16 +179,18 @@ export default {
     await S.say(null, "Posy's been crying since this morning. Her Burrlet ran off into Thornwild. I'd go myself, but those woods...");
   },
   'brindlewood.aldous': async (S) => {
-    if (S.flag('got_nyxen')) { await S.say('Aldous', "How's the little one? Nyxen glow brightest under a new moon. Take it out at night sometime."); return; }
+    if (S.flag('got_nyxen')) { await S.say('Aldous', "How's the little one? Twinklit dream louder under a full moon. Take it out at night sometime — and let it sleep in, now and then."); return; }
     if (S.state.sigils.length < 1) {
       await S.say('Aldous', "Eh? A new Tamer. I walked the whole Reach once, you know. Six Sigils. Long time ago.|Come back when you've earned your first Sigil. I might have something for you.");
       return;
     }
     await S.say('Aldous', "The Moss Sigil! So Mossa's finally met her match. Good, good.");
-    await S.say('Aldous', "My old partner had a clutch before she passed. This one never took to me — too old, too slow. It wants to travel. Will you take it?");
-    const mon = await S.giveMorph('nyxen', 12, { ivs: partnerIvs() });
-    if (mon) { S.set('got_nyxen'); }
-    await S.say('Aldous', 'Nyxen is an Umbra Morph. Sneaky. Loyal. Look after each other.');
+    await S.say('Aldous', "My old partner was a Lumelynx — the only one I ever saw, in all my years walking the Reach. Before she passed, she left me a little one.");
+    await S.say('Aldous', "It never took to me. Too old, too slow — and it dreams of travelling. It's been waiting for a Tamer worth following. Will you take it?");
+    const mon = await S.giveMorph('twinklit', 5, { ivs: partnerIvs(), text: '{PLAYER} received Twinklit!' });
+    if (mon) { S.set('got_nyxen'); S.set('got_twinklit'); }
+    await S.say('Aldous', "Twinklit is a Mind and Fae Morph. There isn't another like it anywhere — no book, no Index, no Warden has one.");
+    await S.say('Aldous', "Its mind is stronger than it looks, and it will learn any Tech Disc you give it. Look after each other."); 
   },
   'brindlewood_trial.warden': async (S) => {
     if (S.flag('sigil_moss')) {

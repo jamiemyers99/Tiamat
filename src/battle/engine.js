@@ -623,8 +623,11 @@ export class Battle {
   async giveXp(m, amt, isPart, via) {
     const before = m.level;
     const beforeXp = m.xp;
-    const msg = via === 'share' ? `${monName(m)} gained ${amt} XP!` : isPart ? `${monName(m)} gained ${amt} XP!` : `${monName(m)} gained ${amt} XP from the Bond Charm!`;
-    await this.ui.message(msg, { quick: via === 'share' || !isPart });
+    // with the XP Share one line covers the whole team ("Your whole team gains N XP"); level-ups still show
+    if (via !== 'share') {
+      const msg = isPart ? `${monName(m)} gained ${amt} XP!` : `${monName(m)} gained ${amt} XP from the Bond Charm!`;
+      await this.ui.message(msg, { quick: !isPart });
+    }
     const steps = addXp(m, amt);
     await this.ui.xp(this, m, beforeXp, steps);
     for (const st of steps) {

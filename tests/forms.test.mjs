@@ -143,3 +143,44 @@ test('the two starters you did not choose can be rescued', async () => {
   for (let id = 10000; id < 10040; id++) { forms.add(worldMorphSex('puddlet', { trainerId: id })); }
   assert.equal(forms.size, 2, 'both forms turn up across saves');
 });
+
+test('the mythical Twinklit line: Mind/Fae, its own moves, every Tech Disc', async () => {
+  const { SPECIES, SPECIES_LIST } = await import('../src/data/species.js');
+  const { MOVES } = await import('../src/data/moves.js');
+  const { ITEMS, canLearnDisc } = await import('../src/data/items.js');
+  const { effectiveness } = await import('../src/data/types.js');
+  const line = ['twinklit', 'lumelynx', 'seraphelis'];
+  for (const id of line) { assert.deepEqual(SPECIES[id].types, ['Mind', 'Fae']); assert.ok(SPECIES[id].mythical); }
+  assert.equal(SPECIES.twinklit.evo.into, 'lumelynx');
+  assert.equal(SPECIES.lumelynx.evo.into, 'seraphelis');
+  const mine = new Set(line.flatMap((id) => SPECIES[id].learn.map(([, mv]) => mv)));
+  for (const sp of SPECIES_LIST) {
+    if (line.includes(sp.id)) { continue; }
+    for (const [, mv] of sp.learn) { assert.ok(!mine.has(mv), `${sp.id} shares ${mv}`); }
+  }
+  assert.ok([...mine].some((mv) => MOVES[mv].type === 'Mind' && MOVES[mv].power >= 120), 'strong Mind moves');
+  for (const [id, it] of Object.entries(ITEMS)) { if (it.use && it.use.kind === 'teach') { assert.ok(canLearnDisc(SPECIES.twinklit, it.use.move), id); } }
+  assert.equal(createMon('twinklit', 5).moves.length, 3);
+  assert.equal(effectiveness('Fae', ['Drake']), 2);
+  assert.equal(effectiveness('Drake', ['Mind', 'Fae']), 0);
+  assert.equal(effectiveness('Iron', ['Fae']), 2);
+});
+
+test('old saves: Aldous\'s Nyxen becomes Twinklit, storage is healed, moves are remembered', () => {
+  const nyx = { species: 'nyxen', uid: 40, level: 12, sex: 'f', nature: 'Pensive', ot: 'Jamie', metMap: null, hp: 3, xp: 1700, ivs: { hp: 25, atk: 22, def: 30, spa: 28, spd: 21, spe: 27 }, moves: [{ id: 'shade_fang', pp: 3, max: 25 }] };
+  const wild = { species: 'nyxen', uid: 41, level: 9, sex: 'm', ot: 'Jamie', metMap: 'thornwild', hp: 0, ivs: { hp: 5, atk: 5, def: 5, spa: 5, spd: 5, spe: 5 }, moves: [{ id: 'shade_fang', pp: 25, max: 25 }] };
+  const s = migrate({ rev: 2, starterMoves2: true, flags: { got_nyxen: true }, index: { seen: ['nyxen'], caught: ['nyxen'], caughtSex: { nyxen: ['f', 'm'] } },
+    party: [{ species: 'cindlet', uid: 2, level: 14, sex: 'm', moves: [{ id: 'ember_fang', pp: 5, max: 25 }] }],
+    boxes: [{ name: 'Box 1', slots: [nyx, wild] }] });
+  const [a, b] = s.boxes[0].slots;
+  assert.equal(a.species, 'twinklit');
+  assert.equal(a.level, 12); assert.equal(a.sex, 'f'); assert.equal(a.ivs.def, 30);
+  assert.ok(a.moves.every((m) => ['dream_tap', 'glimmer_kiss', 'starlight_purr', 'mind_ripple'].includes(m.id)));
+  assert.equal(b.species, 'nyxen', 'a Nyxen you caught stays a Nyxen');
+  assert.ok(b.hp > 0, 'storage heals');
+  assert.ok(s.index.caught.includes('twinklit') && s.index.caught.includes('nyxen'));
+  assert.deepEqual(s.party[0].learned, ['ember_fang']);
+  assert.equal(s.flags.got_twinklit, true);
+  const again = migrate(s);
+  assert.equal(again.boxes[0].slots[1].species, 'nyxen', 'runs only once');
+});

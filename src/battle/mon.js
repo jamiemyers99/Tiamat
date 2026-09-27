@@ -50,7 +50,7 @@ export function calcStats(mon) {
   const out = {};
   STAT_KEYS.forEach((k, i) => {
     const b = sp.base[i];
-    const iv = mon.ivs[k] ?? 15;
+    const iv = (mon.ivs && mon.ivs[k]) ?? 15;
     const v = Math.floor(((2 * b + iv) * L) / 100);
     out[k] = k === 'hp' ? v + L + 10 : Math.floor((v + 5) * natureMult(mon.nature, k));
   });
@@ -90,6 +90,7 @@ export function createMon(speciesId, level, opts = {}) {
     ivs,
     hp: 0,
     moves: (opts.moves || movesForLevel(speciesId, level)).map(makeMove),
+    learned: [...(opts.moves || movesForLevel(speciesId, level))],
     status: null,
     statusTurns: 0,
     ot: opts.ot || null,
@@ -128,7 +129,7 @@ export function healMon(mon) {
   mon.hp = maxHp(mon);
   mon.status = null;
   mon.statusTurns = 0;
-  mon.moves.forEach((m) => { m.pp = m.max; });
+  (mon.moves || []).forEach((m) => { m.pp = m.max; });
 }
 
 // Adds XP; returns a list of level-up steps [{level, before, after, learn:[moveIds]}]
@@ -164,14 +165,43 @@ export function xpToNext(mon) {
 }
 
 // Try to learn a move automatically. Returns true if learned, false if 4 moves already.
+// Every move a Morph has ever known is remembered, so the Move Reminder can give it back later.
+export function rememberMove(mon, moveId) {
+  mon.learned = mon.learned || [];
+  if (!mon.learned.includes(moveId)) { mon.learned.push(moveId); }
+}
+
 export function learnMove(mon, moveId) {
   if (mon.moves.some((m) => m.id === moveId)) { return true; }
-  if (mon.moves.length < 4) { mon.moves.push(makeMove(moveId)); return true; }
+  if (mon.moves.length < 4) { mon.moves.push(makeMove(moveId)); rememberMove(mon, moveId); return true; }
   return false;
 }
 
 export function replaceMove(mon, index, moveId) {
   mon.moves[index] = makeMove(moveId);
+  rememberMove(mon, moveId);
+}
+
+// Earlier stages of a Morph's line (e.g. Spriggrove → Spriglet).
+let PREV = null;
+export function preEvolutions(speciesId) {
+  if (!PREV) { PREV = {}; for (const sp of Object.values(SPECIES)) { if (sp.evo && sp.evo.into) { PREV[sp.evo.into] = sp.id; } } }
+  const out = [];
+  for (let id = PREV[speciesId], n = 0; id && n < 5; id = PREV[id], n++) { out.push(id); }
+  return out;
+}
+
+// Move Reminder: moves this Morph (or the stages it evolved from) learned — or should have learned —
+// by its current level, plus anything it was ever taught, minus what it knows now. Level order.
+export function rememberableMoves(mon) {
+  const known = new Set(mon.moves.map((m) => m.id));
+  const out = [];
+  const add = (id) => { if (MOVES[id] && !known.has(id) && !out.includes(id)) { out.push(id); } };
+  for (const id of [mon.species, ...preEvolutions(mon.species)]) {
+    for (const [lv, mv] of SPECIES[id].learn) { if (lv <= mon.level) { add(mv); } }
+  }
+  (mon.learned || []).forEach(add);
+  return out;
 }
 
 export function evolutionTarget(mon) {

@@ -15,7 +15,8 @@ import { BattleScene } from './scenes/BattleScene.js';
 import { EvolutionScene } from './scenes/EvolutionScene.js';
 import { TransitionScene } from './scenes/TransitionScene.js';
 import { CreditsScene } from './scenes/CreditsScene.js';
-import { createMon, healMon } from './battle/mon.js';
+import { createMon, healMon, rememberableMoves } from './battle/mon.js';
+import { pickMove } from './ui/moveScreen.js';
 import * as stateMod from './core/state.js';
 
 const config = {
@@ -37,7 +38,7 @@ const config = {
 input.setBindings(G.settings.keys);
 setHintProvider((a) => input.hint(a), () => input.lastDevice === 'key');
 const game = new Phaser.Game(config);
-window.__tiamat = { game, G, input, createMon, healMon, state: stateMod };
+window.__tiamat = { game, G, input, createMon, healMon, state: stateMod, pickMove, rememberableMoves };
 audio.init(game);
 
 // Global per-frame input sampling (before any scene updates).

@@ -79,7 +79,7 @@ your starter and gift Morphs are always strong. `npm run balance` prints the who
 
 - **The Riven Reach**: 49 hand-built maps — 7 towns, 6 routes, a forest, mines, a lake crossing,
   a mountain pass, a cult headquarters, the Abyssal Rift and Tiamat's Cradle.
-- **102 Morphs** across 15 types — 15 three-stage evolution lines — each with a male and a female form (Tiamat, the Draco Queen,
+- **105 Morphs** across 16 types (including Fae, the fairy-like type) — 16 three-stage evolution lines — each with a male and a female form (Tiamat, the Draco Queen,
   is always female), evolutions, move learning, Tech Discs, Radiant (shiny) Morphs —
   1 wild Morph in 100 — and day/night and water encounter tables.
 - **Six Warden Trials** (Mossa, Brann, Iskra, Morrow, Hale, Seren), a rival who always
@@ -102,8 +102,17 @@ your starter and gift Morphs are always strong. `npm run balance` prints the who
   between the ♂ and ♀ pictures (coloured symbol = caught in that form).
 - **Starter rescues**: the two starters you didn't pick are out in the Reach and in trouble — a Spriglet
   boxed in by brambles in Thornwild, a Puddlet cornered by the Deepcall on Gullcliff Road, and a Cindlet
-  freezing in Coldforge Mines. Help them and they join you, so all 102 Morphs can be collected in one game.
+  freezing in Coldforge Mines. Help them and they join you, so every Morph can be collected in one game.
   Dr. Marsh (and the Index) point the way.
+- **Mythical Twinklit**: Aldous in Brindlewood gives a Tamer with the Moss Sigil a level-5 Twinklit — a
+  Mind/Fae kitten, the only one in the Reach. It evolves into Lumelynx (Lv18) and Seraphelis (Lv38), learns
+  only its own moves by level-up, and can learn every Tech Disc.
+- **Move Reminder**: Team → Moves lets any Morph swap in moves it learned before (or should have learned by its
+  level, including its earlier forms'). Learning a move shows a full screen with every move's type, power,
+  accuracy, PP and effect.
+- **Battle info**: every move shows its type and how well it will work on the foe; the team menu shows whether
+  each Morph is super effective against (or weak to) the foe; Tamer battles show the foe's remaining team as
+  capsules. Morphs in storage are always fully healed.
 - **Tall grass**: leafy Gen-4-style tufts that sway as the wind passes and part when you push through.
 - **Secrets**: items hidden inside bushes, rocks and trees — face one and press A (or your confirm
   key) to search it. One bush just north of Rootmere hides an **XP Share**: attach it from the Bag and

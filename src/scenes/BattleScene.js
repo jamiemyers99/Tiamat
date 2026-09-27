@@ -11,6 +11,7 @@ import { MOVES } from '../data/moves.js';
 import { ITEMS } from '../data/items.js';
 import { TRAINERS } from '../data/trainers.js';
 import { nameEntry } from '../ui/nameEntry.js';
+import { pickMove } from '../ui/moveScreen.js';
 import { tierOf, wildIvs, trainerIvs, trainerSkill, wildSkill, settleCaught } from '../data/difficulty.js';
 import { TYPE_COLORS, effectiveness } from '../data/types.js';
 import { txt, wrap, fmt, fmtKeys, measure } from '../ui/text.js';
@@ -18,6 +19,29 @@ import { panel, Bar, choose, sexMark } from '../ui/widgets.js';
 import { timeOfDay } from '../world/Atmosphere.js';
 
 const EP = { x: 348, y: 142 };
+
+// How a move would do against the foe's types: [label, colour] for the move menu.
+function moveVerdict(mv, foeTypes) {
+  if (mv.cat === 'status') { return ['Status', 'gray']; }
+  const e = effectiveness(mv.type, foeTypes);
+  return e === 0 ? ['No effect', 'gray'] : e > 1 ? ['Super effective', 'green'] : e < 1 ? ['Not very eff.', 'red'] : ['Effective', 'white'];
+}
+
+// Team picker: the best any of this Morph's attacks would do to the foe (its own types if it has none).
+function matchupVs(m, foe) {
+  const foeTypes = SPECIES[foe.species].types;
+  const atk = (m.moves || []).map((x) => MOVES[x.id]).filter((mv) => mv && mv.cat !== 'status');
+  const types = atk.length ? atk.map((mv) => mv.type) : SPECIES[m.species].types;
+  const best = Math.max(...types.map((t) => effectiveness(t, foeTypes)));
+  return best === 0 ? ['NO EFFECT', 'gray'] : best > 1 ? ['SUPER EFFECTIVE', 'green'] : best < 1 ? ['NOT VERY EFFECTIVE', 'red'] : ['EFFECTIVE', 'white'];
+}
+
+// ...and whether the foe's own types would hit it hard.
+function dangerFrom(m, foe) {
+  const mine = SPECIES[m.species].types;
+  const worst = Math.max(...SPECIES[foe.species].types.map((t) => effectiveness(t, mine)));
+  return worst > 1 ? ['WEAK TO FOE', 'red'] : worst < 1 ? ['RESISTS FOE', 'blue'] : ['', 'white'];
+}
 const PP = { x: 130, y: 238 };
 const MSG_Y = GAME_H - 62;
 const SPEED = { slow: 38, normal: 20, fast: 8, instant: 0 };
@@ -31,6 +55,7 @@ const TYPE_FX = {
   Brawl: { tint: [0xff8a5a, 0xffffff], tex: 'p_star' }, Mind: { tint: [0xf06292, 0xffc0d8], tex: 'p_ring' },
   Umbra: { tint: [0x5e4b8b, 0x2a1e40, 0xb89aff], tex: 'p_dot' }, Iron: { tint: [0xc8d0de, 0x8e9aaf, 0xffffff], tex: 'p_sq' },
   Drake: { tint: [0x8a6ae0, 0x6fe0c8, 0xe0d0ff], tex: 'p_star' },
+  Fae: { tint: [0xffc2ea, 0xf7a8dc, 0xffffff, 0xffe27a], tex: 'p_star' },
 };
 
 export class BattleScene extends Phaser.Scene {
@@ -170,6 +195,9 @@ export class BattleScene extends Phaser.Scene {
     this.eStatus = this.add.image(182, 19, 'ui', 'st_burn').setOrigin(1, 0).setVisible(false);
     this.eHp = new Bar(this, 28, 33, 154, 5);
     e.add([this.eName, this.eSex, this.eLv, this.eCaught, ...this.eTypes, this.eStatus, txt(this, 10, 32, 'HP', { face: 'small', color: 'gold' })]);
+    // like the classic ball row: one capsule per Morph the foe Tamer has (grey = fainted)
+    this.eTeam = [0, 1, 2, 3, 4, 5].map((k) => this.add.image(6 + k * 11, 49, 'ui', 'item_ball').setOrigin(0, 0).setScale(0.625).setVisible(false));
+    e.add(this.eTeam);
     this.eHp.addTo(e);
     this.ePanel = e;
     // player: name ♂/♀ ··· Lv  /  types ··· status  /  HP bar  /  HP numbers  /  XP bar
@@ -188,6 +216,16 @@ export class BattleScene extends Phaser.Scene {
     this.pHp.addTo(p);
     this.pXp.addTo(p);
     this.pPanel = p;
+  }
+
+  _foeTeam() {
+    const party = this.battle && this.battle.kind === 'trainer' ? this.battle.e.party : [];
+    this.eTeam.forEach((img, k) => {
+      const m = party[k];
+      img.setVisible(!!m);
+      if (!m) { return; }
+      if (m.hp <= 0) { img.setTint(0x55586a).setAlpha(0.7); } else { img.clearTint().setAlpha(1); }
+    });
   }
 
   // name, ♂/♀ and type badges for one side's panel
@@ -209,6 +247,7 @@ export class BattleScene extends Phaser.Scene {
       this.eLv.setText(`Lv${m.level}`);
       this.eHp.set(m.hp / mx);
       this._status(this.eStatus, m.status);
+      this._foeTeam();
       // small capsule after the name = you've caught this species in this form (♂/♀) before
       this.eCaught.setX(end + 3).setVisible(this.battle.kind === 'wild' && hasCaughtForm(m.species, m.sex));
     } else {
@@ -517,17 +556,15 @@ export class BattleScene extends Phaser.Scene {
     const nm = monName(mon);
     await this.message(`${nm} wants to learn ${mv.name}. But ${nm} already knows four moves.`);
     for (;;) {
-      this.setPrompt(`Forget a move to learn ${mv.name}?`);
-      const yes = await choose(this, [{ label: 'Forget a move', value: true }, { label: 'Keep old moves', value: false }], { x: GAME_W - 12, y: MSG_Y - 4, anchor: 'bottom-right', depth: 80 });
-      if (!yes) {
-        await this.message(`${nm} did not learn ${mv.name}.`);
-        return;
+      this.setPrompt('');
+      // a full screen with every move's type, power, accuracy and effect (nothing hidden behind text)
+      const idx = await pickMove(this, mon, { title: `Which move should ${nm} forget to learn ${mv.name}?`, newMove: moveId, owner: this.owner });
+      if (idx === -1) {
+        this.setPrompt(`Give up on learning ${mv.name}?`);
+        const stop = await choose(this, [{ label: 'Yes', value: true }, { label: 'No', value: false }], { x: GAME_W - 12, y: MSG_Y - 4, anchor: 'bottom-right', depth: 80 });
+        if (stop) { await this.message(`${nm} did not learn ${mv.name}.`); return; }
+        continue;
       }
-      const items = mon.moves.map((m, i) => ({ label: MOVES[m.id].name, right: `${m.pp}/${m.max}`, value: i }));
-      items.push({ label: `(new) ${mv.name}`, right: `${mv.pp}/${mv.pp}`, value: -1, color: 'gold' });
-      this.setPrompt('Which move should be forgotten?');
-      const idx = await choose(this, items, { x: GAME_W - 12, y: MSG_Y - 4, anchor: 'bottom-right', depth: 80, width: 190 });
-      if (idx === null || idx === -1) { continue; }
       const old = MOVES[mon.moves[idx].id].name;
       replaceMove(mon, idx, moveId);
       await this.message(`1, 2 and... Poof! ${nm} forgot ${old}... and learned ${mv.name}!`);
@@ -690,9 +727,14 @@ export class BattleScene extends Phaser.Scene {
       }
       const mv = MOVES[m.id];
       const bg = this.add.rectangle(x, y, 146, 21, TYPE_COLORS[mv.type], 0.35).setOrigin(0, 0).setStrokeStyle(1, TYPE_COLORS[mv.type]);
-      const t = txt(this, x + 6, y + 5, mv.name, { color: m.pp > 0 ? 'white' : 'gray' });
-      const pp = txt(this, x + 140, y + 7, `${m.pp}/${m.max}`, { face: 'small', align: 'right', color: m.pp === 0 ? 'red' : m.pp <= m.max / 4 ? 'gold' : 'gray' });
-      c.add([bg, t, pp]);
+      // every move shows its type badge, how well it works on the foe, and PP
+      const long = measure(this, mv.name) > 104;
+      const t = txt(this, x + 5, y + (long ? 4 : 2), mv.name, { color: m.pp > 0 ? 'white' : 'gray', face: long ? 'small' : 'main' });
+      const badge = this.add.image(x + 143, y + 2, 'ui', `type_${mv.type}`).setOrigin(1, 0);
+      const [el, ec] = moveVerdict(mv, foeTypes);
+      const et = txt(this, x + 5, y + 13, el, { face: 'small', color: ec });
+      const pp = txt(this, x + 143, y + 13, `PP ${m.pp}/${m.max}`, { face: 'small', align: 'right', color: m.pp === 0 ? 'red' : m.pp <= m.max / 4 ? 'gold' : 'gray' });
+      c.add([bg, t, badge, et, pp]);
       cells.push({ bg, x, y });
     }
     const sel = this.add.rectangle(0, 0, 148, 23).setOrigin(0, 0).setStrokeStyle(2, 0xffd65c);
@@ -719,7 +761,7 @@ export class BattleScene extends Phaser.Scene {
       if (mv.cat === 'status') { eff.setText('Status move').setFont('main_gray'); }
       else {
         const e = effectiveness(mv.type, foeTypes);
-        const [label, col] = e === 0 ? ['No effect', 'gray'] : e > 1 ? ['Super effective', 'green'] : e < 1 ? ['Not very effective', 'red'] : ['Effective', 'white'];
+        const [label, col] = e === 0 ? ['No effect', 'gray'] : e > 1 ? [`Super effective x${e}`, 'green'] : e < 1 ? [`Not very effective x${e}`, 'red'] : ['Effective x1', 'white'];
         eff.setText(label).setFont(`main_${col}`);
       }
     };
@@ -796,6 +838,16 @@ export class BattleScene extends Phaser.Scene {
       const hpt = txt(this, x + 210, y + 22, `${m.hp}/${maxHp(m)}`, { align: 'right', face: 'small' });
       const st = this.add.image(x + 40, y + 34, 'ui', `st_${m.hp <= 0 ? 'faint' : (m.status || 'burn')}`).setOrigin(0, 0).setVisible(m.hp <= 0 || !!m.status);
       c.add([bg, ic, nm, sx, lv, hpt, st]);
+      // its types, and how it would do against the Morph you're facing
+      const tx0 = x + 40 + (st.visible ? st.width + 3 : 0);
+      SPECIES[m.species].types.forEach((ty, k) => c.add(this.add.image(tx0 + k * 36, y + 34, 'ui', `type_${ty}`).setOrigin(0, 0)));
+      const foe = this.battle && this.battle.e && this.battle.e.mon;
+      if (foe && !item) {
+        const [ol, oc] = matchupVs(m, foe);
+        c.add(txt(this, x + 210, y + 34, ol, { face: 'small', align: 'right', color: oc }));
+        const [dl, dc] = dangerFrom(m, foe);
+        if (dl) { c.add(txt(this, x + 210, y + 43, dl, { face: 'small', align: 'right', color: dc })); }
+      }
       bar.addTo(c);
       return { x, y };
     });

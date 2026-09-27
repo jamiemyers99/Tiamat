@@ -15,7 +15,7 @@ export const NATURE_NAMES = Object.keys(NATURES);
 // Mind Morphs clever and Wing Morphs quick. (Any nature can still turn up on any Morph.)
 export const TYPE_LEAN = {
   Plain: 'spe', Nature: 'spd', Ember: 'spa', Tide: 'spa', Static: 'spe', Stone: 'def', Frost: 'spa', Wing: 'spe',
-  Swarm: 'atk', Toxin: 'def', Brawl: 'atk', Mind: 'spa', Umbra: 'atk', Iron: 'def', Drake: 'atk',
+  Swarm: 'atk', Toxin: 'def', Brawl: 'atk', Mind: 'spa', Umbra: 'atk', Iron: 'def', Drake: 'atk', Fae: 'spd',
 };
 
 export function natureMult(nature, stat) {

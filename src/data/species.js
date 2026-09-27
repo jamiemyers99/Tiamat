@@ -353,12 +353,27 @@ s(102, 'montolith', 'Montolith', ['Stone', 'Brawl'], [105, 135, 135, 50, 80, 30]
   [[1, 'quake_stomp'], [1, 'power_kick'], [44, 'mountain_crash'], [48, 'stoneskin'], [48, 'peakfall'], [52, 'rising_uppercut'], [58, 'boulder_drop']],
   'Mountain Morph', 'Snow never melts on its shoulders. Some say the peaks of the Reach are old Montolith that fell asleep standing up.');
 
+// ── Mythical ────────────────────────────────────────────────────────────────
+// The Twinklit line: Aldous's late partner's little one. Found nowhere else in the Reach — he gives it to
+// a Tamer who wins the Moss Sigil. Learns only its own moves by level, and every Tech Disc.
+s(103, 'twinklit', 'Twinklit', ['Mind', 'Fae'], [62, 45, 55, 80, 75, 68], 'medium', 70, 3, { level: 18, into: 'lumelynx' },
+  [[1, 'dream_tap'], [1, 'glimmer_kiss'], [5, 'starlight_purr'], [9, 'mind_ripple'], [13, 'moonbeam_pounce'], [16, 'psyche_bloom']],
+  'Wish Morph', 'A tiny kitten that floats on fairy wings. Legends say a Twinklit is born only when a Tamer and their partner share a dream.');
+s(104, 'lumelynx', 'Lumelynx', ['Mind', 'Fae'], [78, 60, 70, 105, 95, 92], 'medium', 150, 3, { level: 38, into: 'seraphelis' },
+  [[1, 'dream_tap'], [1, 'glimmer_kiss'], [5, 'starlight_purr'], [9, 'mind_ripple'], [13, 'moonbeam_pounce'], [16, 'psyche_bloom'], [18, 'fae_ring'], [25, 'wishing_star'], [31, 'astral_purr']],
+  'Starlight Morph', 'The stars on its tail brighten when the one it loves is near. It can see a few moments into the future, but only in its dreams.');
+s(105, 'seraphelis', 'Seraphelis', ['Mind', 'Fae'], [92, 68, 88, 130, 112, 110], 'medium', 270, 3, null,
+  [[1, 'dream_tap'], [1, 'glimmer_kiss'], [1, 'starlight_purr'], [1, 'mind_ripple'], [1, 'psyche_bloom'], [1, 'fae_ring'], [1, 'wishing_star'], [31, 'astral_purr'],
+    [38, 'dreamshatter'], [45, 'aurora_benediction'], [53, 'cosmic_insight']],
+  'Celestial Morph', 'Its halo is said to hold every wish ever made to it. Only one has ever been recorded in the Reach — and it never left its Tamer\'s side.');
 
 export const SPECIES_LIST = LIST;
 
 // Chance a Morph is female (0–1). Every Morph has male and female forms; Tiamat, the Draco Queen, is always female.
 for (const sp of LIST) { sp.female = 0.5; }
 SPECIES.tiamat.female = 1;
+// Mythical Morphs: one of a kind, never found in the wild (the Index marks them).
+for (const id of ['twinklit', 'lumelynx', 'seraphelis']) { SPECIES[id].mythical = true; }
 
 export function validateSpecies() {
   const problems = [];

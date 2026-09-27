@@ -9,6 +9,20 @@ function m(id, name, type, cat, power, acc, pp, fx = {}, desc = '') {
   MOVES[id] = { id, name, type, cat, power, acc, pp, fx, prio: fx.prio || 0, desc };
 }
 
+// ── Mythical: the Twinklit line (Mind/Fae) — no other Morph learns these ───
+m('dream_tap', 'Dream Tap', 'Mind', 'spec', 40, 100, 35, {}, 'A soft tap of dream-energy from its forehead gem. Only Twinklit and its evolutions know it.');
+m('glimmer_kiss', 'Glimmer Kiss', 'Fae', 'spec', 40, 100, 30, { stat: { atk: -1 }, target: 'foe', chance: 0.3 }, 'Blows a sparkling kiss. May lower the foe\'s Attack.');
+m('starlight_purr', 'Starlight Purr', 'Fae', 'status', 0, 100, 20, { stat: { atk: -2 }, target: 'foe' }, 'Purrs so sweetly that the foe can\'t bring itself to fight. Sharply lowers Attack.');
+m('mind_ripple', 'Mind Ripple', 'Mind', 'spec', 65, 100, 20, { confuse: 0.2 }, 'Sends rings of thought rippling through the foe. May confuse.');
+m('moonbeam_pounce', 'Moonbeam Pounce', 'Fae', 'phys', 70, 100, 15, { highCrit: true }, 'Leaps down on a shaft of moonlight. Lands critical hits more often.');
+m('psyche_bloom', 'Psyche Bloom', 'Mind', 'status', 0, null, 20, { stat: { spa: 1, spd: 1 }, target: 'self' }, 'Its mind opens like a flower. Raises Sp. Atk and Sp. Def.');
+m('fae_ring', 'Fae Ring', 'Fae', 'spec', 85, 100, 15, { stat: { spa: -1 }, target: 'foe', chance: 0.3 }, 'Traps the foe in a ring of dancing lights. May lower Sp. Atk.');
+m('wishing_star', 'Wishing Star', 'Fae', 'status', 0, null, 10, { heal: 0.5 }, 'Wishes on the star at its tail and recovers half its max HP.');
+m('astral_purr', 'Astral Purr', 'Mind', 'spec', 95, 100, 10, {}, 'A purr that resonates from somewhere beyond the sky.');
+m('dreamshatter', 'Dreamshatter', 'Mind', 'spec', 120, 90, 5, { confuse: 0.1 }, 'Shatters the walls between dream and waking right on top of the foe. May confuse.');
+m('aurora_benediction', 'Aurora Benediction', 'Fae', 'spec', 110, 95, 5, { drain: 0.3 }, 'Bathes the field in auroral light, restoring some of the damage dealt.');
+m('cosmic_insight', 'Cosmic Insight', 'Mind', 'spec', 140, 90, 5, { selfStat: { spa: -2 } }, 'Unleashes everything it has ever understood. Sharply lowers the user\'s Sp. Atk.');
+
 // ── Starter signature moves (only the three starter lines learn these) ─────
 // Spriglet → Spriggrove → Mosswarden (Nature, later Stone)
 m('sprout_tackle', 'Sprout Tackle', 'Plain', 'phys', 40, 100, 35, {}, 'A springy headbutt with the sprout on its crown. Only Spriglet and its evolutions know it.');

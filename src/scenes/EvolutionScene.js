@@ -5,6 +5,7 @@ import { input } from '../core/input.js';
 import { audio } from '../core/audio.js';
 import { G, markCaught } from '../core/state.js';
 import { evolve, monName, monFrame, replaceMove } from '../battle/mon.js';
+import { pickMove } from '../ui/moveScreen.js';
 import { SPECIES } from '../data/species.js';
 import { MOVES } from '../data/moves.js';
 import { txt, wrap, fmt } from '../ui/text.js';
@@ -86,9 +87,7 @@ export class EvolutionScene extends Phaser.Scene {
     const mv = MOVES[moveId];
     const nm = monName(mon);
     await this.say(`${nm} wants to learn ${mv.name}, but already knows four moves.`);
-    const items = mon.moves.map((m, i) => ({ label: MOVES[m.id].name, value: i }));
-    items.push({ label: `Don't learn ${mv.name}`, value: -1, color: 'gold' });
-    const idx = await choose(this, items, { x: GAME_W - 12, y: GAME_H - 66, anchor: 'bottom-right', width: 200 });
+    const idx = await pickMove(this, mon, { title: `Which move should ${nm} forget to learn ${mv.name}?`, newMove: moveId, owner: this.owner });
     if (idx === null || idx === -1) { await this.say(`${nm} did not learn ${mv.name}.`); return; }
     const old = MOVES[mon.moves[idx].id].name;
     replaceMove(mon, idx, moveId);

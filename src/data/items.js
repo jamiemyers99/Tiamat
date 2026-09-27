@@ -78,6 +78,7 @@ export function canLearnDisc(species, moveId) {
   const mv = MOVES[moveId];
   if (!mv) { return false; }
   if (['guard_up', 'rally_cry', 'mend'].includes(moveId)) { return species.id !== 'tiamat' || moveId !== 'rally_cry'; }
+  if (species.mythical) { return true; }   // the mythical Twinklit line can learn every Tech Disc
   if (species.types.includes(mv.type)) { return true; }
   const extras = {
     quake_stomp: ['Brawl', 'Iron', 'Drake', 'Plain'],

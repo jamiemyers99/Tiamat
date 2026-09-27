@@ -419,3 +419,83 @@ async def rustle(t, port):
     print('player on screen:', await t.js(f"(() => {{ const w = {W}, c = w.cameras.main, p = w.player.sprite; return [Math.round((p.x - c.worldView.x) * c.zoom), Math.round((p.y - c.worldView.y) * c.zoom), c.zoom]; }})()"))
     await t.wait(90); await t.shot('rustle_b'); await t.p.keyboard.up('ArrowUp')
     await t.wait(1500); await t.shot('wind_1'); await t.wait(700); await t.shot('wind_2')
+
+
+# ── Sept 27 batch: old save upgrade, battle info, learn screen, Move Reminder, Twinklit ──
+PROMPT = "window.__tiamat.game.scene.getScene('Battle').children.list.some(o => o.visible && typeof o.text === 'string' && o.text.startsWith('What will'))"
+
+async def batch3(t, port):
+    await t.p.goto(f'http://localhost:{port}/')
+    await wait_for(t, "window.__tiamat && window.__tiamat.game.scene.isActive('Title')", 30000, 'title')
+    await t.js("""(() => { const T = window.__tiamat; const s = T.state.newState();
+      s.player.name = 'Jamie'; s.player.map = 'saltreach'; s.player.x = 20; s.player.y = 20; s.sigils = ['moss', 'tide'];
+      s.flags.got_nyxen = true; s.flags.got_index = true; s.flags.got_starter = true; s.vars.starter = 'cindlet'; s.bag.xp_share = 1; s.xpShareOn = true;
+      const lead = T.createMon('cindreaver', 22, { sex: 'm' }); const nyx = T.createMon('nyxen', 12, { sex: 'f', ivs: { hp: 25, atk: 22, def: 30, spa: 28, spd: 21, spe: 27 } }); nyx.ot = 'Jamie';
+      const hurt = T.createMon('beakling', 14); hurt.hp = 1; hurt.metMap = 'route1';
+      s.party = [lead, T.createMon('zaplet', 20, { metMap: 'route3' })]; s.boxes[0].slots[0] = nyx; s.boxes[0].slots[1] = hurt;
+      s.index = { seen: ['cindlet', 'cindreaver', 'nyxen', 'beakling', 'zaplet'], caught: ['cindlet', 'cindreaver', 'nyxen', 'beakling', 'zaplet'] };
+      delete s.rev; delete s.mythicSwap; s.party.concat(s.boxes[0].slots.filter(Boolean)).forEach(m => delete m.learned);
+      localStorage.setItem(T.state.slotKey(0), JSON.stringify(s)); })()""")
+    await t.p.reload(); await t.wait(1500)
+    await wait_for(t, "window.__tiamat.game.scene.isActive('Title')", 30000, 'title')
+    print('loaded:', await t.js("window.__tiamat.state.loadGame(0)"), 'backup kept:', await t.js("!!localStorage.getItem(window.__tiamat.state.slotKey(0) + '.bak')"))
+    print('box:', await t.js("JSON.stringify(window.__tiamat.G.state.boxes[0].slots.slice(0, 2).map(m => [m.species, m.level, m.sex, m.hp, m.moves.map(x => x.id).join('/')]))"))
+    await t.js("(() => { const G = window.__tiamat.G; G.settings.textSpeed = 'instant'; window.__tiamat.game.scene.getScene('Title').scene.start('World'); })()")
+    await wait_for(t, f"{W}.player", 30000, 'world')
+    await t.wait(800)
+    # a Tamer battle: foe team capsules, move menu, team menu
+    await t.js(f"void {W}.S.battle('r3_poacher_b')")
+    for _ in range(12):
+        if await t.js(PROMPT): break
+        await t.key('z', 60, 450)
+    await t.shot('battle_hud')
+    await t.key('z', 60, 400); await t.shot('move_menu'); await t.key('x', 60, 300)
+    await t.key('ArrowDown', 60, 200); await t.key('z', 60, 500); await t.shot('team_picker'); await t.key('x', 60, 300)
+    # the learn-a-move screen
+    await t.js("(() => { const B = window.__tiamat.game.scene.getScene('Battle'); const m = window.__tiamat.G.state.party[0]; while (m.moves.length < 4) m.moves.push({ id: 'ember_fang', pp: 1, max: 25 }); window.__learn = B.learnPrompt(B.battle, m, 'dusk_ignite'); })()")
+    await t.key('z', 60, 600); await t.shot('learn_screen')
+    await t.key('ArrowUp', 60, 200); await t.shot('learn_screen_old')
+    await t.key('x', 60, 300); await t.key('z', 60, 400); await t.key('z', 60, 400)
+    await t.js("(() => { const B = window.__tiamat.game.scene.getScene('Battle'); if (B.scene.isActive()) { B.cfg.onEnd({ outcome: 'fled' }); B.scene.stop(); } })()")
+    await t.wait(1200)
+    # Move Reminder from the pause menu: Team -> first Morph -> Moves
+    await t.key('c', 60, 700); await t.key('z', 60, 600); await t.key('z', 60, 500); await t.key('ArrowDown', 60, 200); await t.key('z', 60, 700)
+    await t.shot('move_reminder')
+    for _ in range(4): await t.key('x', 60, 300)
+    # Aldous gives a level-5 Twinklit in a fresh save
+    await t.js("(() => { const G = window.__tiamat.G; delete G.state.flags.got_nyxen; G.state.party = G.state.party.slice(0, 1); })()")
+    await t.js(AUTO)
+    await goto(t, 'brindlewood', 10, 10, 'down')
+    await run_script(t, 'brindlewood.aldous')
+    print('aldous gift:', await t.js("JSON.stringify(window.__tiamat.G.state.party.map(m => [m.species, m.level, m.moves.map(x => x.id).join('/')]))"))
+    await t.js("clearInterval(window.__auto); window.__tiamat.input.keysDown.delete('confirm')")
+    await t.js(f"(() => {{ const w = {W}; w.scene.launch('Menu', {{ mode: 'index', species: 'seraphelis', onClose: () => {{}} }}); w.scene.bringToTop('Menu'); }})()")
+    await t.wait(1200); await t.shot('index_seraphelis')
+    await t.key('ArrowUp', 60, 300); await t.key('ArrowUp', 60, 300); await t.shot('index_twinklit')
+
+
+async def batch3b(t, port):
+    await t.p.goto(f'http://localhost:{port}/?map=brindlewood&x=10&y=10&debug')
+    await wait_for(t, f"window.__tiamat && {W}.player", 40000, 'world')
+    await t.wait(800)
+    await t.js("""(() => { const T = window.__tiamat, G = T.G; G.settings.textSpeed = 'instant';
+      const m = T.createMon('lumelynx', 32, { sex: 'f' }); m.learned = ['glimmer_kiss', 'dream_tap']; G.state.party = [m];
+      G.state.sigils = ['moss']; G.state.flags.got_starter = true; G.state.flags.got_index = true; })()""")
+    # learn screen (as when a level-up wants a 5th move)
+    await t.js(f"(() => {{ const T = window.__tiamat; window.__pick = T.pickMove({W}, T.G.state.party[0], {{ title: 'Which move should Lumelynx forget to learn Dreamshatter?', newMove: 'dreamshatter', owner: 'world' }}); }})()")
+    await t.wait(600); await t.shot('learn_screen')
+    await t.key('ArrowUp', 60, 250); await t.shot('learn_screen_old')
+    await t.key('x', 60, 400)
+    print('learn result:', await t.js("window.__pick"))
+    # Move Reminder list
+    print('can remember:', await t.js("window.__tiamat.rememberableMoves(window.__tiamat.G.state.party[0]).join(', ')"))
+    await t.js(f"(() => {{ const T = window.__tiamat; const m = T.G.state.party[0]; window.__pick2 = T.pickMove({W}, m, {{ title: 'Which move should Lumelynx remember?', choices: T.rememberableMoves(m), owner: 'world' }}); }})()")
+    await t.wait(600); await t.shot('move_reminder')
+    await t.key('x', 60, 400)
+    # Aldous
+    await t.js(AUTO)
+    await run_script(t, 'brindlewood.aldous')
+    print('aldous gift:', await t.js("JSON.stringify(window.__tiamat.G.state.party.map(m => [m.species, m.level, m.moves.map(x => x.id).join('/')]))"))
+    await t.js("clearInterval(window.__auto); window.__tiamat.input.keysDown.delete('confirm')")
+    await t.js(f"(() => {{ const w = {W}; w.scene.launch('Menu', {{ mode: 'index', species: 'twinklit', onClose: () => {{}} }}); w.scene.bringToTop('Menu'); }})()")
+    await t.wait(1200); await t.shot('index_twinklit')
