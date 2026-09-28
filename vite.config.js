@@ -40,6 +40,12 @@ export default defineConfig({
     outDir: 'dist',
     assetsInlineLimit: 0,
     chunkSizeWarningLimit: 2000,
+    // Fixed file names for the game code: a page cached from an older version then still finds its script
+    // (with hashed names the old script is deleted by the next deployment, and that page hangs on
+    // "Loading Tiamat…"). The offline cache is versioned by content, so updates still arrive.
+    rollupOptions: {
+      output: { entryFileNames: 'assets/tiamat.js', chunkFileNames: 'assets/[name].js', assetFileNames: 'assets/[name][extname]' },
+    },
   },
   server: { port: 5173, open: false },
 });
