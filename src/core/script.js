@@ -141,6 +141,12 @@ export class ScriptAPI {
     n.active = false; n.forced = false;
     n.actor.setVisible(false);
   }
+  // The NPC turns and walks away (out of an exit if there's one close by), then is gone.
+  async leave(id, opts) {
+    const n = this.w.npcById(id);
+    if (!n || !n.active) { return; }
+    await this.w.walkAway(n, opts);
+  }
   // Release a scripted NPC back to its normal show/hide rules.
   release(id) { const n = this.w.npcById(id); if (n) { n.forced = false; this.w.refreshNpcs(); } }
   // Step the player back one tile (used by gatekeepers).

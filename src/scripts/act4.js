@@ -1,5 +1,5 @@
 // Act IV — The Riven: Frostspire, Rimepass, Riftgate, the Sunken Chapel, the Cradle and the Crown.
-import { rivalBattle, bossBattle } from './common.js';
+import { rivalBattle, bossBattle, adeptsCleared } from './common.js';
 import { audio } from '../core/audio.js';
 import { SPECIES } from '../data/species.js';
 
@@ -51,6 +51,7 @@ export default {
       await S.say('Hale', "Riftgate's down the pass. Seren's the last Warden — and the best. Don't let her rattle you.");
       return;
     }
+    if (!(await adeptsCleared(S, 'Hale'))) { return; }
     await S.say('Hale', "You crossed Glasslake to get here? Good. The mountain respects effort. So do I. Now — climb!");
     const r = await S.battle('hale');
     if (r !== 'win') { return; }
@@ -82,6 +83,7 @@ export default {
       await S.say('Seren', S.flag('cradle_done') ? 'The Reach owes you everything, {PLAYER}.' : 'Go. The chapel. I will hold the Seal.');
       return;
     }
+    if (!(await adeptsCleared(S, 'Seren'))) { return; }
     await S.say('Seren', "Five Sigils. You have walked the whole Reach to stand here. I will not go easy on you, {PLAYER}.");
     const r = await S.battle('seren');
     if (r !== 'win') { return; }
@@ -120,8 +122,9 @@ export default {
     await S.move('rg_wren', 'u5', 120);
     await S.say('Wren', "Maren lied — no, Maren believed it, but ORIEL lied! They don't want to free Tiamat. They want to control her. Drown the Reach and rule what's left!");
     await S.say('Oriel', 'Such a bright child. Take them to the Chapel.');
+    // the acolytes march Wren off after Oriel
+    await Promise.all(['rg_oriel', 'rg_acolyte_a', 'rg_acolyte_b', 'rg_wren'].map((id) => S.leave(id, { ms: 140 })));
     await S.fadeOut(300);
-    S.hide('rg_oriel'); S.hide('rg_acolyte_a'); S.hide('rg_acolyte_b'); S.hide('rg_wren');
     S.show('rg_seren', 22, 12, 'up');
     await S.fadeIn(300);
     await S.say(null, "They're gone — and they've taken Wren.");
@@ -134,7 +137,8 @@ export default {
     await S.say('Seren', 'And this. The six Seal-stones share one heart — the Wardens forged a single capsule from it, long ago, in case the worst ever happened.');
     await S.give('covenant_capsule');
     await S.say('Seren', "The Covenant Capsule. If Tiamat wakes, it is the only thing that can hold her. Go. Bring Wren home. I'll gather the Wardens.");
-    await S.fadeOut(250); S.hide('rg_seren'); S.music('riftgate'); await S.fadeIn(250);
+    await S.leave('rg_seren');
+    S.music('riftgate');
   },
 
   // ── Sunken Chapel ─────────────────────────────────────────────────────
@@ -143,16 +147,16 @@ export default {
     const r = await bossBattle(S, 'vesk2');
     if (r !== 'win') { return; }
     await S.say('Vesk', "...Go on, then. Go see the Mother. You'll wish you hadn't.");
+    await S.leave('sc_vesk');
     S.set('vesk2_done');
-    await S.fadeOut(200); S.refresh(); await S.fadeIn(200);
   },
   'chapel.maren': async (S) => {
     await S.say('Maren', "Wren trusted me. I told them the truth — as I understood it. Maybe I was wrong. Show me.");
     const r = await bossBattle(S, 'maren2');
     if (r !== 'win') { return; }
     await S.say('Maren', "...I was wrong. Oriel never wanted to free her. I see that now.|Wren is by the altar. Take them and go. I'll... find my own way out.");
+    await S.leave('sc_maren', { ms: 170 });
     S.set('maren2_done');
-    await S.fadeOut(200); S.refresh(); await S.fadeIn(200);
   },
   'chapel.wren': async (S) => {
     if (!S.flag('maren2_done')) {
@@ -164,8 +168,8 @@ export default {
     await S.havenHeal();
     await S.say('Wren', "Oriel went down the stairs behind the altar. Down into the Rift. They're going to wake Tiamat right now.");
     await S.say('Wren', "I'm going to get Grandma and the Wardens. You go. And {PLAYER}... be careful. Please.");
+    await S.leave('sc_wren', { ms: 125 });
     S.set('wren_freed');
-    await S.fadeOut(200); S.hide('sc_wren'); await S.fadeIn(200);
   },
 
   // ── The Cradle ─────────────────────────────────────────────────────────
@@ -189,7 +193,7 @@ export default {
     await S.say('Oriel', 'Mother! I have freed you! Now — the Reach is yours, and I am your voice—');
     await S.shake(500, 0.015);
     await S.say(null, "Tiamat roars. The sound shakes dust from the Cradle's roof — and Oriel is thrown across the chamber.");
-    await S.fadeOut(200); S.hide('cr_oriel'); await S.fadeIn(200);
+    await S.leave('cr_oriel', { ms: 320 });
     await S.say(null, "Oriel crawls away into the dark. Tiamat's eyes turn to you.|In your bag, the Covenant Capsule is glowing.");
     img.destroy();
     const done = await tiamatBattle(S);

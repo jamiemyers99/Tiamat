@@ -63,9 +63,9 @@ end
 objects:
 prop 15 46 sign text="ROUTE 1 · MOSSWAY|North: Brindlewood   South: Rootmere"
 prop 18 2 sign text="BRINDLEWOOD|Home of the Moss Trial."
-npc 11 36 id=r1_ollie sprite=kid face=left move=still trainer=r1_ollie sight=3
-npc 14 23 id=r1_dana sprite=lass face=down move=still trainer=r1_dana sight=3
-npc 19 6 id=r1_theo sprite=youth face=left move=still trainer=r1_theo sight=3
+npc 11 36 id=r1_ollie sprite=kid face=left move=still trainer=r1_ollie sight=4
+npc 14 23 id=r1_dana sprite=lass face=down move=still trainer=r1_dana sight=4
+npc 19 6 id=r1_theo sprite=youth face=left move=still trainer=r1_theo sight=4
 npc 27 31 id=r1_nell sprite=kid_b face=left move=still trainer=r1_nell sight=4
 npc 12 24 id=r1_aide sprite=assistant face=down move=still script=route1.aide
 item 3 37 item=capsule qty=2 flag=item_route1_3_37

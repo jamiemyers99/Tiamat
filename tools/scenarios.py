@@ -78,6 +78,8 @@ async def story(t, port):
     await t.wait(3000)
     await t.js("(() => { const G = window.__tiamat.G; G.settings.textSpeed = 'instant'; G.settings.battleAnims = false; })()")
     await t.js(AUTO)
+    # the Trial adepts are covered by the trialgate scenario; here we go straight to each Warden
+    await t.js("(() => { const d = window.__tiamat.G.state.defeated; for (const p of ['bw', 'st', 'gh', 'hm', 'fs', 'rg']) { for (const i of [1, 2, 3]) { d[`${p}_adept_${i}`] = true; } } })()")
     await idle(t, 20000, 'wake')
     flags = lambda: t.js("Object.keys(window.__tiamat.G.state.flags).join(',')")
     # Act I
@@ -609,3 +611,172 @@ async def loadmenu(t, port):
     print('after load:', await t.js(f"[{W}.mapView.id, {W}.player.tx, {W}.player.ty, window.__tiamat.G.state.player.name, window.__tiamat.G.state.party.map(m => m.species).join(), {W}.busy]"))
     await t.key('ArrowDown', 200, 400)
     print('can move:', await t.js(f"[{W}.player.tx, {W}.player.ty]"))
+
+
+# ── Trial halls: adepts guard the gates, the Warden waits for all of them; beaten grunts walk away ──
+async def trialgate(t, port):
+    await t.p.goto(f'http://localhost:{port}/?map=gearhollow_trial&x=6&y=16&debug')
+    await wait_for(t, f"window.__tiamat && {W}.player", 40000, 'world')
+    await t.wait(800)
+    await t.js("""(() => { const T = window.__tiamat, G = T.G; G.settings.textSpeed = 'instant'; G.settings.battleAnims = false;
+      G.state.vars.starter = 'cindlet'; G.state.flags.got_starter = true; G.state.flags.ironworks_done = true;
+      G.state.party = [T.createMon('cindreaver', 60, { moves: ['umbral_flare', 'blaze_mane', 'ember_fang', 'shadow_spark'] })]; })()""")
+    await t.shot('hall')
+    # the Warden turns you away while adepts are left
+    await t.js(f"void {W}.run('gearhollow_trial.warden')")
+    await t.wait(700)
+    await t.shot('warden_refuses')
+    await t.key('z', 60, 300); await t.key('z', 60, 300)
+    await idle(t, 20000, 'refused')
+    print('battle after refusal:', await t.js("!!window.__tiamat.game.scene.isActive('Battle')"), 'sigil:', await t.js("!!window.__tiamat.G.state.flags.sigil_spark"))
+    await t.js(AUTO)
+    await t.js(f"(() => {{ const w = {W}; const orig = w.checkTrainers.bind(w); window.__log = []; w.checkTrainers = () => {{ const r = orig(); window.__log.push(w.player.tx + ',' + w.player.ty + (w.player.moving ? 'm' : '') + (w.busy ? 'B' : '') + '=' + r); return r; }}; }})()")
+    spotted = []
+    for step in range(16):
+        await t.key('ArrowUp', 200, 60)
+        await t.wait(150)
+        if not await t.js(f"{W}.busy === 0 && window.__tiamat.input.top() === 'world'"):
+            await t.wait(250)
+            if len(spotted) < 3: await t.shot(f'spotted_{len(spotted)}')
+            await idle(t, 60000, 'adept battle')
+            spotted.append(await t.js(f"{W}.player.tx + ',' + {W}.player.ty"))
+        if await t.js(f"{W}.player.ty") <= 4: break
+    print('stopped at:', spotted, await t.js("window.__log.join(' ')"))
+    print('adepts beaten:', await t.js("['gh_adept_1','gh_adept_2','gh_adept_3'].map(id => !!window.__tiamat.G.state.defeated[id]).join(',')"))
+    print('player at', await t.js(f"{W}.player.tx + ',' + {W}.player.ty"))
+    await t.js(f"(() => {{ const w = {W}; w.player.setFace('up'); void w.talkTo(w.npcById('iskra')); }})()")
+    await t.wait(600)
+    await idle(t, 90000, 'warden')
+    print('sigil after all adepts:', await t.js("!!window.__tiamat.G.state.flags.sigil_spark"))
+    await t.shot('after_warden')
+    # Saltreach pier: beaten acolytes walk off, then Brann heads off to his Trial
+    await t.js("window.__tiamat.G.state.party.forEach((m) => window.__tiamat.healMon(m))")
+    await t.js(f"{W}.S.warp('saltreach', 20, 25, 'down')")
+    await t.wait(1200)
+    await idle(t, 20000, 'saltreach')
+    for tid in ['st_acolyte_1', 'st_acolyte_2']:
+        before = await t.js(f"(() => {{ const n = {W}.npcById('{tid}'); return n.actor.tx + ',' + n.actor.ty; }})()")
+        await t.js(f"(() => {{ const w = {W}; void w.trainerEncounter(w.npcById('{tid}'), false); }})()")
+        await t.wait(500)
+        await idle(t, 60000, tid)
+        after = await t.js(f"(() => {{ const n = {W}.npcById('{tid}'); return n.actor.tx + ',' + n.actor.ty + ' active=' + n.active; }})()")
+        print(tid, before, '->', after)
+    await t.js(f"void {W}.run('saltreach.brann_docks', {{ npc: {W}.npcById('st_brann') }})")
+    await t.wait(1500)
+    await t.shot('brann_leaving')
+    await idle(t, 30000, 'brann')
+    print('brann:', await t.js(f"(() => {{ const n = {W}.npcById('st_brann'); return n.actor.tx + ',' + n.actor.ty + ' active=' + n.active; }})()"), 'docks_done:', await t.js("!!window.__tiamat.G.state.flags.docks_done"))
+
+
+async def trialdbg(t, port):
+    await t.p.goto(f'http://localhost:{port}/?map=gearhollow_trial&x=6&y=13&debug')
+    await wait_for(t, f"window.__tiamat && {W}.player", 40000, 'world')
+    await t.wait(800)
+    await t.js("""(() => { const T = window.__tiamat, G = T.G; G.settings.textSpeed = 'instant'; G.state.defeated.gh_adept_1 = true;
+      G.state.party = [T.createMon('cindreaver', 60)]; })()""")
+    print('adept2', await t.js(f"(() => {{ const n = {W}.npcById('gh_adept_2'); return [n.actor.tx, n.actor.ty, n.actor.face, n.active, n.def.sight, n.def.trainer].join(','); }})()"))
+    await t.js(f"(() => {{ const w = {W}; const orig = w.checkTrainers.bind(w); window.__log = []; w.checkTrainers = () => {{ const r = orig(); window.__log.push(w.player.tx + ',' + w.player.ty + (w.player.moving ? 'm' : '') + '=' + r); return r; }}; }})()")
+    await t.key('ArrowUp', 1400, 100)
+    print('pos', await t.js(f"{W}.player.tx + ',' + {W}.player.ty + ' busy=' + {W}.busy"), await t.js("window.__log.join(' ')"))
+    await t.shot('dbg')
+
+
+# ── music after battles: exactly one track left playing, and it's the map's ──
+MUS = "(() => { const a = window.__tiamat.audio; return a.musicKey + ' | ' + [...a.allMusic].map((m) => m.key + (m.isPlaying ? ':on' : ':off') + ':' + m.volume.toFixed(2)).join(', '); })()"
+
+async def musicleak(t, port):
+    await t.p.goto(f'http://localhost:{port}/?map=route1&x=16&y=10&debug')
+    await wait_for(t, f"window.__tiamat && {W}.player", 40000, 'world')
+    await t.p.mouse.click(400, 300)   # user gesture: unlock audio
+    await t.wait(1500)
+    await t.js("""(() => { const T = window.__tiamat, G = T.G; G.settings.textSpeed = 'instant'; G.settings.battleAnims = false;
+      G.state.party = [T.createMon('cindreaver', 60, { moves: ['blaze_mane', 'ember_fang'] })]; })()""")
+    print('ctx:', await t.js("window.__tiamat.game.sound.context.state"), 'before:', await t.js(MUS))
+    await t.js(AUTO)
+    for kind in ["S.wild('beakling', 3)", "S.battle('r1_theo')"]:
+        await t.js(f"void {W}.{kind}")
+        await t.wait(2500)
+        print('in battle:', await t.js(MUS))
+        await idle(t, 60000, 'battle end')
+        await t.wait(1200)
+        print('after:', await t.js(MUS))
+
+
+# ── streaming music: tracks arrive in the background, only a few stay decoded, handovers are clean ──
+async def audiocheck(t, port):
+    await t.p.goto(f'http://localhost:{port}/')
+    await wait_for(t, "window.__tiamat && window.__tiamat.game.scene.isActive('Title')", 40000, 'title')
+    await t.p.mouse.click(400, 300)
+    await t.wait(1500)
+    print('title:', await t.js(MUS))
+    await t.p.goto(f'http://localhost:{port}/?map=route1&x=16&y=10&debug')
+    await wait_for(t, f"window.__tiamat && {W}.player", 40000, 'world')
+    await t.p.mouse.click(400, 300)
+    ok = await wait_for(t, "window.__tiamat.audio.music && window.__tiamat.audio.music.isPlaying", 20000, 'route music')
+    print('route playing:', ok, await t.js(MUS))
+    await t.js("""(() => { const T = window.__tiamat, G = T.G; G.settings.textSpeed = 'instant'; G.settings.battleAnims = false;
+      G.state.party = [T.createMon('cindreaver', 60, { moves: ['blaze_mane', 'ember_fang'] })]; })()""")
+    await t.js(AUTO)
+    await t.js(f"void {W}.S.battle('r1_theo')")
+    await t.wait(3000)
+    print('battle:', await t.js(MUS))
+    await idle(t, 60000, 'battle end')
+    await t.wait(1500)
+    print('after:', await t.js(MUS))
+    await t.wait(20000)
+    print('downloaded:', await t.js("window.__tiamat.audio.bytes.size"), 'decoded:', await t.js("window.__tiamat.audio.decoded.join(',')"))
+    for k in ['cursor', 'select', 'spotted', 'hit_super', 'ui_text', 'sig_black_pyre', 'mv_fire', 'jingle_heal']:
+        print(k, await t.js(f"window.__tiamat.game.cache.audio.exists('{k}')"))
+
+
+async def voldbg(t, port):
+    await t.p.goto(f'http://localhost:{port}/?map=route1&x=16&y=10&debug')
+    await wait_for(t, f"window.__tiamat && {W}.player", 40000, 'world')
+    await t.p.mouse.click(400, 300)
+    for i in range(8):
+        print(await t.js("(() => { const a = window.__tiamat.audio; return [window.__tiamat.G.settings.musicVol, a.duck, a.musicVolume(), a.music && a.music.volume, a.allMusic.size].join(' '); })()"))
+        await t.wait(700)
+
+
+async def unstick(t, port):
+    # a save made where a rope barrier now stands puts you on the nearest free tile
+    await t.p.goto(f'http://localhost:{port}/?map=gearhollow_trial&x=2&y=8&debug')
+    await wait_for(t, f"window.__tiamat && {W}.player", 40000, 'world')
+    await t.wait(800)
+    print('placed at', await t.js(f"{W}.player.tx + ',' + {W}.player.ty + ' ' + {W}.mapView.behavior({W}.player.tx, {W}.player.ty)"))
+
+
+# ── the reported bug: after a battle on the water (Route 5, after the 4th Sigil) the battle music kept playing ──
+async def surfleak(t, port):
+    await t.p.goto(f'http://localhost:{port}/?map=route5&x=15&y=11&debug')
+    await wait_for(t, f"window.__tiamat && {W}.player", 40000, 'world')
+    await t.p.mouse.click(400, 300)
+    await t.js("""(() => { const T = window.__tiamat, G = T.G; G.settings.textSpeed = 'instant'; G.settings.battleAnims = false;
+      G.state.party = [T.createMon('cindreaver', 85, { moves: ['shadow_spark', 'umbral_flare'] })];
+      G.state.player.surfing = true; })()""")
+    await t.js(f"(() => {{ const w = {W}; w.player.warp(15, 11, 'right'); w.player.setSkiff(true); }})()")
+    await wait_for(t, "window.__tiamat.audio.music && window.__tiamat.audio.music.isPlaying", 20000, 'route5 music')
+    for k in range(4):
+        print('vol', await t.js("(() => { const m = window.__tiamat.audio.music; return m.volume + ' gain.value=' + m.volumeNode.gain.value + ' ctx=' + window.__tiamat.game.sound.context.state + ' t=' + window.__tiamat.game.sound.context.currentTime.toFixed(2); })()"))
+        await t.wait(400)
+    print('start:', await t.js(MUS))
+    await t.js(AUTO)
+    for i, d in enumerate(['ArrowUp', 'ArrowDown', 'ArrowUp']):
+        before = await t.js(f"{W}.player.tx + ',' + {W}.player.ty")
+        await t.js(f"(() => {{ const w = {W}; w.lastEnc = 10; window.__r = Math.random; Math.random = () => 0.001; setTimeout(() => {{ Math.random = window.__r; }}, 600); }})()")
+        await t.key(d, 180, 100)
+        print('moved', before, '->', await t.js(f"{W}.player.tx + ',' + {W}.player.ty + ' surf=' + window.__tiamat.G.state.player.surfing + ' ' + {W}.mapView.behavior({W}.player.tx, {W}.player.ty)"))
+        ok = await wait_for(t, "window.__tiamat.game.scene.isActive('Battle')", 8000, 'battle start')
+        await t.wait(2500)
+        if i == 1:   # a level-up jingle in the middle of the battle
+            await t.js("void window.__tiamat.audio.jingle('jingle_level')")
+            await t.wait(300)
+        print(f'battle {i}:', ok, await t.js(MUS))
+        await idle(t, 90000, 'battle end')
+        print(f'  right after:', await t.js(MUS))
+        await t.wait(3000)
+        print(f'  3s later:', await t.js(MUS))
+    # walk off the water and back into Frostspire's music
+    await t.js(f"{W}.S.warp('frostspire', 20, 14, 'down')")
+    await t.wait(4000)
+    print('frostspire:', await t.js(MUS))

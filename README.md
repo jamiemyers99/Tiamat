@@ -91,7 +91,8 @@ your starter and gift Morphs are always strong. `npm run balance` prints the who
   Wing Whistle fast travel on the Reach Map, nicknames, trainer AI with items.
 - **Modern presentation**: 480×270 widescreen pixel art, 32×32 Gen-4-style people, smooth movement and camera,
   animated battles, day/night lighting with glowing windows and lamps, fog/rain/snow
-  weather, screen transitions, and a full soundtrack.
+  weather, screen transitions, and a full orchestral/acoustic soundtrack (30 pieces: relaxed towns and
+  routes, a funky port and factory town, driving-but-warm battles) that streams in the background.
 - **Battle details like the classics**: 25 natures (one stat +10 %, one −10 %, and each type leans
   toward natures that suit it — Brawl Morphs are often strong, Mind Morphs clever), a 1.5× same-type
   bonus (shown as SAME TYPE BONUS in the move menu), an even male/female spread in the wild,
@@ -145,7 +146,7 @@ public/manifest.webmanifest, public/icons/   phone app manifest + icons (tools/a
 tools/
   worldgen.py           authors every map (tools/maps/*.map)
   art/                  pixel-art generators (tiles, buildings, characters, Morphs, UI)
-  audio/                chiptune synthesiser + the soundtrack
+  audio/                the soundtrack (score.py → compose.py → render.py via FluidSynth) and sound effects
   validate.mjs          checks every map, warp, script and trainer; flood-fills for unreachable stuff
   balance-sim.mjs       simulates every boss fight for each starter
   playtest.py           headless-browser playthrough of the whole story
@@ -159,7 +160,8 @@ legacy/                 the earlier 160×144 browser prototype and the Python pr
 ```bash
 npm run art        # characters, UI, Morph sprites, battle backgrounds, maps, Reach Map
 npm run maps       # just the maps (after editing tools/worldgen.py)
-npm run music      # re-render the soundtrack (tools/audio/songs.py)
+npm run music      # re-render the soundtrack (needs fluidsynth + the FluidR3_GM soundfont)
+npm run sfx        # menu, world and move sound effects
 npm test           # unit tests + world validator
 npm run balance    # boss difficulty report
 ```

@@ -138,9 +138,9 @@ def route1():
     # objects
     m.sign(15, 46, 'ROUTE 1 · MOSSWAY|North: Brindlewood   South: Rootmere')
     m.sign(18, 2, 'BRINDLEWOOD|Home of the Moss Trial.')
-    m.trainer(11, 36, 'r1_ollie', 'kid', face='left', sight=3)
-    m.trainer(14, 23, 'r1_dana', 'lass', face='down', sight=3)
-    m.trainer(19, 6, 'r1_theo', 'youth', face='left', sight=3)
+    m.trainer(11, 36, 'r1_ollie', 'kid', face='left', sight=4)
+    m.trainer(14, 23, 'r1_dana', 'lass', face='down', sight=4)
+    m.trainer(19, 6, 'r1_theo', 'youth', face='left', sight=4)
     m.trainer(27, 31, 'r1_nell', 'kid_b', face='left', sight=4)
     m.npc(12, 24, 'r1_aide', 'assistant', face='down', script='route1.aide')
     m.item(3, 37, 'capsule', 2)
@@ -203,9 +203,9 @@ def brindlewood_haven():
 @reg
 def brindlewood_trial():
     m = trial('brindlewood_trial', 'Brindlewood', 'Nature', 'mossa', 'mossa',
-              [('bw_adept_1', 'lass', 4, 12, 'right'), ('bw_adept_2', 'ranger', 9, 8, 'left')],
+              [('bw_adept_1', 'lass', 5, 12, 'right'), ('bw_adept_2', 'ranger', 8, 8, 'left')],
               "Hey, challenger! Warden Mossa's Morphs are Nature type. Fire burns them, and birds peck them to bits. Tide Morphs will struggle in here!")
-    for (x, y) in [(1, 8), (12, 8), (1, 12), (12, 12)]:
+    for (x, y) in [(1, 10), (12, 10), (1, 14), (12, 14)]:
         m.obj(f'furn {x} {y} plant')
     return m
 
@@ -257,9 +257,9 @@ def route2():
     m.sign(10, 15, 'ROUTE 2 · BRAMBLE BRIDGE|West: Brindlewood   East: Thornwild')
     m.sign(30, 9, 'Mind the river — the current is stronger than it looks!')
     m.trainer(18, 12, 'r2_pim', 'kid_b', face='down', sight=4)
-    m.trainer(20, 9, 'r2_fisher', 'fisher', face='right', sight=3)
-    m.trainer(33, 12, 'r2_ivy', 'lass', face='left', sight=3)
-    m.trainer(40, 9, 'r2_bram', 'hiker', face='down', sight=2)
+    m.trainer(23, 9, 'r2_fisher', 'fisher', face='down', sight=4)
+    m.trainer(33, 12, 'r2_ivy', 'lass', face='left', sight=4)
+    m.trainer(40, 9, 'r2_bram', 'hiker', face='down', sight=4)
     m.item(5, 5, 'td15')
     m.item(44, 18, 'capsule', 2)
     m.item(15, 20, 'tonic')
@@ -301,8 +301,8 @@ def thornwild():
     m.trainer(8, 11, 'tw_bugs', 'kid', face='right', sight=4)
     m.trainer(20, 22, 'tw_ranger', 'ranger', face='left', sight=4)
     m.trainer(37, 17, 'tw_mystic', 'mystic', face='down', sight=4)
-    m.trainer(29, 26, 'tw_acolyte_1', 'acolyte', face='down', sight=3, hide='wren2_done')
-    m.trainer(26, 33, 'tw_acolyte_2', 'acolyte_b', face='right', sight=4, hide='wren2_done')
+    m.trainer(29, 26, 'tw_acolyte_1', 'acolyte', face='down', sight=4, hide='wren2_done', leave='1')
+    m.trainer(26, 33, 'tw_acolyte_2', 'acolyte_b', face='right', sight=4, hide='wren2_done', leave='1')
     m.npc(30, 38, 'tw_wren', 'wren', face='up', show='never')
     m.trigger(30, 35, 'thornwild.wren', w=2, once='wren2_done', cond='beat:tw_acolyte_1&beat:tw_acolyte_2')
     m.trigger(30, 34, 'thornwild.acolytes_block', w=2, cond='!beat:tw_acolyte_1|!beat:tw_acolyte_2')
@@ -361,8 +361,8 @@ def saltreach():
     m.sign(26, 8, 'TIDE TRIAL · Captain Brann|"The sea tests everyone."')
     m.sign(22, 23, 'SALTREACH DOCKS')
     m.npc(20, 31, 'st_brann', 'brann', face='up', script='saltreach.brann_docks', hide='docks_done')
-    m.trainer(20, 27, 'st_acolyte_1', 'acolyte', face='up', sight=2, leave='1')
-    m.trainer(21, 27, 'st_acolyte_2', 'acolyte_b', face='up', sight=2, leave='1')
+    m.trainer(20, 27, 'st_acolyte_1', 'acolyte', face='up', sight=4, leave='1')
+    m.trainer(21, 27, 'st_acolyte_2', 'acolyte_b', face='up', sight=4, leave='1')
     m.npc(43, 12, 'st_guard', 'sailor', face='left', script='saltreach.eastguard', hide='sigil_tide')
     m.trigger(43, 13, 'saltreach.eastgate', cond='!sigil_tide')
     m.npc(13, 18, 'st_fishwife', 'woman_b', face='down',
@@ -384,9 +384,9 @@ def saltreach_haven():
 @reg
 def saltreach_trial():
     m = trial('saltreach_trial', 'Saltreach', 'Tide', 'brann', 'brann',
-              [('st_adept_1', 'sailor', 4, 12, 'right'), ('st_adept_2', 'fisher', 9, 8, 'left'), ('st_adept_3', 'sailor', 4, 5, 'right')],
+              [('st_adept_1', 'sailor', 5, 12, 'right'), ('st_adept_2', 'fisher', 8, 8, 'left'), ('st_adept_3', 'sailor', 5, 5, 'right')],
               "Ahoy! Captain Brann's crew are all Tide type. Nature and Static Morphs make short work of them. Try not to get soaked!")
-    for (x, y) in [(1, 8), (12, 8), (1, 12), (12, 12)]:
+    for (x, y) in [(1, 10), (12, 10), (1, 14), (12, 14)]:
         m.obj(f'furn {x} {y} crate')
     return m
 
@@ -448,18 +448,18 @@ def route3():
     m.put(12, 10, 'o'); m.put(33, 9, 'o')
     m.sign(3, 11, 'ROUTE 3 · GULLCLIFF ROAD|West: Saltreach   East: Gearhollow')
     m.sign(43, 11, 'ROCKFALL! Road closed.|Travellers to Gearhollow: go through the Coldforge Mines.')
-    m.trainer(10, 11, 'r3_hiker', 'hiker', face='down', sight=2)
+    m.trainer(10, 11, 'r3_hiker', 'hiker', face='down', sight=4)
     m.trainer(24, 18, 'r3_sailor', 'sailor', face='up', sight=4)
     m.trainer(30, 14, 'r3_twin', 'twin', face='left', sight=4)
-    m.trainer(41, 18, 'r3_fisher', 'fisher', face='left', sight=3)
-    m.trainer(20, 10, 'r3_ace', 'ace', face='down', sight=2)
+    m.trainer(41, 18, 'r3_fisher', 'fisher', face='left', sight=4)
+    m.trainer(20, 10, 'r3_ace', 'ace', face='down', sight=4)
     # starter rescue: a Puddlet stranded in a rock pool, two Deepcall acolytes trying to take it
     m.npc(8, 20, 'r3_puddlet', 'mon:puddlet', face='up', script='rescue.puddlet',
           show='!var:starter=puddlet', hide='rescued_puddlet')
     # once both are beaten they run off down the beach (rescue.poacher / poachersLeave)
-    m.trainer(7, 19, 'r3_poacher_a', 'acolyte', face='up', sight=3, script='rescue.poacher',
+    m.trainer(7, 19, 'r3_poacher_a', 'acolyte', face='up', sight=4, script='rescue.poacher',
               show='!var:starter=puddlet', hide='r3_poachers_fled|rescued_puddlet')
-    m.trainer(9, 19, 'r3_poacher_b', 'acolyte_b', face='up', sight=3, script='rescue.poacher',
+    m.trainer(9, 19, 'r3_poacher_b', 'acolyte_b', face='up', sight=4, script='rescue.poacher',
               show='!var:starter=puddlet', hide='r3_poachers_fled|rescued_puddlet')
     m.item(41, 23, 'star_shard')
     m.item(4, 16, 'strong_tonic')
@@ -574,9 +574,9 @@ def gearhollow_haven():
 @reg
 def gearhollow_trial():
     m = trial('gearhollow_trial', 'Gearhollow', 'Static', 'iskra', 'iskra',
-              [('gh_adept_1', 'engineer', 4, 12, 'right'), ('gh_adept_2', 'scholar', 9, 8, 'left'), ('gh_adept_3', 'engineer', 4, 5, 'right')],
+              [('gh_adept_1', 'engineer', 5, 12, 'right'), ('gh_adept_2', 'scholar', 8, 8, 'left'), ('gh_adept_3', 'engineer', 5, 5, 'right')],
               "Hey hey! Iskra's Morphs are Static type — but half of them are armoured in Iron too. Stone Morphs shrug off lightning. Bring one!")
-    for (x, y) in [(1, 8), (12, 8), (1, 12), (12, 12), (0, 4), (13, 4)]:
+    for (x, y) in [(1, 10), (12, 10), (1, 14), (12, 14), (0, 4), (13, 4)]:
         m.obj(f'furn {x} {y} machine')
     return m
 
@@ -593,9 +593,9 @@ def gearhollow_ironworks():
     m.obj('furn 8 2 machine'); m.obj('furn 11 2 machine')
     m.obj('furn 0 8 crate'); m.obj('furn 0 9 crate'); m.obj('furn 19 8 barrel'); m.obj('furn 19 9 barrel')
     m.obj('furn 1 12 crate'); m.obj('furn 18 12 crate')
-    m.trainer(8, 10, 'iw_acolyte_1', 'acolyte', face='down', sight=2, hide='ironworks_done')
-    m.trainer(12, 7, 'iw_acolyte_2', 'acolyte_b', face='left', sight=4, hide='ironworks_done')
-    m.trainer(7, 5, 'iw_acolyte_3', 'acolyte', face='right', sight=4, hide='ironworks_done')
+    m.trainer(8, 10, 'iw_acolyte_1', 'acolyte', face='down', sight=4, hide='ironworks_done', leave='1')
+    m.trainer(12, 7, 'iw_acolyte_2', 'acolyte_b', face='left', sight=4, hide='ironworks_done', leave='1')
+    m.trainer(7, 5, 'iw_acolyte_3', 'acolyte', face='right', sight=4, hide='ironworks_done', leave='1')
     m.npc(10, 3, 'iw_iskra', 'iskra', face='down', script='ironworks.iskra', hide='ironworks_done')
     m.npc(9, 3, 'iw_boss', 'acolyte', face='right', hide='ironworks_done', text='...')
     m.npc(16, 11, 'iw_worker', 'engineer', face='left', script='ironworks.worker')
@@ -647,10 +647,10 @@ def route4():
     m.put(18, 12, 'o'); m.put(29, 28, 'o'); m.put(5, 14, 'o')
     m.sign(18, 51, 'ROUTE 4 · MOORWIND WAY|South: Gearhollow   North: Hollowmere')
     m.sign(18, 2, 'HOLLOWMERE|Mind the fog.')
-    m.trainer(14, 34, 'r4_mystic', 'mystic', face='left', sight=3)
-    m.trainer(26, 38, 'r4_ranger', 'ranger', face='left', sight=2)
-    m.trainer(12, 22, 'r4_scholar', 'scholar', face='left', sight=2)
-    m.trainer(20, 7, 'r4_hiker', 'hiker', face='left', sight=3)
+    m.trainer(14, 34, 'r4_mystic', 'mystic', face='left', sight=4)
+    m.trainer(26, 38, 'r4_ranger', 'ranger', face='left', sight=4)
+    m.trainer(12, 22, 'r4_scholar', 'scholar', face='left', sight=4)
+    m.trainer(20, 7, 'r4_hiker', 'hiker', face='left', sight=4)
     m.trainer(6, 28, 'r4_lady', 'lady', face='right', sight=4)
     m.item(24, 21, 'td10')
     m.item(5, 5, 'dusk_capsule', 2)
@@ -718,10 +718,10 @@ def hollowmere_haven():
 @reg
 def hollowmere_trial():
     m = trial('hollowmere_trial', 'Hollowmere', 'Umbra', 'morrow', 'morrow',
-              [('hm_adept_1', 'mystic', 4, 12, 'right'), ('hm_adept_2', 'scholar', 9, 8, 'left'), ('hm_adept_3', 'mystic', 4, 5, 'right')],
+              [('hm_adept_1', 'mystic', 5, 12, 'right'), ('hm_adept_2', 'scholar', 8, 8, 'left'), ('hm_adept_3', 'mystic', 5, 5, 'right')],
               "...Can you see me? Warden Morrow keeps the hall dark. Umbra Morphs fear Brawl fists and bright Swarm wings.",
               light='dark')
-    for (x, y) in [(1, 8), (12, 8), (1, 12), (12, 12)]:
+    for (x, y) in [(1, 10), (12, 10), (1, 14), (12, 14)]:
         m.obj(f'furn {x} {y} pot')
     return m
 
@@ -767,11 +767,11 @@ def route5():
     m.stamp(4, 20, [' ssss ', 'ss..ss', ' ssss '])
     m.rect(48, 10, 49, 11, 'o'); m.rect(48, 20, 49, 29, 'o')
     m.sign(12, 7, 'ROUTE 5 · GLASSLAKE CROSSING|North: Frostspire   East: Hollowmere')
-    m.trainer(16, 16, 'r5_fisher', 'fisher', face='down', sight=3)
+    m.trainer(16, 16, 'r5_fisher', 'fisher', face='down', sight=4)
     m.trainer(36, 21, 'r5_sailor', 'sailor', face='left', sight=4)
-    m.trainer(24, 8, 'r5_skier', 'skier', face='down', sight=3)
-    m.trainer(40, 11, 'r5_mystic', 'mystic', face='left', sight=2)
-    m.trainer(6, 21, 'r5_ace', 'ace_b', face='right', sight=3)
+    m.trainer(24, 8, 'r5_skier', 'skier', face='left', sight=4)
+    m.trainer(40, 11, 'r5_mystic', 'mystic', face='left', sight=4)
+    m.trainer(6, 21, 'r5_ace', 'ace_b', face='right', sight=4)
     m.item(15, 17, 'prime_capsule', 3)
     m.item(40, 12, 'pearl')
     m.item(5, 21, 'full_tonic')
@@ -826,7 +826,7 @@ def frostspire_haven():
 @reg
 def frostspire_trial():
     m = trial('frostspire_trial', 'Frostspire', 'Frost', 'hale', 'hale',
-              [('fs_adept_1', 'skier', 4, 12, 'right'), ('fs_adept_2', 'hiker', 9, 8, 'left'), ('fs_adept_3', 'skier', 4, 5, 'right')],
+              [('fs_adept_1', 'skier', 5, 12, 'right'), ('fs_adept_2', 'hiker', 8, 8, 'left'), ('fs_adept_3', 'skier', 5, 5, 'right')],
               "Brr! Warden Hale's Frost Morphs will freeze you solid. Ember, Brawl, Stone and Iron all do the job. Stay warm!")
     return m
 
@@ -867,11 +867,11 @@ def route6():
         m.obj(f'prop {x} {y} rift_rock')
     m.sign(3, 15, 'ROUTE 6 · RIMEPASS|West: Frostspire   East: Riftgate')
     m.sign(49, 13, 'RIFTGATE|City on the edge of the world.')
-    m.trainer(14, 9, 'r6_skier_1', 'skier', face='down', sight=3)
-    m.trainer(22, 18, 'r6_skier_2', 'skier', face='left', sight=2)
+    m.trainer(14, 9, 'r6_skier_1', 'skier', face='down', sight=4)
+    m.trainer(22, 18, 'r6_skier_2', 'skier', face='down', sight=4, move='look')
     m.trainer(28, 21, 'r6_hiker', 'hiker', face='right', sight=4)
-    m.trainer(40, 17, 'r6_acolyte', 'acolyte', face='up', sight=3, leave='1')
-    m.trainer(46, 13, 'r6_ace', 'ace', face='left', sight=3)
+    m.trainer(40, 17, 'r6_acolyte', 'acolyte', face='up', sight=4, leave='1')
+    m.trainer(46, 13, 'r6_ace', 'ace', face='left', sight=4)
     m.item(3, 6, 'full_tonic')
     m.item(47, 20, 'apex_capsule')
     m.item(15, 25, 'strong_incense', hidden=True)
@@ -936,7 +936,7 @@ def riftgate_haven():
 @reg
 def riftgate_trial():
     m = trial('riftgate_trial', 'Riftgate', 'Drake', 'seren', 'seren',
-              [('rg_adept_1', 'ace', 4, 12, 'right'), ('rg_adept_2', 'ace_b', 9, 8, 'left'), ('rg_adept_3', 'guard', 4, 5, 'right')],
+              [('rg_adept_1', 'ace', 5, 12, 'right'), ('rg_adept_2', 'ace_b', 8, 8, 'left'), ('rg_adept_3', 'guard', 5, 5, 'right')],
               "This is it — the Wyrm Trial. Drake Morphs shrug off almost everything. Frost is your best weapon. Drake beats Drake, too, if you dare.")
     return m
 
@@ -965,12 +965,12 @@ def sunken_chapel():
             m.obj(f'furn {x} {y} table v=2')
     m.obj('furn 0 2 banner'); m.obj('furn 21 2 banner'); m.obj('furn 4 2 crystal'); m.obj('furn 13 2 crystal')
     m.rect(0, 12, 1, 12, '#')
-    m.trainer(9, 20, 'sc_acolyte_1', 'acolyte', face='right', sight=3)
-    m.trainer(12, 17, 'sc_acolyte_2', 'acolyte_b', face='left', sight=3)
-    m.trainer(4, 14, 'sc_acolyte_3', 'acolyte', face='down', sight=4)
+    m.trainer(9, 20, 'sc_acolyte_1', 'acolyte', face='right', sight=4)
+    m.trainer(12, 17, 'sc_acolyte_2', 'acolyte_b', face='left', sight=4)
+    m.trainer(7, 14, 'sc_acolyte_3', 'acolyte', face='right', sight=4)
     m.trainer(18, 10, 'sc_acolyte_4', 'acolyte_b', face='left', sight=4)
     m.npc(10, 12, 'sc_vesk', 'vesk', face='down', script='chapel.vesk', trainer='vesk2', sight=4, hide='vesk2_done')
-    m.npc(11, 7, 'sc_maren', 'maren', face='down', script='chapel.maren', trainer='maren2', sight=3, hide='maren2_done')
+    m.npc(11, 7, 'sc_maren', 'maren', face='down', script='chapel.maren', trainer='maren2', sight=4, hide='maren2_done')
     m.npc(10, 4, 'sc_wren', 'wren_dark', face='down', script='chapel.wren', hide='wren_freed')
     m.item(1, 23, 'full_tonic')
     m.item(20, 23, 'rekindle_seed')
@@ -997,10 +997,10 @@ def abyssal_rift():
     m.obj('warp 20 45 to=cradle:10,13 face=up')
     for (x, y) in [(9, 7), (31, 7), (5, 17), (35, 17), (13, 29), (27, 29), (11, 38), (29, 38), (16, 32), (24, 32), (6, 30), (34, 30)]:
         m.obj(f'prop {x} {y} crystal')
-    m.trainer(20, 9, 'ar_acolyte_1', 'acolyte', face='down', sight=2)
+    m.trainer(20, 9, 'ar_acolyte_1', 'acolyte', face='down', sight=4)
     m.trainer(6, 24, 'ar_acolyte_2', 'acolyte_b', face='down', sight=4)
     m.trainer(34, 24, 'ar_acolyte_3', 'acolyte', face='down', sight=4)
-    m.trainer(20, 38, 'ar_ace', 'ace_b', face='down', sight=3)
+    m.trainer(20, 38, 'ar_ace', 'ace_b', face='down', sight=4)
     m.item(9, 20, 'full_tonic')
     m.item(31, 13, 'apex_capsule', 2)
     m.item(5, 31, 'panacea')

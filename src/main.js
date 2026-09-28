@@ -39,7 +39,7 @@ const config = {
 input.setBindings(G.settings.keys);
 setHintProvider((a) => input.hint(a), () => input.lastDevice === 'key');
 const game = new Phaser.Game(config);
-window.__tiamat = { game, G, input, createMon, healMon, state: stateMod, pickMove, rememberableMoves, MOVES };
+window.__tiamat = { game, G, input, audio, createMon, healMon, state: stateMod, pickMove, rememberableMoves, MOVES };
 audio.init(game);
 
 // Global per-frame input sampling (before any scene updates).

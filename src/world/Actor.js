@@ -70,7 +70,8 @@ export class Actor {
   }
 
   // Walk one tile in `dir` over `ms`. Resolves when finished.
-  walk(dir, ms) {
+  // onArrive runs the instant the tile is reached, before anything else can start another step.
+  walk(dir, ms, onArrive) {
     const [dx, dy] = DIRS[dir];
     this.face = dir;
     this.moving = true;
@@ -90,6 +91,7 @@ export class Actor {
           this.scene.events.off('update', upd);
           this.moving = false;
           this._place();
+          if (onArrive) { onArrive(); }
           resolve();
         }
       };

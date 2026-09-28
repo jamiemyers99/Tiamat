@@ -40,14 +40,47 @@ furn 3 14 machine
 furn 10 14 machine
 furn 0 16 plant
 furn 13 16 plant
-npc 4 12 id=gh_adept_1 sprite=engineer face=right move=still trainer=gh_adept_1 sight=3
-npc 9 8 id=gh_adept_2 sprite=scholar face=left move=still trainer=gh_adept_2 sight=3
-npc 4 5 id=gh_adept_3 sprite=engineer face=right move=still trainer=gh_adept_3 sight=3
+furn 0 12 rail v=10
+furn 1 12 rail v=11
+furn 2 12 rail v=11
+furn 3 12 rail v=11
+furn 4 12 rail v=9
+furn 8 12 rail v=10
+furn 9 12 rail v=11
+furn 10 12 rail v=11
+furn 11 12 rail v=11
+furn 12 12 rail v=11
+furn 13 12 rail v=9
+npc 5 12 id=gh_adept_1 sprite=engineer face=right move=still trainer=gh_adept_1 sight=3
+furn 0 8 rail v=10
+furn 1 8 rail v=11
+furn 2 8 rail v=11
+furn 3 8 rail v=11
+furn 4 8 rail v=11
+furn 5 8 rail v=9
+furn 9 8 rail v=10
+furn 10 8 rail v=11
+furn 11 8 rail v=11
+furn 12 8 rail v=11
+furn 13 8 rail v=9
+npc 8 8 id=gh_adept_2 sprite=scholar face=left move=still trainer=gh_adept_2 sight=3
+furn 0 5 rail v=10
+furn 1 5 rail v=11
+furn 2 5 rail v=11
+furn 3 5 rail v=11
+furn 4 5 rail v=9
+furn 8 5 rail v=10
+furn 9 5 rail v=11
+furn 10 5 rail v=11
+furn 11 5 rail v=11
+furn 12 5 rail v=11
+furn 13 5 rail v=9
+npc 5 5 id=gh_adept_3 sprite=engineer face=right move=still trainer=gh_adept_3 sight=3
 npc 6 3 id=iskra sprite=iskra face=down move=still script=gearhollow_trial.warden
 npc 9 15 id=gearhollow_trial_guide sprite=ace face=down move=still text="Hey hey! Iskra's Morphs are Static type — but half of them are armoured in Iron too. Stone Morphs shrug off lightning. Bring one!"
-furn 1 8 machine
-furn 12 8 machine
-furn 1 12 machine
-furn 12 12 machine
+furn 1 10 machine
+furn 12 10 machine
+furn 1 14 machine
+furn 12 14 machine
 furn 0 4 machine
 furn 13 4 machine

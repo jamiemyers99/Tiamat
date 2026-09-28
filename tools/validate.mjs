@@ -190,6 +190,70 @@ for (const m of Object.values(maps)) {
   }
 }
 
+// ── trainer sight ──────────────────────────────────────────────────────────
+// Every trainer must be able to see at least two tiles in front of them (same rules as WorldScene.checkTrainers),
+// and in a Trial hall there must be no way to reach the Warden without walking through an adept's line of sight.
+const FACE = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
+const sightTiles = (m, o, occupied) => {
+  const [dx, dy] = FACE[o.props.face || 'down'];
+  const out = [];
+  for (let i = 1; i <= +(o.props.sight || 4); i++) {
+    const x = o.x + dx * i, y = o.y + dy * i;
+    const b = beh(m, x, y);
+    if (['solid', 'counter', 'door', 'water', 'ledge_down', 'ledge_left', 'ledge_right', 'oob'].includes(b) || occupied.has(`${x},${y}`)) { break; }
+    out.push(`${x},${y}`);
+  }
+  return out;
+};
+for (const m of Object.values(maps)) {
+  const npcs = m.objs.filter((o) => o.type === 'npc' && o.props.show !== 'never');
+  const occupied = new Set(npcs.map((o) => `${o.x},${o.y}`));
+  const watched = new Set();
+  for (const o of npcs.filter((n) => n.props.trainer)) {
+    const seen = sightTiles(m, o, occupied);
+    if (seen.length < 2) { err(`${m.id}: trainer ${o.props.trainer} can only see ${seen.length} tile(s) ahead`); }
+    if (/_adept_/.test(o.props.trainer)) { seen.forEach((k) => watched.add(k)); }
+  }
+  if (!/_trial$/.test(m.id)) { continue; }
+  const warden = npcs.find((o) => String(o.props.script || '').endsWith('.warden'));
+  const seen = new Set();
+  const q = entries[m.id].filter(([x, y]) => !watched.has(`${x},${y}`));
+  q.forEach(([x, y]) => seen.add(`${x},${y}`));
+  while (q.length) {
+    const [x, y] = q.shift();
+    for (const [dx, dy] of DIRS) {
+      const k = `${x + dx},${y + dy}`;
+      if (seen.has(k) || watched.has(k) || occupied.has(k) || !walkable(beh(m, x + dx, y + dy), false)) { continue; }
+      seen.add(k); q.push([x + dx, y + dy]);
+    }
+  }
+  if (DIRS.some(([dx, dy]) => seen.has(`${warden.x + dx},${warden.y + dy}`))) { err(`${m.id}: the Warden can be reached without passing an adept`); }
+}
+
+// ── audio ──────────────────────────────────────────────────────────────────
+// every track a map, trainer or script asks for exists, and so does every named sound effect
+const audioIdx = JSON.parse(fs.readFileSync(path.join(ROOT, 'public/assets/audio/index.json'), 'utf8'));
+const bgm = new Set(audioIdx.bgm), sfxSet = new Set(audioIdx.sfx);
+for (const m of Object.values(maps)) {
+  if (m.props.music && !bgm.has(m.props.music)) { err(`${m.id}: music ${m.props.music} has no track`); }
+}
+for (const [id, tr] of Object.entries(TRAINERS)) {
+  if (tr.music && !bgm.has(tr.music)) { err(`trainer ${id}: music ${tr.music} has no track`); }
+}
+const srcFiles = [];
+const walk = (d) => { for (const f of fs.readdirSync(d, { withFileTypes: true })) { const p = path.join(d, f.name); if (f.isDirectory()) { walk(p); } else if (p.endsWith('.js')) { srcFiles.push(p); } } };
+walk(path.join(ROOT, 'src'));
+const srcAll = srcFiles.map((f) => fs.readFileSync(f, 'utf8')).join('\n');
+for (const [, k] of srcAll.matchAll(/(?:S|audio)\.(?:sfx|jingle)\('([a-z0-9_]+)'/g)) {
+  if (!sfxSet.has(k)) { err(`sound effect ${k} is used but has no file`); }
+}
+for (const [, k] of srcAll.matchAll(/S\.music\('([a-z0-9_]+)'\)/g)) {
+  if (!bgm.has(k)) { err(`script music ${k} has no track`); }
+}
+for (const k of ['spotted', 'encounter', 'encounter_jingle', 'hit', 'hit_super', 'door', 'step', 'ui_text', 'ui_bump', 'ui_coin']) {
+  if (!sfxSet.has(k)) { err(`sound effect ${k} is missing`); }
+}
+
 console.log(`${Object.keys(maps).length} maps, ${Object.keys(TRAINERS).length} trainers, ${Object.keys(SCRIPTS).length} scripts`);
 for (const w of warns) { console.log('warn:', w); }
 for (const e of errors) { console.log('ERROR:', e); }

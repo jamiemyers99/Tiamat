@@ -42,9 +42,9 @@ bramble 6 17
 prop 10 15 sign text="ROUTE 2 · BRAMBLE BRIDGE|West: Brindlewood   East: Thornwild"
 prop 30 9 sign text="Mind the river — the current is stronger than it looks!"
 npc 18 12 id=r2_pim sprite=kid_b face=down move=still trainer=r2_pim sight=4
-npc 20 9 id=r2_fisher sprite=fisher face=right move=still trainer=r2_fisher sight=3
-npc 33 12 id=r2_ivy sprite=lass face=left move=still trainer=r2_ivy sight=3
-npc 40 9 id=r2_bram sprite=hiker face=down move=still trainer=r2_bram sight=2
+npc 23 9 id=r2_fisher sprite=fisher face=down move=still trainer=r2_fisher sight=4
+npc 33 12 id=r2_ivy sprite=lass face=left move=still trainer=r2_ivy sight=4
+npc 40 9 id=r2_bram sprite=hiker face=down move=still trainer=r2_bram sight=4
 item 5 5 item=td15 qty=1 flag=item_route2_5_5
 item 44 18 item=capsule qty=2 flag=item_route2_44_18
 item 15 20 item=tonic qty=1 flag=item_route2_15_20

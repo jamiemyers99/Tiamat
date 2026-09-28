@@ -23,8 +23,11 @@ function offlineCache() {
       const hash = crypto.createHash('sha1');
       for (const f of list) { hash.update(f); hash.update(fs.readFileSync(path.join(dist, f))); }
       const tpl = fs.readFileSync(path.resolve('tools/pwa/sw-template.js'), 'utf8');
+      // music tracks aren't pre-cached on install (the game streams them in the background, and the worker
+      // keeps each one as it arrives), so installing stays quick
+      const precache = list.filter((f) => !f.startsWith('assets/audio/bgm/') || f === 'assets/audio/bgm/title.ogg');
       const sw = tpl.replace('__VERSION__', hash.digest('hex').slice(0, 12))
-        .replace('__FILES__', JSON.stringify(['./', ...list.map((f) => `./${f}`)]));
+        .replace('__FILES__', JSON.stringify(['./', ...precache.map((f) => `./${f}`)]));
       fs.writeFileSync(path.join(dist, 'sw.js'), sw);
     },
   };

@@ -1,7 +1,7 @@
 // Act I — Roots: Rootmere, the Marsh Lab, Route 1 and Brindlewood.
 import { SPECIES } from '../data/species.js';
 import { RIVAL_PICK } from '../data/trainers.js';
-import { rivalBattle } from './common.js';
+import { rivalBattle, adeptsCleared } from './common.js';
 import { partnerIvs } from '../data/difficulty.js';
 
 const STARTERS = {
@@ -33,8 +33,7 @@ export default {
     await S.give('trail_boots');
     await S.say('Mum', 'Hold {BTN:run} while you walk to run in them. And come home whenever you need a rest — the kettle is always on.');
     S.set('mum_boots');
-    await S.move('rm_mum', 'l3');
-    S.hide('rm_mum');
+    await S.leave('rm_mum', { ms: 170 });
   },
   'rootmere.north': async (S) => {
     await S.say('???', '{PLAYER}! Wait!');
@@ -163,6 +162,8 @@ export default {
       await S.take('pips_bell');
       await S.give('bond_charm');
       await S.say('Posy', 'The Bond Charm shares battle experience with the Morphs who sit out. That way the whole team grows together!');
+      await S.say('Posy', "Come on, Pip — let's go home and tell Grandad!");
+      await S.leave('bw_posy', { ms: 140 });
       S.set('pip_returned');
       return;
     }
@@ -204,6 +205,7 @@ export default {
       S.set('parcel_given');
       await S.say('Mossa', "She's asking the same questions I used to. Hm. Thank you for bringing it, {PLAYER}.");
     }
+    if (!(await adeptsCleared(S, 'Mossa'))) { return; }
     await S.say('Mossa', "Now then. You've come for my Trial. My garden grows slowly — and hits back hard. Ready?");
     const r = await S.battle('mossa');
     if (r !== 'win') { return; }

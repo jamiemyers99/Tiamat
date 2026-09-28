@@ -41,12 +41,45 @@ furn 3 14 crystal
 furn 10 14 crystal
 furn 0 16 plant
 furn 13 16 plant
-npc 4 12 id=hm_adept_1 sprite=mystic face=right move=still trainer=hm_adept_1 sight=3
-npc 9 8 id=hm_adept_2 sprite=scholar face=left move=still trainer=hm_adept_2 sight=3
-npc 4 5 id=hm_adept_3 sprite=mystic face=right move=still trainer=hm_adept_3 sight=3
+furn 0 12 rail v=14
+furn 1 12 rail v=15
+furn 2 12 rail v=15
+furn 3 12 rail v=15
+furn 4 12 rail v=13
+furn 8 12 rail v=14
+furn 9 12 rail v=15
+furn 10 12 rail v=15
+furn 11 12 rail v=15
+furn 12 12 rail v=15
+furn 13 12 rail v=13
+npc 5 12 id=hm_adept_1 sprite=mystic face=right move=still trainer=hm_adept_1 sight=3
+furn 0 8 rail v=14
+furn 1 8 rail v=15
+furn 2 8 rail v=15
+furn 3 8 rail v=15
+furn 4 8 rail v=15
+furn 5 8 rail v=13
+furn 9 8 rail v=14
+furn 10 8 rail v=15
+furn 11 8 rail v=15
+furn 12 8 rail v=15
+furn 13 8 rail v=13
+npc 8 8 id=hm_adept_2 sprite=scholar face=left move=still trainer=hm_adept_2 sight=3
+furn 0 5 rail v=14
+furn 1 5 rail v=15
+furn 2 5 rail v=15
+furn 3 5 rail v=15
+furn 4 5 rail v=13
+furn 8 5 rail v=14
+furn 9 5 rail v=15
+furn 10 5 rail v=15
+furn 11 5 rail v=15
+furn 12 5 rail v=15
+furn 13 5 rail v=13
+npc 5 5 id=hm_adept_3 sprite=mystic face=right move=still trainer=hm_adept_3 sight=3
 npc 6 3 id=morrow sprite=morrow face=down move=still script=hollowmere_trial.warden
 npc 9 15 id=hollowmere_trial_guide sprite=ace face=down move=still text="...Can you see me? Warden Morrow keeps the hall dark. Umbra Morphs fear Brawl fists and bright Swarm wings."
-furn 1 8 pot
-furn 12 8 pot
-furn 1 12 pot
-furn 12 12 pot
+furn 1 10 pot
+furn 12 10 pot
+furn 1 14 pot
+furn 12 14 pot

@@ -40,8 +40,41 @@ furn 3 14 statue
 furn 10 14 statue
 furn 0 16 plant
 furn 13 16 plant
-npc 4 12 id=fs_adept_1 sprite=skier face=right move=still trainer=fs_adept_1 sight=3
-npc 9 8 id=fs_adept_2 sprite=hiker face=left move=still trainer=fs_adept_2 sight=3
-npc 4 5 id=fs_adept_3 sprite=skier face=right move=still trainer=fs_adept_3 sight=3
+furn 0 12 rail v=18
+furn 1 12 rail v=19
+furn 2 12 rail v=19
+furn 3 12 rail v=19
+furn 4 12 rail v=17
+furn 8 12 rail v=18
+furn 9 12 rail v=19
+furn 10 12 rail v=19
+furn 11 12 rail v=19
+furn 12 12 rail v=19
+furn 13 12 rail v=17
+npc 5 12 id=fs_adept_1 sprite=skier face=right move=still trainer=fs_adept_1 sight=3
+furn 0 8 rail v=18
+furn 1 8 rail v=19
+furn 2 8 rail v=19
+furn 3 8 rail v=19
+furn 4 8 rail v=19
+furn 5 8 rail v=17
+furn 9 8 rail v=18
+furn 10 8 rail v=19
+furn 11 8 rail v=19
+furn 12 8 rail v=19
+furn 13 8 rail v=17
+npc 8 8 id=fs_adept_2 sprite=hiker face=left move=still trainer=fs_adept_2 sight=3
+furn 0 5 rail v=18
+furn 1 5 rail v=19
+furn 2 5 rail v=19
+furn 3 5 rail v=19
+furn 4 5 rail v=17
+furn 8 5 rail v=18
+furn 9 5 rail v=19
+furn 10 5 rail v=19
+furn 11 5 rail v=19
+furn 12 5 rail v=19
+furn 13 5 rail v=17
+npc 5 5 id=fs_adept_3 sprite=skier face=right move=still trainer=fs_adept_3 sight=3
 npc 6 3 id=hale sprite=hale face=down move=still script=frostspire_trial.warden
 npc 9 15 id=frostspire_trial_guide sprite=ace face=down move=still text="Brr! Warden Hale's Frost Morphs will freeze you solid. Ember, Brawl, Stone and Iron all do the job. Stay warm!"

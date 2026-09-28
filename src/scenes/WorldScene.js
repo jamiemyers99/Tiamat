@@ -16,6 +16,9 @@ import { TRAINERS } from '../data/trainers.js';
 import { ITEMS } from '../data/items.js';
 import { txt } from '../ui/text.js';
 
+// a trainer's line of sight stops at anything they couldn't walk straight through to reach you
+const SIGHT_BLOCK = ['solid', 'counter', 'door', 'water', 'ledge_down', 'ledge_left', 'ledge_right'];
+
 export class WorldScene extends Phaser.Scene {
   constructor() { super('World'); }
 
@@ -97,8 +100,14 @@ export class WorldScene extends Phaser.Scene {
       if (o.type === 'item') { this._spawnItem(o); }
       if (o.type === 'bramble') { this._spawnBramble(o); }
     }
+    // A save made on a tile that has since become furniture, a barrier or a person (maps change between
+    // versions) puts the player on the nearest free tile instead of trapping them.
+    if (opts.first && !G.state.player.surfing && !this.isWalkable(x, y, face)) {
+      const free = this._nearestFree(x, y);
+      if (free) { this.player.warp(free[0], free[1], face); G.state.player.x = free[0]; G.state.player.y = free[1]; }
+    }
     // atmosphere
-    const light = mv.props.light || (mv.props.kind === 'interior' ? 'indoor' : 'outdoor');
+    const light =mv.props.light || (mv.props.kind === 'interior' ? 'indoor' : 'outdoor');
     this.lighting.setMode(light === 'dark' ? 'dark' : (light === 'indoor' ? 'indoor' : 'outdoor'));
     this.weather.set(mv.props.weather || 'none');
     audio.playMusic(mv.props.music ? `bgm_${mv.props.music}` : null);
@@ -114,6 +123,18 @@ export class WorldScene extends Phaser.Scene {
     this._updateGrass();
     // on-enter map script
     this.time.delayedCall(10, () => this._mapEnter(id, opts));
+  }
+
+  _nearestFree(x, y) {
+    for (let r = 1; r <= 8; r++) {
+      for (let dy = -r; dy <= r; dy++) {
+        for (let dx = -r; dx <= r; dx++) {
+          if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) { continue; }
+          if (this.isWalkable(x + dx, y + dy, 'down') && this.mapView.behavior(x + dx, y + dy) !== 'water') { return [x + dx, y + dy]; }
+        }
+      }
+    }
+    return null;
   }
 
   _regionName(mapId) {
@@ -153,6 +174,9 @@ export class WorldScene extends Phaser.Scene {
     for (const n of this.npcs) {
       if (n.forced) { continue; }
       const vis = this._npcVisible(n.def, n.id);
+      // mid-scene, a flag never makes someone blink out of existence: they stay until the scene ends
+      // (or walk off with S.leave); people can still appear straight away
+      if (!vis && n.active && this._scenes) { continue; }
       if (vis !== n.active) {
         n.active = vis;
         n.actor.setVisible(vis);
@@ -318,8 +342,11 @@ export class WorldScene extends Phaser.Scene {
     const ms = G.state.player.surfing ? SURF_MS : (running ? RUN_MS : WALK_MS);
     this._stepSfx();
     if (b === 'grass') { this.rustle(nx, ny, ms); }
-    await p.walk(dir, ms);
-    await this.afterStep();
+    // Check the tile the moment we arrive — warps, events, trainers' sight, grass — before a held direction
+    // can chain the next step. (Checking afterwards let a held key slip past a trainer on some tiles.)
+    let arrived = null;
+    await p.walk(dir, ms, () => { arrived = this.afterStep(); });
+    await arrived;
   }
 
   // Tall grass parts as you push into it, then settles (and a couple of leaf bits flick up).
@@ -338,9 +365,10 @@ export class WorldScene extends Phaser.Scene {
     }
   }
 
+  // a soft footfall on every step (the file itself is quiet); a slight random pitch so it never sounds mechanical
   _stepSfx() {
     if (G.state.player.surfing) { return; }
-    audio.sfx('step', { volume: 0.35, throttle: 90 });
+    audio.sfx('step', { volume: 0.9, throttle: 90, detune: Math.random() * 300 - 150 });
   }
 
   bump() {
@@ -551,7 +579,7 @@ export class WorldScene extends Phaser.Scene {
           return true;
         }
         const b = this.mapView.behavior(x, y);
-        if (['solid', 'counter', 'door'].includes(b) || this.npcAt(x, y)) { break; }
+        if (SIGHT_BLOCK.includes(b) || this.npcAt(x, y)) { break; }
       }
     }
     return false;
@@ -561,9 +589,10 @@ export class WorldScene extends Phaser.Scene {
     this.busy++;
     const p = this.player;
     try {
+      // the classic "!" whether they spotted you or you walked up and spoke to them
+      audio.sfx('spotted');
+      await n.actor.emote('!', 650);
       if (spotted) {
-        audio.sfx('encounter');
-        await n.actor.emote('!', 650);
         // walk up to the player
         const dir = n.actor.face;
         const [dx, dy] = DIRS[dir];
@@ -585,14 +614,60 @@ export class WorldScene extends Phaser.Scene {
     }
   }
 
-  // A beaten Deepcall grunt flees: hop, fade out, never return.
+  // A beaten Deepcall grunt leaves for good: they turn and walk off (out of an exit if one is close), then vanish.
   async npcLeave(n) {
     await n.actor.emote('...', 500);
     setFlag(`left_${n.id}`);
-    await new Promise((r) => this.tweens.add({ targets: n.actor.sprite, alpha: 0, y: n.actor.sprite.y - 6, duration: 350, onComplete: r }));
-    n.active = false;
-    n.actor.setVisible(false);
-    n.actor.sprite.setAlpha(1);
+    await this.walkAway(n);
+  }
+
+  // Walk an NPC away: to the nearest way out (a door, warp or map edge) if one is in reach, otherwise to the spot
+  // furthest from the player; they stop as soon as they're off screen (or after a few seconds) and fade out.
+  async walkAway(n, { ms = 150, fade = true, maxWalk = 20 } = {}) {
+    const mv = this.mapView, p = this.player, a = n.actor;
+    for (let i = 0; i < 40 && a.moving; i++) { await new Promise((r) => this.time.delayedCall(16, r)); }
+    const key = (x, y) => `${x},${y}`;
+    const exits = new Set();
+    for (const o of mv.objects || []) {
+      if (o.type === 'warp') { for (let k = 0; k < (o.w || 1); k++) { exits.add(key(o.x + k, o.y)); } }
+    }
+    const prev = new Map([[key(a.tx, a.ty), null]]);
+    const q = [[a.tx, a.ty, 0]];
+    let exit = null, far = null, farScore = -Infinity;
+    while (q.length) {
+      const [x, y, d] = q.shift();
+      if (d > 0) {
+        const door = mv.behavior(x, y) === 'door';
+        if (!exit && (door || exits.has(key(x, y)) || x === 0 || y === 0 || x === mv.w - 1 || y === mv.h - 1)) { exit = [x, y]; }
+        const score = Math.abs(x - p.tx) + Math.abs(y - p.ty) - d * 0.1;
+        if (d <= 16 && score > farScore) { farScore = score; far = [x, y]; }
+        if (door) { continue; }   // they go in; no walking through the building
+      }
+      if (d >= 60 || exit) { continue; }
+      for (const [dir, [dx, dy]] of Object.entries(DIRS)) {
+        const nx = x + dx, ny = y + dy, k = key(nx, ny);
+        if (prev.has(k) || !mv.inBounds(nx, ny)) { continue; }
+        const b = mv.behavior(nx, ny);
+        if (['solid', 'water', 'counter', 'ledge_down', 'ledge_left', 'ledge_right'].includes(b)) { continue; }
+        if (this.npcAt(nx, ny) || (nx === p.tx && ny === p.ty) || this.itemAt(nx, ny)) { continue; }
+        prev.set(k, [x, y, dir]);
+        q.push([nx, ny, d + 1]);
+      }
+    }
+    const goal = exit || far;
+    const path = [];
+    for (let at = goal && prev.get(key(...goal)); at; at = prev.get(key(at[0], at[1]))) { path.unshift(at[2]); }
+    const cam = this.cameras.main.worldView;
+    for (const dir of path.slice(0, maxWalk)) {
+      await a.walk(dir, ms);
+      if (!Phaser.Geom.Rectangle.Contains(cam, a.sprite.x, a.sprite.y - 8)) { break; }
+    }
+    if (fade) {
+      await new Promise((r) => this.tweens.add({ targets: a.sprite, alpha: 0, duration: 260, onComplete: r }));
+      n.active = false; n.forced = false;
+      a.setVisible(false);
+      a.sprite.setAlpha(1);
+    }
   }
 
   // ─── encounters ──────────────────────────────────────────────────────
@@ -614,19 +689,23 @@ export class WorldScene extends Phaser.Scene {
     if (!lead) { return; }   // no Morphs yet: nothing jumps out
     if (G.state.repel > 0 && mon.level < lead.level) { return; }
     this.lastEnc = 0;
-    await this.S.wild(mon.species, mon.level, { kindEnc: kind });
+    this.busy++;   // hold the player still from this very step, not once the battle queue gets round to it
+    try { await this.S.wild(mon.species, mon.level, { kindEnc: kind }); } finally { this.busy--; }
   }
 
   // ─── scripts ─────────────────────────────────────────────────────────
   async run(id, ctx = {}) {
     if (!id) { return; }
     this.busy++;
+    this._scenes = (this._scenes || 0) + 1;
     try {
       await runScript(id, this.S, ctx);
     } catch (e) {
       console.error('[script]', id, e);
     } finally {
       this.busy--;
+      this._scenes--;
+      if (!this._scenes) { this.refreshNpcs(); }   // anyone a flag has sent away goes once the scene is over
       input.clear();
     }
   }

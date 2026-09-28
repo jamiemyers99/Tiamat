@@ -105,7 +105,7 @@ export class BattleScene extends Phaser.Scene {
     this._buildMessageBox();
     // ── music ──
     const music = cfg.music || (trainer && trainer.music) || (cfg.kind === 'trainer' ? 'battle_trainer' : 'battle_wild');
-    const key = this.cache.audio.exists(`bgm_${music}`) ? `bgm_${music}` : (cfg.kind === 'trainer' ? 'bgm_battle_trial' : 'bgm_battle_wild');
+    const key = audio.has(`bgm_${music}`) ? `bgm_${music}` : (cfg.kind === 'trainer' ? 'bgm_battle_trainer' : 'bgm_battle_wild');
     audio.playMusic(key, { fade: 100, restart: true });
     // ── engine ──
     this.battle = new Battle({
@@ -620,7 +620,7 @@ export class BattleScene extends Phaser.Scene {
       this.trainerSpr.setPosition(GAME_W + 40, EP.y - 4).setVisible(true);
       this.enemySpr.setVisible(false);
       this.tweens.add({ targets: this.ePanel, x: -210, duration: 300 });
-      audio.playMusic(this.cache.audio.exists('bgm_victory') ? 'bgm_victory' : null, { fade: 100, restart: true });
+      audio.playMusic(audio.has('bgm_victory') ? 'bgm_victory' : null, { fade: 100, restart: true });
       await this.tween({ targets: this.trainerSpr, x: EP.x + 4, duration: 500, ease: 'Cubic.easeOut' });
       await this.message(`You defeated ${tr.title ? tr.title + ' ' : ''}${tr.name}!`);
       if (tr.lose) { await this.message(`${tr.name}: ${fmt(tr.lose, G.state)}`); }

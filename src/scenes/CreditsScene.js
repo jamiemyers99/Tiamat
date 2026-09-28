@@ -24,7 +24,7 @@ export class CreditsScene extends Phaser.Scene {
   create() {
     input.push('credits');
     this.cameras.main.setBackgroundColor('#0c0b14');
-    audio.playMusic(this.cache.audio.exists('bgm_crown') ? 'bgm_crown' : 'bgm_title', { restart: true });
+    audio.playMusic(audio.has('bgm_crown') ? 'bgm_crown' : 'bgm_title', { restart: true });
     const c = this.add.container(0, GAME_H + 10);
     LINES.forEach(([t, col], i) => {
       c.add(txt(this, GAME_W / 2, i * 18, t.replace('{CAUGHT}', G.state.index.caught.length).replace('{TOTAL}', SPECIES_LIST.length), { align: 'center', color: col || 'white', scale: i === 0 ? 3 : 1 }));

@@ -1,5 +1,5 @@
 // Act III — Fog and Glass: Moorwind Way, Hollowmere and Glasslake.
-import { bossBattle } from './common.js';
+import { bossBattle, adeptsCleared } from './common.js';
 
 export default {
   'route4.circle': async (S) => {
@@ -34,6 +34,7 @@ export default {
       await S.say('Morrow', 'Go on to Frostspire, {PLAYER}. And keep your Sigils close — closer than you ever have.');
       return;
     }
+    if (!(await adeptsCleared(S, 'Morrow'))) { return; }
     await S.say('Morrow', "Every Trial is a story, {PLAYER}. Mine is a ghost story. Let's see how yours ends.");
     const r = await S.battle('morrow');
     if (r !== 'win') { return; }
@@ -61,10 +62,8 @@ export default {
     await bossBattle(S, 'maren1');
     await S.say('Maren', "You fight for what you believe. So do we. The fog will lift for you now — we'll meet again at the Riven.");
     await S.say('Wren', "...See you, {PLAYER}. I hope you understand, one day.");
-    await S.fadeOut(300);
-    S.hide('hm_wren'); S.hide('hm_maren');
+    await Promise.all([S.leave('hm_maren'), S.leave('hm_wren', { ms: 165 })]);
     S.music('hollowmere');
-    await S.fadeIn(300);
     await S.say(null, 'The fog over Glasslake is thinning. You could cross it with the Skiff now.');
   },
 };

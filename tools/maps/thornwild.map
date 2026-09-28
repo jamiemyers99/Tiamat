@@ -61,8 +61,8 @@ prop 2 12 sign text="THORNWILD|Stay on the trail. The trees remember."
 npc 8 11 id=tw_bugs sprite=kid face=right move=still trainer=tw_bugs sight=4
 npc 20 22 id=tw_ranger sprite=ranger face=left move=still trainer=tw_ranger sight=4
 npc 37 17 id=tw_mystic sprite=mystic face=down move=still trainer=tw_mystic sight=4
-npc 29 26 id=tw_acolyte_1 sprite=acolyte face=down move=still trainer=tw_acolyte_1 sight=3 hide=wren2_done
-npc 26 33 id=tw_acolyte_2 sprite=acolyte_b face=right move=still trainer=tw_acolyte_2 sight=4 hide=wren2_done
+npc 29 26 id=tw_acolyte_1 sprite=acolyte face=down move=still trainer=tw_acolyte_1 sight=4 hide=wren2_done leave=1
+npc 26 33 id=tw_acolyte_2 sprite=acolyte_b face=right move=still trainer=tw_acolyte_2 sight=4 hide=wren2_done leave=1
 npc 30 38 id=tw_wren sprite=wren face=up move=still show=never
 trigger 30 35 script=thornwild.wren w=2 h=1 once=wren2_done cond=beat:tw_acolyte_1&beat:tw_acolyte_2
 trigger 30 34 script=thornwild.acolytes_block w=2 h=1 cond="!beat:tw_acolyte_1|!beat:tw_acolyte_2"

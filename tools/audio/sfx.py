@@ -39,10 +39,10 @@ def glide(f0, f1, sec, kind='sine', curve=1.0):
     ph = 2 * np.pi * np.cumsum(f) / SR
     if kind == 'sine':
         return np.sin(ph)
-    if kind == 'square':
-        return np.sign(np.sin(ph)) * 0.7
+    if kind == 'square':      # a rounded pulse, not a raw square wave (that was the shrill chiptune edge)
+        return lowpass(lowpass(np.sign(np.sin(ph)), 1800), 2600) * 0.8
     if kind == 'saw':
-        return ((ph / (2 * np.pi)) % 1.0) * 2 - 1
+        return lowpass(((ph / (2 * np.pi)) % 1.0) * 2 - 1, 2500)
     if kind == 'tri':
         return 2 * np.abs(((ph / (2 * np.pi)) % 1.0) * 2 - 1) - 1
     raise ValueError(kind)
@@ -98,6 +98,31 @@ def crackle(sec, density=60, sharp=5000):
 def norm(x, peak=0.85):
     m = np.max(np.abs(x)) or 1
     return x / m * peak
+
+
+def finish(x, level_db=-17.0):
+    """Every move sound gets the same treatment so they sit together and with the music: the top rounded off
+    (nothing glassy above ~6 kHz), a touch of the same small room, and one loudness (loudest 80 ms window)."""
+    from scipy.signal import butter, sosfilt
+    x = np.asarray(x, dtype=np.float64)
+    x = sosfilt(butter(2, 6200, 'lowpass', fs=SR, output='sos'), x)
+    x = sosfilt(butter(1, 45, 'highpass', fs=SR, output='sos'), x)
+    tail = int(0.3 * SR)
+    ir = rng.uniform(-1, 1, tail) * np.exp(-np.arange(tail) / SR * 10)
+    ir = sosfilt(butter(2, 3000, 'lowpass', fs=SR, output='sos'), ir)
+    wet = np.convolve(x, ir)
+    wet *= (np.abs(x).max() + 1e-9) / (np.abs(wet).max() + 1e-9)
+    y = np.zeros(len(wet)); y[:len(x)] = x
+    y = y * 0.9 + wet * 0.12
+    nz = np.nonzero(np.abs(y) > 1e-4 * np.abs(y).max())[0]
+    y = y[: nz[-1] + 1]
+    f = min(int(0.02 * SR), len(y) // 4)
+    y[-f:] *= np.linspace(1, 0, f)
+    w = int(0.08 * SR)
+    loud = np.sqrt(np.convolve(y ** 2, np.ones(w) / w, mode='same').max()) if len(y) > w else np.sqrt(np.mean(y ** 2))
+    y *= 10 ** (level_db / 20) / (loud + 1e-12)
+    pk = np.abs(y).max()
+    return y * (0.84 / pk) if pk > 0.84 else y
 
 
 # ── the sounds ──────────────────────────────────────────────────────────────
@@ -398,9 +423,7 @@ def main(only=None):
     for name, fn in S.items():
         if only and name not in only:
             continue
-        x = norm(np.asarray(fn(), dtype=np.float64), 0.8)
-        nz = np.nonzero(np.abs(x) > 1e-3)[0]
-        x = x[:nz[-1] + 1] if len(nz) else x
+        x = finish(fn())
         write_ogg(os.path.join(OUT, f'{name}.ogg'), x)
         if name not in idx['sfx']:
             idx['sfx'].append(name)
@@ -431,8 +454,8 @@ def voice(kind, f, sec):
         return bell(f, sec, ((1, 1), (2, 0.4), (3, 0.2)), rate=5) * 0.5
     if kind == 'glass':
         return bell(f, sec, ((1, 1), (2.76, 0.3), (5.4, 0.15)), rate=4) * 0.45
-    if kind == 'square':
-        return tone(f, sec, 'square') * ad(sec, 0.005, 1.5) * 0.35
+    if kind == 'square':      # soft reed
+        return (glide(f, f, sec, 'tri') + 0.25 * glide(2 * f, 2 * f, sec)) * ad(sec, 0.006, 1.5) * 0.4
     if kind == 'horn':
         return lowpass(glide(f, f, sec, 'saw'), 1800) * ad(sec, 0.04, 0.7) * 0.6
     if kind == 'choir':
@@ -448,7 +471,12 @@ def voice(kind, f, sec):
 
 def motif(notes, kind, step=0.085, sec=0.3):
     from synth import midi, freq
-    parts = [(k * step, voice(kind, freq(midi(n)), sec)) for k, n in enumerate(notes.split())]
+    def f(n):
+        hz = freq(midi(n))
+        while hz > 1100:          # keep motifs out of the piercing top octave
+            hz /= 2
+        return hz
+    parts = [(k * step, voice(kind, f(n), sec)) for k, n in enumerate(notes.split())]
     return mix(*parts)
 
 
@@ -571,7 +599,7 @@ def main_sig(only=None):
     for move in SIG:
         if only and move not in only:
             continue
-        x = norm(sig_sound(move), 0.8)
+        x = finish(sig_sound(move), -16.0)
         write_ogg(os.path.join(OUT, f'sig_{move}.ogg'), x)
         if f'sig_{move}' not in idx['sfx']:
             idx['sfx'].append(f'sig_{move}')

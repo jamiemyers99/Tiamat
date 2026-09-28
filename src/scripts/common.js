@@ -32,6 +32,16 @@ export async function bossBattle(S, id, opts = {}) {
   return r;
 }
 
+// A Warden only takes your challenge once every adept in the hall has been beaten, like a real gym.
+export async function adeptsCleared(S, warden) {
+  const left = S.w.npcs.filter((n) => n.active && /_adept_/.test(n.def.trainer || '') && !S.state.defeated[n.def.trainer]);
+  if (!left.length) { return true; }
+  await S.say(warden, left.length === 1
+    ? "Not so fast, {PLAYER}. One of my adepts is still waiting for you. Every challenger faces the whole hall."
+    : `Not so fast, {PLAYER}. ${left.length === 2 ? 'Two' : 'Three'} of my adepts are still waiting for you. Every challenger faces the whole hall.`);
+  return false;
+}
+
 export default {
   'home.pc': async (S) => {
     await S.say(null, '{PLAYER} booted up the PC.');

@@ -184,18 +184,21 @@ def house(id, name, wall='cream', floor='wood', variant=0, music='house'):
 
 
 TRIAL_STYLE = {
-    'Nature': dict(floor='wood', wall='green', deco='plant'),
-    'Tide':   dict(floor='tile', wall='blue', deco='barrel'),
-    'Static': dict(floor='lab', wall='white', deco='machine'),
-    'Umbra':  dict(floor='chapel', wall='dark', deco='crystal'),
-    'Frost':  dict(floor='ice', wall='ice', deco='statue'),
-    'Drake':  dict(floor='arena', wall='stone', deco='pillar'),
+    'Nature': dict(floor='wood', wall='green', deco='plant', rope=0),
+    'Tide':   dict(floor='tile', wall='blue', deco='barrel', rope=1),
+    'Static': dict(floor='lab', wall='white', deco='machine', rope=2),
+    'Umbra':  dict(floor='chapel', wall='dark', deco='crystal', rope=3),
+    'Frost':  dict(floor='ice', wall='ice', deco='statue', rope=4),
+    'Drake':  dict(floor='arena', wall='stone', deco='pillar', rope=5),
 }
+GATE = (6, 7)   # the carpet aisle; every rope barrier has its one gap here
 
 
 def trial(id, town, type_, warden_id, warden_sprite, adepts, guide_text, light=None):
-    """A Trial hall: carpet aisle, pillars, adepts beside the aisle, the Warden at the top.
-    adepts: list of (trainer_id, sprite, x, y, face)."""
+    """A Trial hall: a carpet aisle up to the Warden, crossed by rope barriers. Each barrier's only gap is on
+    the aisle, and an adept stands right beside it watching the gap, so nobody reaches the Warden without
+    being spotted and battling every adept (the Warden's script checks too).
+    adepts: list of (trainer_id, sprite, x, y, face); x must sit next to the gate (5 facing right, 8 facing left)."""
     st = TRIAL_STYLE[type_]
     W, H = 14, 18
     props = dict(name=f'{town} Trial Hall', floor=st['floor'], wall=st['wall'], music='trial', battle='arena')
@@ -208,10 +211,17 @@ def trial(id, town, type_, warden_id, warden_sprite, adepts, guide_text, light=N
     m.put(6, H - 1, 'm'); m.put(7, H - 1, 'm')
     m.obj('furn 1 2 banner'); m.obj('furn 12 2 banner')
     m.obj('furn 5 2 statue'); m.obj('furn 8 2 statue')
+    rail_rows = {y for (_, _, _, y, _) in adepts}
     for y in (6, 10, 14):
-        m.obj(f"furn 3 {y} {st['deco']}"); m.obj(f"furn 10 {y} {st['deco']}")
+        if y not in rail_rows:
+            m.obj(f"furn 3 {y} {st['deco']}"); m.obj(f"furn 10 {y} {st['deco']}")
     m.obj('furn 0 16 plant'); m.obj('furn 13 16 plant')
     for (tid, spr, x, y, face) in adepts:
+        assert (x, face) in ((GATE[0] - 1, 'right'), (GATE[1] + 1, 'left')), f'{tid}: adept must stand beside the gate'
+        posts = [c for c in range(W) if c not in GATE and c != x]
+        for c in posts:
+            v = st['rope'] * 4 + (1 if c - 1 in posts else 0) + (2 if c + 1 in posts else 0)
+            m.obj(f'furn {c} {y} rail v={v}')
         m.trainer(x, y, tid, spr, face=face, sight=3)
     m.npc(6, 3, warden_id, warden_sprite, script=f'{id}.warden')
     m.npc(9, 15, f'{id}_guide', 'ace', text=guide_text)

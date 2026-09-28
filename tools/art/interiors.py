@@ -319,6 +319,27 @@ def furniture(name, variant=0):
         icon(s, 'wave', 24, oy + 1, '#6fe0c8')
         s.outline(None, darken=0.3)
         return s, 0, oy, 3, 2
+    if name == 'rail':
+        # Trial-hall barrier: a brass post with a velvet rope. variant = colour * 4 + rope-left(1) + rope-right(2)
+        # so rows join up and the ends at a gate stop neatly at the post.
+        s = Spr(16, 26); oy = 10
+        rope_col = ['#3f8a4a', '#2f6fb8', '#d0a020', '#6a4aa8', '#7ab8e0', '#b8402a'][(variant // 4) % 6]
+        rope = ramp(rope_col, 5, 0.14)
+        brass = ramp('#d8a840', 5, 0.14)
+        sag = lambda t: 8 + int(round(5 * (1 - (1 - t) ** 2)))   # rope hangs lowest halfway between posts
+        if variant & 1:
+            for x in range(0, 8):
+                y = sag(1 - x / 7.0)
+                s.rect(x, y, 1, 2, rope[2]); s.px(x, y, rope[3])
+        if variant & 2:
+            for x in range(8, 16):
+                y = sag((x - 8) / 7.0)
+                s.rect(x, y, 1, 2, rope[2]); s.px(x, y, rope[3])
+        s.rect(7, 6, 2, 16, brass[2]); s.vline(7, 6, 21, brass[3])
+        s.shaded_ellipse(8, 5, 2, 2, brass)
+        s.rect(5, 21, 6, 2, brass[1]); s.hline(5, 10, 21, brass[3])
+        s.outline(None, darken=0.3)
+        return s, 0, oy, 1, 1
     if name == 'banner':
         s = Spr(16, 32); oy = 16
         col = variant or '#e0503a'

@@ -25,13 +25,8 @@ async function poachersLeave(S) {
   if (!bothBeaten(S) || S.flag('r3_poachers_fled')) { return; }
   await S.say('Sloane', 'Two of us, and we STILL lost to a kid?!');
   await S.say('Bram', "Forget the puddle, Sloane. The Mother has bigger fish to fry. Run!");
-  const p = S.w.player;
-  // each walks away from the player along the beach, then they're gone for good
-  await Promise.all(POACHERS.map((id) => {
-    const a = S.actor(id);
-    if (!a || a.hidden) { return null; }
-    return S.move(id, `${a.tx >= p.tx ? 'r' : 'l'}5`, 110);
-  }));
+  // they run off down the beach, then they're gone for good
+  await Promise.all(POACHERS.map((id) => S.leave(id, { ms: 110 })));
   S.set('r3_poachers_fled');
   await S.say(null, 'The Deepcall acolytes ran off down the beach!');
 }

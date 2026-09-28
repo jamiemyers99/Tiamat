@@ -8,7 +8,9 @@
 | UI atlas, window skins, fonts (`ui/`, `fonts/`) | `tools/art/build_ui.py`, `font.py` | `npm run art` |
 | Battle backgrounds (`battle/`) | `tools/art/build_battlebg.py` | `npm run art` |
 | Reach Map (`ui/regionmap.png`) | `tools/art/build_regionmap.py` | `npm run art` |
-| Music: rootmere, route, haven, house, battle_wild, battle_trial; all SFX | Original project audio pack (converted from WAV to OGG) | — |
-| All other music and jingles | `tools/audio/songs.py` (chiptune synth in `tools/audio/synth.py`) | `npm run music` |
+| All music and jingles (`audio/bgm`, `audio/sfx/jingle_*`) | Hand-written melodies and chord charts in `tools/audio/score.py`, arranged by `tools/audio/compose.py`, played through FluidSynth with the FluidR3_GM soundfont and mastered by `tools/audio/render.py` | `npm run music` |
+| Menu, world and battle sounds (`cursor`, `select`, `door`, `spotted`, `hit`, `ui_*`…) | `tools/audio/ui_sfx.py` (FluidR3_GM instruments + synthesised foley) | `npm run sfx` |
+| Move sounds (`mv_*`, `sig_*`) | Synthesised in `tools/audio/sfx.py` | `npm run sfx` |
 
-Everything is original and owned by the project. No attribution to third parties is required.
+The music, melodies and sound design are original to the project. The instrument samples come from the
+**FluidR3_GM** General MIDI soundfont by Frank Wen (MIT licence) — see CREDITS.md.

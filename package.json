@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "maps": "python3 tools/worldgen.py && python3 tools/art/build_maps.py",
     "art": "python3 tools/art/build_all.py",
-    "music": "python3 tools/audio/songs.py",
+    "music": "python3 tools/audio/render.py",
+    "sfx": "python3 tools/audio/ui_sfx.py && python3 tools/audio/sfx.py",
     "test": "node --test tests/*.test.mjs",
     "validate": "node tools/validate.mjs",
     "balance": "node tools/balance-sim.mjs"

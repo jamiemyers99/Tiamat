@@ -63,7 +63,7 @@ export class TitleScene extends Phaser.Scene {
     } else {
       txt(this, 6, GAME_H - 10, 'An original game. Arrow keys / WASD to move.', { face: 'small', color: 'gray' });
     }
-    audio.playMusic(this.cache.audio.exists('bgm_title') ? 'bgm_title' : 'bgm_rootmere', { restart: true });
+    audio.playMusic(audio.has('bgm_title') ? 'bgm_title' : 'bgm_rootmere', { restart: true });
     this.state = 'press';
     this.cameras.main.fadeIn(600);
   }

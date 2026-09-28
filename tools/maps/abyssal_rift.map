@@ -73,10 +73,10 @@ prop 16 32 crystal
 prop 24 32 crystal
 prop 6 30 crystal
 prop 34 30 crystal
-npc 20 9 id=ar_acolyte_1 sprite=acolyte face=down move=still trainer=ar_acolyte_1 sight=2
+npc 20 9 id=ar_acolyte_1 sprite=acolyte face=down move=still trainer=ar_acolyte_1 sight=4
 npc 6 24 id=ar_acolyte_2 sprite=acolyte_b face=down move=still trainer=ar_acolyte_2 sight=4
 npc 34 24 id=ar_acolyte_3 sprite=acolyte face=down move=still trainer=ar_acolyte_3 sight=4
-npc 20 38 id=ar_ace sprite=ace_b face=down move=still trainer=ar_ace sight=3
+npc 20 38 id=ar_ace sprite=ace_b face=down move=still trainer=ar_ace sight=4
 item 9 20 item=full_tonic qty=1 flag=item_abyssal_rift_9_20
 item 31 13 item=apex_capsule qty=2 flag=item_abyssal_rift_31_13
 item 5 31 item=panacea qty=1 flag=item_abyssal_rift_5_31

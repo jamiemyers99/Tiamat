@@ -37,6 +37,7 @@ export class EvolutionScene extends Phaser.Scene {
     const spr = this.add.image(GAME_W / 2, 160, 'mons', oldF).setOrigin(0.5, 1).setScale(1.3);
     this.msgBg = panel(this, 8, GAME_H - 62, GAME_W - 16, 56, 'dark');
     this.lines = [0, 1, 2].map((i) => txt(this, 22, GAME_H - 52 + i * 14, ''));
+    const resumeKey = audio.musicKey;   // put the music back afterwards (the menu has nothing else to do it)
     audio.stopMusic(200);
     const name = monName(mon);
     await this.say(`What? ${name} is evolving!`);
@@ -79,6 +80,7 @@ export class EvolutionScene extends Phaser.Scene {
       for (const mv of pending) { await this.learn(mon, mv); }
     }
     input.pop(this.owner);
+    if (resumeKey && !audio.musicKey) { audio.playMusic(resumeKey, { fade: 600 }); }
     this.cfg.onDone && this.cfg.onDone(!cancelled);
     this.scene.stop();
   }

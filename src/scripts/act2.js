@@ -1,5 +1,5 @@
 // Act II — Salt and Iron: Thornwild, Saltreach, the Coldforge Mines and Gearhollow.
-import { rivalBattle, bossBattle } from './common.js';
+import { rivalBattle, bossBattle, adeptsCleared } from './common.js';
 
 function starter(S) { return S.var('starter', 'spriglet'); }
 
@@ -34,8 +34,7 @@ export default {
     await rivalBattle(S, `rival2_${starter(S)}`);
     await S.say('Wren', "Okay. Okay! You're good. I'm heading to Saltreach — Grandma's got an old friend there. Don't follow me!");
     await S.say('Wren', "...Actually the road only goes one way, so I guess you have to. Whatever. See you!");
-    await S.move('tw_wren', 'd3', 120);
-    S.hide('tw_wren');
+    await S.leave('tw_wren', { ms: 120 });
   },
 
   // ── Saltreach ───────────────────────────────────────────────────────────
@@ -51,8 +50,8 @@ export default {
     await S.say('Old Sailor', "Ha! Look at 'em run! They've been trying to charter my boats all week. For the Riven, they said. Nobody sails to the Riven.");
     await S.say('Brann', "Name's Brann. Captain of Saltreach, keeper of the Tide Seal — and Warden of the Tide Trial.");
     await S.say('Brann', "You've got guts, {PLAYER}. Come find me at the Trial Hall. Let's see if you've got sea-legs to match.");
+    await S.leave('st_brann');
     S.set('docks_done');
-    await S.fadeOut(250); S.hide('st_brann'); await S.fadeIn(250);
   },
   'saltreach.eastguard': async (S) => {
     await S.say('Sailor', "Captain's orders — nobody takes the Gullcliff Road without a Tide Sigil. Rockfalls, robed folk... it's no place for beginners.");
@@ -84,6 +83,7 @@ export default {
       await S.say('Brann', "Why? Nobody's asked me that in forty years. Iskra in Gearhollow might know — she reads everything.");
       return;
     }
+    if (!(await adeptsCleared(S, 'Brann'))) { return; }
     await S.say('Brann', "Ha! The kid who cleared my pier! The sea tests everyone, {PLAYER}. Let's see if you float!");
     const r = await S.battle('brann');
     if (r !== 'win') { return; }
@@ -111,10 +111,9 @@ export default {
     const r = await bossBattle(S, 'vesk1');
     if (r !== 'win') { return; }
     await S.say('Vesk', "Tch. Fine! Keep your precious rocks. We've got what we came for anyway.");
-    await S.fadeOut(300);
+    // Vesk and the whole dig crew clear out
+    await Promise.all(['cf_vesk', 'cf_digger', 'cf_acolyte_1', 'cf_acolyte_2'].map((id) => S.leave(id, { ms: 115 })));
     S.set('vesk1_done');
-    S.refresh();
-    await S.fadeIn(300);
     await S.say(null, 'Vesk fled — and dropped something in the dust.');
     await S.give('forge_pass');
     await S.say(null, 'A pass for the Gearhollow Ironworks, stamped with a wave. What would the Deepcall want in the Ironworks?');
@@ -154,8 +153,8 @@ export default {
     await S.say('Iskra', "I'm Iskra — chief engineer, Warden of the Spark Seal, and owner of a very dented crane. Thank you, {PLAYER}.");
     await S.say('Iskra', "They were after the scale-iron Vesk dug out of Coldforge. Something about building a 'cradle-song'. I don't like it.");
     await S.say('Iskra', "Right! Come to the Spark Trial. I've been dying for a proper challenger all week.");
+    await Promise.all([S.leave('iw_iskra'), S.leave('iw_boss', { ms: 110 })]);
     S.set('ironworks_done');
-    await S.fadeOut(250); S.refresh(); await S.fadeIn(250);
   },
   'ironworks.worker': async (S) => {
     if (S.flag('ironworks_done')) { await S.say('Engineer', "Look at this mess. It'll take a month to fix the crane. Still — better than it being at the bottom of the Riven."); return; }
@@ -167,6 +166,7 @@ export default {
       await S.say('Iskra', "Which is funny, because that's exactly what the Trials make you do. Gather them. Hm. Morrow in Hollowmere knows the old stories.");
       return;
     }
+    if (!(await adeptsCleared(S, 'Iskra'))) { return; }
     await S.say('Iskra', "You saved my Ironworks. Now let's see if you can survive my Trial. I tuned everyone up this morning!");
     const r = await S.battle('iskra');
     if (r !== 'win') { return; }
@@ -190,7 +190,6 @@ export default {
     await rivalBattle(S, `rival3_${starter(S)}`);
     await S.say('Wren', "...Fine. You win. You always win.");
     await S.say('Wren', "There's someone I want to talk to. Someone who might actually give me answers. Don't wait up.");
-    await S.move('gh_wren', 'd4');
-    S.hide('gh_wren');
+    await S.leave('gh_wren', { ms: 160 });
   },
 };

@@ -77,10 +77,10 @@ prop 20 19 stone
 prop 24 22 stone script=route4.circle
 prop 18 51 sign text="ROUTE 4 · MOORWIND WAY|South: Gearhollow   North: Hollowmere"
 prop 18 2 sign text="HOLLOWMERE|Mind the fog."
-npc 14 34 id=r4_mystic sprite=mystic face=left move=still trainer=r4_mystic sight=3
-npc 26 38 id=r4_ranger sprite=ranger face=left move=still trainer=r4_ranger sight=2
-npc 12 22 id=r4_scholar sprite=scholar face=left move=still trainer=r4_scholar sight=2
-npc 20 7 id=r4_hiker sprite=hiker face=left move=still trainer=r4_hiker sight=3
+npc 14 34 id=r4_mystic sprite=mystic face=left move=still trainer=r4_mystic sight=4
+npc 26 38 id=r4_ranger sprite=ranger face=left move=still trainer=r4_ranger sight=4
+npc 12 22 id=r4_scholar sprite=scholar face=left move=still trainer=r4_scholar sight=4
+npc 20 7 id=r4_hiker sprite=hiker face=left move=still trainer=r4_hiker sight=4
 npc 6 28 id=r4_lady sprite=lady face=right move=still trainer=r4_lady sight=4
 item 24 21 item=td10 qty=1 flag=item_route4_24_21
 item 5 5 item=dusk_capsule qty=2 flag=item_route4_5_5

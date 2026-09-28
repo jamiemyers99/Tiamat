@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { GAME_W, GAME_H } from '../config.js';
 import { txt } from '../ui/text.js';
+import { audio } from '../core/audio.js';
 
 export class PreloadScene extends Phaser.Scene {
   constructor() { super('Preload'); }
@@ -27,13 +28,15 @@ export class PreloadScene extends Phaser.Scene {
     }
     this.load.image('regionmap', 'assets/ui/regionmap.png');
     const audioIdx = this.cache.json.get('audioIndex') || { bgm: [], sfx: [] };
-    for (const k of audioIdx.bgm) { this.load.audio(`bgm_${k}`, `assets/audio/bgm/${k}.ogg`); }
+    // music streams in later (audio.js): only the opening track is needed before the title screen
+    if (audioIdx.bgm.includes('title')) { this.load.audio('bgm_title', 'assets/audio/bgm/title.ogg'); }
     for (const k of audioIdx.sfx) { this.load.audio(k, `assets/audio/sfx/${k}.ogg`); }
     this.load.on('loaderror', (f) => console.warn('[preload] failed', f.key));
   }
 
   create() {
     this.scene.launch('UI');
+    audio.startStreaming(this.cache.json.get('audioIndex'));
     const params = new URLSearchParams(location.search);
     if (params.has('map')) {
       this.scene.start('World', { debugMap: params.get('map'), x: +params.get('x') || null, y: +params.get('y') || null });
