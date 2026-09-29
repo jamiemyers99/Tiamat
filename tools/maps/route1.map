@@ -10,52 +10,52 @@ north: brindlewood 2
 layout:
 TTTTTTTTTTTTTTTT::TTTTTTTTTTTTTTTT
 TTTTTTTTTTTTTTTT::TTTTTTTTTTTTTTTT
-TTTTTTTTTTTTTT..::............TTTT
-TTTTTTTTTTTTTT..::..GGGGGGGGGGTTTT
-TTTT......TTTT..::..GGGGGGGGGGTTTT
-TTTT......TTTT..::..GGGGGGGGGGTTTT
-TTTT......TTTT..::..GGGGGGGGGGTTTT
-TTTT......TTTT..::..GGGGGGGGGGTTTT
-TTTT........TT..::..GGGGGGGGGGTTTT
-TTTT........TT..::..GGGGGGGGGGTTTT
-TT...........F..::............TTTT
-TT..........F...::.........F..TTTT
-TT..............::::::::........TT
-TT..............::::::::........TT
-TTTT..................::..TTTTTTTT
-TTTT..................::F.TTTTTTTT
-TTTTGGGGGGGGGGTTTTTT..::..TTTTTTTT
-TTTTGGGGGGGGGGTTTTTT..::..TTTTTTTT
-TTTTGGGGGGGGGGTTTTTT..::.FTTTTTTTT
-TTTTGGGGGGGGGGTTTTTT..::..TTTTTTTT
-TTTTGGGGGGGGGGTTTTTT..::..TTTTTTTT
-TTTTGGGGGGGGGGTTTTTT..::F.TTTTTTTT
-TTTTGGGGGGGGGG........::..TTTTTTTT
-TTTT...........F..F...::..TTTTTTTT
-TT..q.................::........TT
-TT....................::........TT
-TT......::::::::::::::::........TT
-TT......:::::::::::::::.........TT
-TTTTTTTT::..TTTT..............TTTT
-TTTTTTTT::..TTTT..GGGGGGGGGGGGTTTT
-TTTTTTTT::..TTTT..GGGGGGGGGGGGTTTT
-TTTTTTTT::..TTTT..GGGGGGGGGGGGTTTT
-TTTTTTTT::........GGGGGGGGGGGGTTTT
-TTTTTTTT::........GGGGGGGGGGGGTTTT
-TT....bb::vvvvvvvvvvvvvvvvvvvvvvTT
-TT......::......................TT
-TT......::........TTTT..........TT
-TT......::........TTTT..........TT
-TT......::........b..b..........TT
-TT......::......................TT
-TT......::::::::::......ssssss..TT
-TT......::::::::::.....ss~~~~ss.TT
-TT..............::.....s~~~~~~sFTT
-TT........GGGGGG::.....s~~~~~~s.TT
-TTTTTTTTTTGGGGGG::..F..ss~~~~ss.TT
-TTTTTTTTTTGGGGGG::...F..ssssss..TT
-TTTTTTTTTTGGGGGG::..F.........F.TT
-TTTTTTTTTTGGGGGG::..............TT
+TTGGGGGGGG......::..........TTTTTT
+TTGGGGGGGG......:::::::::::.TTTTTT
+TTGGGGGGGG......:::::::::::.TTTTTT
+TTGGGGGGGG............F..::.TTTTTT
+TT............TTTTTTTTTT.::.TTTTTT
+TT..........F.TTTTTTTTTT.::.TTTTTT
+TT............TTTTTTTTTT.::.TTTTTT
+TT............TTTTTTTTTT.::.TTTTTT
+TTTTTTTTTTTTTTTTTTTTTTTT.::.TTTTTT
+TTTTTTTTTTTTTTTTTTTTTTTT.::.TTTTTT
+TTTTTTTTTTTTTTTTTTTTTTTT.::.TTTTTT
+TTTTTTTTTTTTTTTTTTTTTTTT.::.TTTTTT
+TTTTTT...................:F.TTTTTT
+TTTTTT.::::::::::::::::::::.TTTTTT
+TTTTTT.::::::::::::::::::::.TTTTTT
+TTTTTT.::..................FTTTTTT
+TTTTTT.::.TTTTTTTTTT..........TTTT
+TTTTTT.::FTTTTTTTTTT..........TTTT
+TTTTTT.::.TTTTTTTTTTGGGGGGGGGGTTTT
+TTTTTT.::.TTTTTTTTTTGGGGGGGGGGTTTT
+TTTTTT.::.TTTTTTTTTTGGGGGGGGGGTTTT
+TTTTTT.::.TTTTTTTTTTGGGGGGGGGGTTTT
+TTTTq..::.TTTTTTTTTTGGGGGGGGGGTTTT
+TTTT...::.TTTTTTTTTTGGGGGGGGGGTTTT
+TTTTTT.::.TTTTTTTTTT....TTTTTTTTTT
+TTTTTT.::.TTTTTTTTTT....TTTTTTTTTT
+TTTTTTF::.TTTTTTTTTT....TTTTTTTTTT
+TTTTTT.::.TTTTTTTTTT....TTTTTTTTTT
+TTTTTT.::.........TT....TTTTTTTTTT
+TTTTTT.:::::::::::TT....TTTTTTTTTT
+TTTTTT.:::::::::::TT....TTTTTTTTTT
+TTTTTT.........F::TT....TTTTTTTTTT
+TT....TTTTTTTT..::TT....TTTTTTTTTT
+TT....TTTTTTTT..::TT....TTTTTTTTTT
+TT....TTTTTTTT..::TT....TTTTTTTTTT
+TT....TTTTTTTT..::TT....TTTTTTTTTT
+TT....TTTTTTTT..::TTvvvvTTTTTTTTTT
+TTb...TTTTTTTT..::TT....TTTTTTTTTT
+TTTT............::......ssssss.bTT
+TTTT.........F..::.....ss~~~~ss.TT
+TTTTGGGGGGGG....::.....s~~~~~~s.TT
+TTTTGGGGGGGG....::.....s~~~~~~s.TT
+TTTTGGGGGGGG....::..F..ss~~~~ss.TT
+TTTTGGGGGGGG....::......ssssss..TT
+TTTTGGGGGGGG....::...F..........TT
+TTTTGGGGGGGG....::............F.TT
 TTTTTTTTTTTTTTTT::TTTTTTTTTTTTTTTT
 TTTTTTTTTTTTTTTT::TTTTTTTTTTTTTTTT
 end
@@ -63,15 +63,15 @@ end
 objects:
 prop 15 46 sign text="ROUTE 1 · MOSSWAY|North: Brindlewood   South: Rootmere"
 prop 18 2 sign text="BRINDLEWOOD|Home of the Moss Trial."
-npc 11 36 id=r1_ollie sprite=kid face=left move=still trainer=r1_ollie sight=4
-npc 14 23 id=r1_dana sprite=lass face=down move=still trainer=r1_dana sight=4
-npc 19 6 id=r1_theo sprite=youth face=left move=still trainer=r1_theo sight=4
-npc 27 31 id=r1_nell sprite=kid_b face=left move=still trainer=r1_nell sight=4
-npc 12 24 id=r1_aide sprite=assistant face=down move=still script=route1.aide
+npc 14 36 id=r1_ollie sprite=kid face=right move=still trainer=r1_ollie sight=4
+npc 10 30 id=r1_dana sprite=lass face=down move=still trainer=r1_dana sight=4
+npc 18 17 id=r1_nell sprite=kid_b face=up move=still trainer=r1_nell sight=4
+npc 24 8 id=r1_theo sprite=youth face=right move=still trainer=r1_theo sight=4
+npc 12 14 id=r1_aide sprite=assistant face=down move=still script=route1.aide
 item 3 37 item=capsule qty=2 flag=item_route1_3_37
-item 24 19 item=tonic qty=1 flag=item_route1_24_19
-item 5 5 item=ward_incense qty=1 flag=item_route1_5_5
+item 28 19 item=tonic qty=1 flag=item_route1_28_19
+item 5 8 item=ward_incense qty=1 flag=item_route1_5_8
 item 29 46 item=capsule qty=1 flag=item_route1_29_46 hidden=1
-item 24 33 item=purge_herb qty=1 flag=item_route1_24_33
+item 23 30 item=purge_herb qty=1 flag=item_route1_23_30
 item 4 24 item=xp_share qty=1 flag=item_route1_4_24 hidden=1 in=bush
-item 21 38 item=tonic qty=2 flag=item_route1_21_38 hidden=1 in=bush
+item 31 40 item=tonic qty=2 flag=item_route1_31_40 hidden=1 in=bush

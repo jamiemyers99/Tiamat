@@ -228,6 +228,7 @@ export class Battle {
     await this.ui.capture(this, itemId, shakes, caught);
     if (caught) {
       this.caught = mon;
+      mon.capsule = itemId;   // remembered, so it's sent out from the same capsule later
       await this.ui.message(`Gotcha! ${sp.name} was caught!`);
       await this.awardXp(true);
       return 'caught';

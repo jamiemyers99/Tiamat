@@ -198,7 +198,7 @@ export class BattleScene extends Phaser.Scene {
     this.eHp = new Bar(this, 28, 33, 154, 5);
     e.add([this.eName, this.eSex, this.eLv, this.eCaught, ...this.eTypes, this.eStatus, txt(this, 10, 32, 'HP', { face: 'small', color: 'gold' })]);
     // like the classic ball row: one capsule per Morph the foe Tamer has (grey = fainted)
-    this.eTeam = [0, 1, 2, 3, 4, 5].map((k) => this.add.image(6 + k * 11, 49, 'ui', 'item_ball').setOrigin(0, 0).setScale(0.625).setVisible(false));
+    this.eTeam = [0, 1, 2, 3, 4, 5].map((k) => this.add.image(7 + k * 10, 50, 'ui', 'party_pip').setOrigin(0, 0).setVisible(false));
     e.add(this.eTeam);
     this.eHp.addTo(e);
     this.ePanel = e;
@@ -369,7 +369,9 @@ export class BattleScene extends Phaser.Scene {
     } else {
       await this.message(first ? `Go, ${monName(m)}!` : `Your turn, ${monName(m)}!`, { quick: true });
       this.playerSpr.setFrame(monFrame(m, 'b')).setPosition(PP.x, PP.y).setAlpha(1).setScale(0.1).setVisible(true);
-      const cap = this.add.image(20, PP.y - 120, 'ui', 'throw_capsule').setDepth(45);
+      // each Morph comes out of the capsule it was caught in
+      const own = `throw_${m.capsule || 'capsule'}`;
+      const cap = this.add.image(20, PP.y - 120, 'ui', this.textures.get('ui').has(own) ? own : 'throw_capsule').setDepth(45);
       await this.tween({ targets: cap, x: PP.x, y: PP.y - 50, angle: 540, duration: 380, ease: 'Sine.easeOut' });
       cap.destroy();
       this._burst(PP.x, PP.y - 50, 'Plain', 16);
@@ -559,7 +561,8 @@ export class BattleScene extends Phaser.Scene {
 
   async capture(b, itemId, shakes, caught) {
     const frame = this.textures.get('ui').has(`throw_${itemId}`) ? `throw_${itemId}` : 'throw_capsule';
-    await this.message(`{PLAYER} threw a ${ITEMS[itemId].name}!`, { quick: true });
+    const nm = ITEMS[itemId].name;
+    await this.message(`{PLAYER} threw ${/^[AEIOU]/i.test(nm) ? 'an' : 'a'} ${nm}!`, { quick: true });
     const cap = this.add.image(PP.x, PP.y - 60, 'ui', frame).setDepth(55).setScale(1.5);
     const tx = EP.x, ty = EP.y - 50;
     // arc

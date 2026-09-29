@@ -11,81 +11,81 @@ north: hollowmere 4
 layout:
 YYYYYYYYYYYYYYYY::YYYYYYYYYYYYYYYYYY
 YYYYYYYYYYYYYYYY::YYYYYYYYYYYYYYYYYY
-YY..............::................YY
-YY..............::................YY
-YY..GGGGGGGG....::..GGGGGGGGGGGG..YY
-YY..GGGGGGGG....::..GGGGGGGGGGoG..YY
-YY..GGGGGGGG....::..GGGGGGGGGGGG..YY
-YY..GGGGGGGG....::..GGGGGGGGGGGG..YY
-YY..GGGGGGGG....::..GGGGGGGGGGGG..YY
-YY..GGGGGGGG....::..GGGGGGGGGGGG..YY
-YY..............::..GGGGGGGGGGGG..YY
-YY..............::................YY
-YY.b.........o..::o.......YYYY....YY
-YY..............::....F...YYYY....YY
-YY...o........F.::........YYYYo...YY
-YY..............::........YYYY....YY
-YY........::::::::................YY
-YY........:::::::.................YY
-YY.GGGGGG.::......................YY
-YY.GGGGGG.::......................YY
-YY.GGGGGG.::YYYY......,,,,,.......YY
-YY.GGGGGG.::YYYY......,,,,,.......YY
-YY.GGGGGG.::YYYY......,,,,,.......YY
-YY.GGGGGG.::YYYY......,,,,,.......YY
-YY.GGGGGG.::YYYY......,,,,,.......YY
-YY.GGGGGG.::YYYY..................YY
-YY.GGGGGG.::......................YY
-YY.GGGGGG.::......................YY
-YY........::.................o....YY
-YY........::......................YY
-YYYYYYYY..::::::::::::::::......o.YY
-YYYYYYYY..::::::::::::::::........YY
-YYYYYYYY....GGGGGGGGGG..::........YY
-YYYYYYYY....GGGGGGGGGG..::........YY
-YY..........GGGGGGGGGG..::..ss....YY
-YY..........GGGGGGGGGG..::.s~~s...YY
-YY....b.....GGGGGGGGGG..::s~~~~s..YY
-YY..........GGGGGGGGGG..::.s~~s...YY
-YY......................::..ss....YY
-YY......................::........YY
-YYvvvvvFvvvvvvvvvvvvvv..::.o......YY
-YY......................::........YY
-YY..o..............F....::........YY
-YY......................::........YY
-YY..............::::::::::....F...YY
-YY..............:::::::::.........YY
-YY..GGGGGGGGGG..::..GGGGGGGGGGGG..YY
-YY..GGGGGGGGGG..::..GGGGGGGGGGGG..YY
-YY..GGGGGGGGGG..::..GGGGGGGGGGGG..YY
-YY..GGGGGGGGGG..::..GGGGGGGGGGGG..YY
-YY..GGGGGGGGGG..::..GGGGGGGGGGGG..YY
-YY..GGGGGGGGGG..::................YY
+YYGGGGGGGG....o.::.......F....YYYYYY
+YYGGGGGGGG......:::::::::::::.YYYYYY
+YYGGGGGGGG......:::::::::::::.YYYYYY
+YYGGGGGGGG.................::.YYYYYY
+YY..........YYYYYYYYYYYYYY.::.YYYYYY
+YY..........YYYYYYYYYYYYYY.::.YYYYYY
+YY..........YYYYYYYYYYYYYY.::.YYYYYY
+YY.....b....YYYYYYYYYYYYYY.::.YYYYYY
+YYYYYYYYYYYYYYYYYYYYYYYYYY.::.YYYYYY
+YYYYYYYYYYYYYYYYYYYYYYYYYY.::.YYYYYY
+YY.b......YYYYYYYYYYYYYYYY.::.YYYYYY
+YY........YYYYYYYYYYYYYYYY.::.YYYYYY
+YYGGGGGGGGYYYYYYYYYYYYYYYY.::.YYYYYY
+YYGGGGGGGGYYYYYYYYYYYYYYYY.::.YYYYYY
+YYGGGGGGGGYY...............::..oYYYY
+YYGGGGGGGGYY..F............::...YYYY
+YYGGGGGGGGYY...............::.GGYYYY
+YYGGGGGGGGYY...............::.GGYYYY
+YYGGGGFGGG........,,,,,....::.GGYYYY
+YYGGGGGGGG........,,,,,....::.GGYYYY
+YYGGGGGGGG........,,,,,....::.GGYYYY
+YYGGGGGGGG........,,,,,....::.GGYYYY
+YYGGGGGGGGYY......,,,,,....::.GGYYYY
+YYGGGGGGGGYY...............::.GGYYYY
+YY........YY...............::.F.YYYY
+YY........YYo..............::...YYYY
+YY....YYYYYYYYYYYYYYYYYYYY.::.YYYYYY
+YY....YYYYYYYYYYYYYYYYYYYY.::.YYYYYY
+YY..F.YYYYYYYYYYYYYYYYYYYY.::.YYYYYY
+YY....YYYYYYYYYYYYYYYYYYYY.::.YYYYYY
+YY....YYYYYYYYYYYYYYYYYYYY.::.YYYYYY
+YYo...YYYYYYYYYYYYYYYYYYYY.::.YYYYYY
+YY....YYYYYYYY.............::.YYYYYY
+YY....YYYYYYYY..:::::::::::::.YYYYYY
+YY....YYYYYYYY..:::::::::::::.YYYYYY
+YY....YYYYYYYY..::...........oYYYYYY
+YY....YYYYYYYY..::YYYYYYYYYYYYYYYYYY
+YY....YYYYYYYY..::YYYYYYYYYYYYYYYYYY
+YY....YYYYYYYY..::YYYYYYYYYYYYYYYYYY
+YY....YYYYYYYY..::YYYYYYYYYYYYYYYYYY
+YY....YYYYYYYY..::YYYYYYYYYYYYYYYYYY
+YY....YYYYYYYY..::YYYYYYYYYYYYYYYYYY
+YYvvvvYYYYYYYY..::YYYYYYYYYYYYYYYYYY
+YY....YYYYYYYY..::YYYYYYYYYYYYYYYYYY
+YYYYGGGGGGGG.b..::........ss......YY
+YYYYGGGGGGGG....::.......s~~s.....YY
+YYYYGGGGFGGG....::......s~~~~s....YY
+YYYYGGGGGGGG....::.......s~~s.....YY
+YYYYGGGGGGGG....::....F...ss......YY
+YYYYGGGGGGGG....::..............o.YY
 YYYYYYYYYYYYYYYY::YYYYYYYYYYYYYYYYYY
 YYYYYYYYYYYYYYYY::YYYYYYYYYYYYYYYYYY
 end
 
 objects:
-prop 24 18 stone
-prop 28 19 stone
-prop 30 22 stone
-prop 28 25 stone
-prop 24 26 stone
-prop 20 25 stone
-prop 18 22 stone
-prop 20 19 stone
-prop 24 22 stone script=route4.circle
+prop 20 18 stone
+prop 24 19 stone
+prop 26 22 stone
+prop 24 25 stone
+prop 20 26 stone
+prop 16 25 stone
+prop 14 22 stone
+prop 16 19 stone
+prop 20 22 stone script=route4.circle
 prop 18 51 sign text="ROUTE 4 · MOORWIND WAY|South: Gearhollow   North: Hollowmere"
 prop 18 2 sign text="HOLLOWMERE|Mind the fog."
-npc 14 34 id=r4_mystic sprite=mystic face=left move=still trainer=r4_mystic sight=4
-npc 26 38 id=r4_ranger sprite=ranger face=left move=still trainer=r4_ranger sight=4
-npc 12 22 id=r4_scholar sprite=scholar face=left move=still trainer=r4_scholar sight=4
-npc 20 7 id=r4_hiker sprite=hiker face=left move=still trainer=r4_hiker sight=4
-npc 6 28 id=r4_lady sprite=lady face=right move=still trainer=r4_lady sight=4
-item 24 21 item=td10 qty=1 flag=item_route4_24_21
+npc 14 41 id=r4_hiker sprite=hiker face=right move=still trainer=r4_hiker sight=4
+npc 21 34 id=r4_lady sprite=lady face=down move=still trainer=r4_lady sight=4
+npc 26 30 id=r4_mystic sprite=mystic face=right move=still trainer=r4_mystic sight=4
+npc 26 12 id=r4_scholar sprite=scholar face=right move=still trainer=r4_scholar sight=4
+npc 21 5 id=r4_ranger sprite=ranger face=up move=still trainer=r4_ranger sight=4
+item 20 20 item=td10 qty=1 flag=item_route4_20_20
 item 5 5 item=dusk_capsule qty=2 flag=item_route4_5_5
 item 31 48 item=strong_tonic qty=1 flag=item_route4_31_48
 item 28 36 item=star_shard qty=1 flag=item_route4_28_36 hidden=1
 item 3 20 item=clarity_leaf qty=1 flag=item_route4_3_20
 item 3 12 item=star_shard qty=1 flag=item_route4_3_12 hidden=1 in=bush
-item 27 40 item=focus_drop qty=1 flag=item_route4_27_40 hidden=1 in=rock
+item 29 37 item=focus_drop qty=1 flag=item_route4_29_37 hidden=1 in=rock

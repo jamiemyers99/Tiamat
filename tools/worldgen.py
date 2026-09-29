@@ -91,63 +91,48 @@ def marsh_lab():
 
 @reg
 def route1():
-    m = M('route1', 34, 50, name='Route 1 · Mossway', kind='route', base='grass', music='route', battle='meadow',
+    # A winding lane north from Rootmere. Every trainer stands where the lane is only a few steps wide and faces
+    # across it, so each one has to be battled on the way north. The ledge lane on the east side is the quick
+    # (one-way) way back home.
+    m = M('route1', 34, 50, fill='T', name='Route 1 · Mossway', kind='route', base='grass', music='route', battle='meadow',
           south='rootmere 0', north='brindlewood 2')
-    m.border(gaps=[('n', 16, 17), ('s', 16, 17)])
-    # winding path
-    m.path([(16, 49), (16, 40), (8, 40), (8, 26), (22, 26), (22, 12), (16, 12), (16, 0)], ':')
-    # south meadow
-    m.rect(10, 43, 15, 47, 'G')
-    m.grove(2, 44, 8, 4)
+    m.rect(16, 48, 17, 49, '.'); m.rect(16, 0, 17, 1, '.')     # ways in and out
+    m.rect(4, 40, 31, 47, '.')                                  # the south meadow
+    m.rect(2, 34, 5, 39, '.')                                   # west nook (off the meadow)
+    m.rect(14, 34, 17, 39, '.')                                 # the lane north (Ollie)
+    m.rect(20, 26, 23, 39, '.')                                 # ledge lane back down to the meadow
+    m.rect(6, 30, 17, 33, '.')                                  # the bend (Dana)
+    m.rect(6, 18, 9, 29, '.')                                   # the long lane
+    m.rect(4, 24, 5, 25, '.')                                   # a little notch with a berry bush
+    m.rect(6, 14, 27, 17, '.')                                  # the crossing (Nell)
+    m.rect(20, 18, 29, 25, '.')                                 # east meadow
+    m.rect(24, 6, 27, 13, '.')                                  # the climb north (Theo)
+    m.rect(14, 2, 27, 5, '.'); m.rect(2, 2, 13, 9, '.')         # the top path and the north-west glade
+    m.path([(16, 49), (16, 31), (7, 31), (7, 15), (25, 15), (25, 3), (16, 3), (16, 0)], ':')
+    m.put(26, 16, ':')
+    m.rect(4, 42, 11, 47, 'G'); m.rect(20, 20, 29, 25, 'G'); m.rect(2, 2, 9, 5, 'G')
     m.stamp(22, 40, ['  ssssss  ',
                      ' ss~~~~ss ',
                      ' s~~~~~~s ',
                      ' s~~~~~~s ',
                      ' ss~~~~ss ',
                      '  ssssss  '])
-    m.scatter([(20, 44), (21, 45), (20, 46), (31, 42), (30, 46)], 'F')
-    m.grove(18, 36, 4, 2)
-    m.put(18, 38, 'b'); m.put(21, 38, 'b')
-    # west nook with an item, behind trees
-    m.grove(2, 28, 6, 6)
-    m.rect(2, 34, 7, 39, '.')
-    m.put(6, 34, 'b'); m.put(7, 34, 'b')
-    m.rect(10, 35, 13, 39, '.')
-    # east grass above a ledge you can hop back down
-    m.rect(18, 29, 29, 33, 'G')
-    m.hline(34, 10, 31, 'v')
-    m.rect(10, 29, 15, 33, '.')
-    m.grove(12, 28, 4, 4)
-    m.grove(30, 28, 2, 6)
-    # middle
-    m.rect(4, 16, 13, 22, 'G')
-    m.grove(14, 16, 6, 6)
-    m.grove(2, 14, 2, 10)
-    m.grove(26, 14, 6, 10)
-    m.scatter([(24, 15), (25, 18), (24, 21), (15, 23), (18, 23)], 'F')
-    m.put(4, 24, 'q')
-    # north
-    m.rect(20, 3, 29, 9, 'G')
-    m.grove(2, 2, 12, 8)
-    m.rect(4, 4, 9, 7, '.')
-    m.rect(4, 8, 9, 9, '.')
-    m.rect(10, 8, 11, 9, '.')
-    m.grove(30, 2, 2, 10)
-    m.rect(19, 10, 21, 11, '.')
-    m.scatter([(12, 11), (13, 10), (27, 11)], 'F')
+    m.hline(38, 20, 23, 'v')                                    # hop down, never back up
+    m.put(4, 24, 'q'); m.put(31, 40, 'b'); m.put(2, 39, 'b')
+    m.scatter([(20, 44), (21, 46), (13, 41), (30, 47), (9, 19), (6, 28), (15, 33), (26, 14), (12, 7), (22, 5), (27, 17)], 'F')
     # objects
     m.sign(15, 46, 'ROUTE 1 · MOSSWAY|North: Brindlewood   South: Rootmere')
     m.sign(18, 2, 'BRINDLEWOOD|Home of the Moss Trial.')
-    m.trainer(11, 36, 'r1_ollie', 'kid', face='left', sight=4)
-    m.trainer(14, 23, 'r1_dana', 'lass', face='down', sight=4)
-    m.trainer(19, 6, 'r1_theo', 'youth', face='left', sight=4)
-    m.trainer(27, 31, 'r1_nell', 'kid_b', face='left', sight=4)
-    m.npc(12, 24, 'r1_aide', 'assistant', face='down', script='route1.aide')
+    m.trainer(14, 36, 'r1_ollie', 'kid', face='right', sight=4)
+    m.trainer(10, 30, 'r1_dana', 'lass', face='down', sight=4)
+    m.trainer(18, 17, 'r1_nell', 'kid_b', face='up', sight=4)
+    m.trainer(24, 8, 'r1_theo', 'youth', face='right', sight=4)
+    m.npc(12, 14, 'r1_aide', 'assistant', face='down', script='route1.aide')
     m.item(3, 37, 'capsule', 2)
-    m.item(24, 19, 'tonic')
-    m.item(5, 5, 'ward_incense')
+    m.item(28, 19, 'tonic')
+    m.item(5, 8, 'ward_incense')
     m.item(29, 46, 'capsule', hidden=True)
-    m.item(24, 33, 'purge_herb')
+    m.item(23, 30, 'purge_herb')
     return m
 
 
@@ -269,39 +254,38 @@ def route2():
 
 @reg
 def thornwild():
+    # Thornwild: one trail from Route 2 (west) down to Saltreach (south), through the old shrine. The trail
+    # narrows wherever a trainer waits, and each one faces across it; the glades off the trail are dead ends.
+    # The Deepcall acolytes at the shrine still hold the south road until both are beaten (story).
     m = M('thornwild', 44, 40, name='Thornwild', kind='route', base='forest', music='forest', battle='forest',
           west='route2 0', south='saltreach 0', fill='K')
-    # carve the forest
     def c(x0, y0, x1, y1, ch='.'):
         m.rect(x0, y0, x1, y1, ch)
-    c(0, 10, 15, 11, ':')                                   # entry trail
-    c(4, 4, 15, 9); c(4, 12, 11, 17, 'G')
-    c(14, 10, 15, 25, ':')
-    c(16, 4, 27, 7); c(18, 4, 25, 5, 'G')                  # north glade
-    c(16, 6, 17, 9, ':')
-    c(16, 18, 21, 23, 'G')
-    c(14, 24, 31, 25, ':')
-    c(28, 4, 39, 13); c(30, 6, 37, 11, 'G')               # north-east grove (Pip)
-    c(28, 14, 29, 23, ':')
-    # the shrine clearing
-    c(20, 26, 35, 33)
-    c(30, 26, 31, 39, ':')
-    c(4, 26, 13, 35); c(6, 28, 11, 33, 'G')                # south-west glade
-    c(12, 30, 19, 31, ':')
-    c(36, 16, 41, 27); c(36, 18, 41, 23, 'G')             # east pocket
-    c(30, 20, 35, 21, ':')
-    m.scatter([(21, 27), (34, 27), (21, 32), (34, 32)], 'F')
+    c(0, 10, 1, 11)                                         # from Route 2
+    c(2, 8, 27, 11)                                         # the entry trail (Rook)
+    c(4, 2, 13, 5); c(4, 6, 7, 7)                           # north-west glade
+    c(16, 4, 27, 7)                                         # north glade
+    c(28, 4, 39, 13)                                        # north-east grove (Pip)
+    c(12, 12, 15, 21)                                       # the trail south (Sable)
+    c(12, 22, 23, 25)                                       # the bend (Orla)
+    c(4, 26, 13, 35)                                        # south-west glade
+    c(20, 26, 35, 33)                                       # the shrine clearing
+    c(36, 24, 41, 31)                                       # east pocket
+    c(30, 34, 31, 39)                                       # south to Saltreach
+    m.path([(0, 10), (12, 10), (12, 23), (21, 23), (21, 29), (30, 29), (30, 39)], ':')
+    c(18, 4, 25, 5, 'G'); c(30, 6, 37, 11, 'G'); c(14, 12, 15, 21, 'G'); c(6, 28, 11, 33, 'G'); c(38, 26, 41, 31, 'G')
+    c(4, 2, 9, 3, 'G')
+    m.scatter([(20, 27), (34, 27), (21, 32), (34, 32), (17, 9), (26, 6), (9, 34), (37, 24)], 'F')
     m.obj('prop 23 28 stone'); m.obj('prop 32 28 stone'); m.obj('prop 23 31 stone'); m.obj('prop 32 31 stone')
     m.obj('prop 27 27 statue script=thornwild.shrine')
-    m.rect(26, 29, 29, 30, ':')
     m.rect(34, 8, 35, 8, 'q')
     m.put(38, 5, 'q')
     m.obj('sign 38 5 script=thornwild.pip')
-    m.sign(2, 12, 'THORNWILD|Stay on the trail. The trees remember.', walk=False)
-    m.trainer(8, 11, 'tw_bugs', 'kid', face='right', sight=4)
-    m.trainer(20, 22, 'tw_ranger', 'ranger', face='left', sight=4)
-    m.trainer(37, 17, 'tw_mystic', 'mystic', face='down', sight=4)
-    m.trainer(29, 26, 'tw_acolyte_1', 'acolyte', face='down', sight=4, hide='wren2_done', leave='1')
+    m.sign(3, 9, 'THORNWILD|Stay on the trail. The trees remember.', walk=False)
+    m.trainer(8, 8, 'tw_bugs', 'kid', face='down', sight=4)
+    m.trainer(15, 16, 'tw_ranger', 'ranger', face='left', sight=4)
+    m.trainer(18, 22, 'tw_mystic', 'mystic', face='down', sight=4)
+    m.trainer(29, 26, 'tw_acolyte_1', 'acolyte', face='down', sight=7, hide='wren2_done', leave='1')   # watches the whole clearing
     m.trainer(26, 33, 'tw_acolyte_2', 'acolyte_b', face='right', sight=4, hide='wren2_done', leave='1')
     m.npc(30, 38, 'tw_wren', 'wren', face='up', show='never')
     m.trigger(30, 35, 'thornwild.wren', w=2, once='wren2_done', cond='beat:tw_acolyte_1&beat:tw_acolyte_2')
@@ -626,33 +610,44 @@ def gearhollow_store():
 # ═══════════════════════════════════════════════════════════════════════════
 @reg
 def route4():
-    m = M('route4', 36, 54, name='Route 4 · Moorwind Way', kind='route', base='moor', music='moor', battle='moor',
+    # Moorwind Way: a single trail north through the fog, past the old stone circle. Every trainer stands where
+    # the trail narrows and faces across it. The west ledge lane is a one-way shortcut back to Gearhollow.
+    m = M('route4', 36, 54, fill='Y', name='Route 4 · Moorwind Way', kind='route', base='moor', music='moor', battle='moor',
           weather='fog', south='gearhollow 4', north='hollowmere 4')
-    m.border(ch='Y', gaps=[('n', 16, 17), ('s', 16, 17)])
-    m.path([(16, 53), (16, 44), (24, 44), (24, 30), (10, 30), (10, 16), (16, 16), (16, 0)], ':')
-    # stone circle
-    for (x, y) in [(24, 18), (28, 19), (30, 22), (28, 25), (24, 26), (20, 25), (18, 22), (20, 19)]:
+    m.rect(16, 52, 17, 53, '.'); m.rect(16, 0, 17, 1, '.')      # ways in and out
+    m.rect(4, 46, 33, 51, '.')                                   # the southern moor
+    m.rect(14, 38, 17, 45, '.')                                  # the first rise (Tor)
+    m.rect(14, 34, 29, 37, '.')                                  # the heath (Cordelia)
+    m.rect(26, 28, 29, 33, '.')                                  # up to the circle (Wynne)
+    m.rect(12, 16, 31, 27, '.')                                  # the stone circle
+    m.rect(10, 20, 11, 23, '.')                                  # a gap west to the heather
+    m.rect(2, 12, 9, 27, '.')                                    # the west heather
+    m.rect(2, 28, 5, 45, '.')                                    # ledge lane back down (one way)
+    m.rect(26, 6, 29, 15, '.')                                   # the northern climb (Pemberton)
+    m.rect(12, 2, 29, 5, '.')                                    # the ridge path (Hollis)
+    m.rect(2, 2, 11, 9, '.')                                     # the north-west hollow
+    m.path([(16, 53), (16, 35), (27, 35), (27, 3), (16, 3), (16, 0)], ':')
+    m.put(28, 36, ':')
+    # stone circle (centre stone carries the old inscription)
+    for (x, y) in [(20, 18), (24, 19), (26, 22), (24, 25), (20, 26), (16, 25), (14, 22), (16, 19)]:
         m.obj(f'prop {x} {y} stone')
-    m.obj('prop 24 22 stone script=route4.circle')
-    m.rect(22, 20, 26, 24, ',')
+    m.obj('prop 20 22 stone script=route4.circle')
+    m.rect(18, 20, 22, 24, ',')
     # grass
-    m.rect(4, 46, 13, 51, 'G'); m.rect(20, 46, 31, 50, 'G'); m.rect(12, 32, 21, 37, 'G')
-    m.rect(3, 18, 8, 27, 'G'); m.rect(20, 4, 31, 10, 'G'); m.rect(4, 4, 11, 9, 'G')
-    m.hline(40, 2, 21, 'v')
-    m.stamp(26, 34, ['  ss  ', ' s~~s ', 's~~~~s', ' s~~s ', '  ss  '])
-    for (x, y) in [(3, 12), (13, 12), (30, 14), (6, 36), (27, 40), (32, 30), (4, 42), (30, 5)]:
-        m.put(x, y, 'o' if (x + y) % 3 else 'b')
-    m.grove(26, 12, 4, 4, 'Y'); m.grove(12, 20, 4, 6, 'Y'); m.grove(2, 30, 6, 4, 'Y')
-    m.scatter([(14, 14), (22, 13), (7, 40), (19, 42), (30, 44)], 'F')
-    m.put(18, 12, 'o'); m.put(29, 28, 'o'); m.put(5, 14, 'o')
+    m.rect(4, 46, 11, 51, 'G'); m.rect(2, 14, 9, 25, 'G'); m.rect(2, 2, 9, 5, 'G'); m.rect(30, 18, 31, 25, 'G')
+    m.hline(44, 2, 5, 'v')
+    m.stamp(24, 46, ['  ss  ', ' s~~s ', 's~~~~s', ' s~~s ', '  ss  '])
+    for (x, y) in [(3, 12), (13, 46), (32, 51), (7, 9), (29, 37), (12, 27), (31, 16), (14, 2), (2, 33)]:
+        m.put(x, y, 'b' if (x, y) in [(3, 12), (13, 46), (7, 9)] else 'o')
+    m.scatter([(14, 17), (30, 26), (22, 50), (8, 48), (4, 30), (25, 2), (6, 20)], 'F')
     m.sign(18, 51, 'ROUTE 4 · MOORWIND WAY|South: Gearhollow   North: Hollowmere')
     m.sign(18, 2, 'HOLLOWMERE|Mind the fog.')
-    m.trainer(14, 34, 'r4_mystic', 'mystic', face='left', sight=4)
-    m.trainer(26, 38, 'r4_ranger', 'ranger', face='left', sight=4)
-    m.trainer(12, 22, 'r4_scholar', 'scholar', face='left', sight=4)
-    m.trainer(20, 7, 'r4_hiker', 'hiker', face='left', sight=4)
-    m.trainer(6, 28, 'r4_lady', 'lady', face='right', sight=4)
-    m.item(24, 21, 'td10')
+    m.trainer(14, 41, 'r4_hiker', 'hiker', face='right', sight=4)
+    m.trainer(21, 34, 'r4_lady', 'lady', face='down', sight=4)
+    m.trainer(26, 30, 'r4_mystic', 'mystic', face='right', sight=4)
+    m.trainer(26, 12, 'r4_scholar', 'scholar', face='right', sight=4)
+    m.trainer(21, 5, 'r4_ranger', 'ranger', face='up', sight=4)
+    m.item(20, 20, 'td10')
     m.item(5, 5, 'dusk_capsule', 2)
     m.item(31, 48, 'strong_tonic')
     m.item(28, 36, 'star_shard', hidden=True)
@@ -1064,15 +1059,15 @@ def spire_crown():
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Items hidden inside bushes, rocks and trees (Pokémon-style): face it and press A to search.
-# route1 (4, 24) is the berry bush just north of Rootmere's path — the early XP Share easter egg.
+# route1 (4, 24) is the berry bush in the little notch off the long lane — the early XP Share easter egg.
 HIDDEN_IN = {
-    'route1': [(4, 24, 'xp_share', 1, 'bush'), (21, 38, 'tonic', 2, 'bush')],
+    'route1': [(4, 24, 'xp_share', 1, 'bush'), (31, 40, 'tonic', 2, 'bush')],
     'rootmere': [(13, 4, 'tonic', 1, 'bush')],
     'route2': [(45, 14, 'capsule', 3, 'rock'), (31, 23, 'purge_herb', 2, 'bush')],
     'brindlewood': [(15, 23, 'wake_chime', 1, 'bush')],
-    'thornwild': [(38, 15, 'strong_tonic', 1, 'tree'), (35, 8, 'rekindle_seed', 1, 'bush')],
+    'thornwild': [(38, 14, 'strong_tonic', 1, 'tree'), (35, 8, 'rekindle_seed', 1, 'bush')],
     'route3': [(12, 10, 'prime_capsule', 2, 'rock')],
-    'route4': [(3, 12, 'star_shard', 1, 'bush'), (27, 40, 'focus_drop', 1, 'rock')],
+    'route4': [(3, 12, 'star_shard', 1, 'bush'), (29, 37, 'focus_drop', 1, 'rock')],
     'hollowmere': [(24, 28, 'pearl', 1, 'rock')],
     'route6': [(15, 21, 'grand_tonic', 1, 'tree'), (29, 21, 'growth_fruit', 1, 'rock')],
 }

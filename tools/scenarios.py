@@ -10,7 +10,7 @@ async def world(t, port):
     await t.shot('night')
 
 async def battle(t, port):
-    await t.p.goto(f'http://localhost:{port}/?map=route1&x=16&y=10&debug')
+    await t.p.goto(f'http://localhost:{port}/?map=route1&x=16&y=4&debug')
     await t.wait(2500)
     await t.js("""(() => { const T = window.__tiamat; T.G.state.party = [T.createMon('cindlet', 6), T.createMon('puddlet', 5)]; T.G.state.bag.capsule = 5; T.G.state.bag.tonic = 3; })()""")
     await t.js("void window.__tiamat.game.scene.getScene('World').S.wild('beakling', 4)")
@@ -164,7 +164,7 @@ async def tour(t, port):
     await t.wait(3000)
     await t.js("window.__tiamat.G.settings.textSpeed = 'instant'")
     for (m, x, y, clock) in [('brindlewood', 19, 18, 10), ('saltreach', 21, 14, 18), ('gearhollow', 20, 16, 13), ('frostspire', 18, 18, 11),
-                             ('riftgate', 20, 19, 21), ('route6', 30, 20, 12), ('thornwild', 27, 30, 15), ('abyssal_rift', 20, 8, 12), ('route4', 16, 30, 17)]:
+                             ('riftgate', 20, 19, 21), ('route6', 30, 20, 12), ('thornwild', 27, 30, 15), ('abyssal_rift', 20, 8, 12), ('route4', 27, 30, 17)]:
         await t.js(f"window.__tiamat.G.state.clock = {clock}*60")
         await t.js(f"{W}.transition('{m}', {x}, {y}, 'down')")
         await t.wait(2600)
@@ -334,7 +334,7 @@ async def forms(t, port):
     await t.p.goto(f'http://localhost:{port}/')
     await t.wait(2500)
     await t.js("""(() => { const T = window.__tiamat; const s = T.state.newState();
-      s.player.name = 'Jamie'; s.player.map = 'route1'; s.player.x = 16; s.player.y = 10;
+      s.player.name = 'Jamie'; s.player.map = 'route1'; s.player.x = 16; s.player.y = 4;
       const m = T.createMon('beakling', 8, { sex: 'm' }); delete m.nature;
       s.party = [T.createMon('cindlet', 12), m];
       s.index = { seen: ['beakling', 'cindlet'], caught: ['beakling', 'cindlet'] };
@@ -685,7 +685,7 @@ async def trialdbg(t, port):
 MUS = "(() => { const a = window.__tiamat.audio; return a.musicKey + ' | ' + [...a.allMusic].map((m) => m.key + (m.isPlaying ? ':on' : ':off') + ':' + m.volume.toFixed(2)).join(', '); })()"
 
 async def musicleak(t, port):
-    await t.p.goto(f'http://localhost:{port}/?map=route1&x=16&y=10&debug')
+    await t.p.goto(f'http://localhost:{port}/?map=route1&x=16&y=4&debug')
     await wait_for(t, f"window.__tiamat && {W}.player", 40000, 'world')
     await t.p.mouse.click(400, 300)   # user gesture: unlock audio
     await t.wait(1500)
@@ -709,7 +709,7 @@ async def audiocheck(t, port):
     await t.p.mouse.click(400, 300)
     await t.wait(1500)
     print('title:', await t.js(MUS))
-    await t.p.goto(f'http://localhost:{port}/?map=route1&x=16&y=10&debug')
+    await t.p.goto(f'http://localhost:{port}/?map=route1&x=16&y=4&debug')
     await wait_for(t, f"window.__tiamat && {W}.player", 40000, 'world')
     await t.p.mouse.click(400, 300)
     ok = await wait_for(t, "window.__tiamat.audio.music && window.__tiamat.audio.music.isPlaying", 20000, 'route music')
@@ -730,7 +730,7 @@ async def audiocheck(t, port):
 
 
 async def voldbg(t, port):
-    await t.p.goto(f'http://localhost:{port}/?map=route1&x=16&y=10&debug')
+    await t.p.goto(f'http://localhost:{port}/?map=route1&x=16&y=4&debug')
     await wait_for(t, f"window.__tiamat && {W}.player", 40000, 'world')
     await t.p.mouse.click(400, 300)
     for i in range(8):
@@ -951,3 +951,99 @@ async def lullaby(t, port):
     print('foe:', await t.js("(() => { const b = window.__tiamat.game.scene.getScene('Battle').battle; return [b.e.mon.status, b.e.mon.hp, b.p.mon.hp]; })()"))
     for i in range(10): await t.key('z', 60, 300)
     await t.shot('after')
+
+
+# ── walk a route start → goal along the shortest legal path; report which trainers stopped you ──
+async def walk_route(t, port, mid, start, goal, trainers, setup=''):
+    import trainer_gates as tg
+    await t.p.goto(f'http://localhost:{port}/?map={mid}&x={start[0]}&y={start[1]}&debug')
+    await wait_for(t, f"window.__tiamat && {W}.player", 40000, 'world')
+    await t.wait(800)
+    await t.js("""(() => { const T = window.__tiamat, G = T.G; G.settings.textSpeed = 'instant'; G.settings.battleAnims = false;
+      G.state.flags.got_starter = true; G.state.vars.starter = 'cindlet';
+      G.state.party = [T.createMon('cindreaver', 100, { moves: ['hydro_burst', 'grand_slam', 'riftbreaker', 'umbral_flare'] })];
+      G.state.party[0].moves.forEach((mv) => { mv.pp = 999; mv.max = 999; }); })()""")
+    if setup: await t.js(setup)
+    await t.js(AUTO)
+    keymap = {'up': 'ArrowUp', 'down': 'ArrowDown', 'left': 'ArrowLeft', 'right': 'ArrowRight'}
+    stops = []
+    for _ in range(400):
+        pos = await t.js(f"[{W}.mapView.id, {W}.player.tx, {W}.player.ty]")
+        if pos[0] != mid or (pos[1], pos[2]) == tuple(goal): break
+        steps = tg.route(mid, (pos[1], pos[2]), goal)
+        if not steps: print('no route from', pos); break
+        await t.key(keymap[steps[0]], 170, 40)
+        for _ in range(20):
+            if not await t.js(f"{W}.player.moving"): break
+            await t.wait(40)
+        if not await t.js(f"{W}.busy === 0 && window.__tiamat.input.top() === 'world'"):
+            before = await t.js("JSON.stringify(window.__tiamat.G.state.defeated)")
+            await t.wait(300)
+            if len(stops) < 3: await t.shot(f'{mid}_stopped_{len(stops)}')
+            await idle(t, 120000, 'event')
+            after = await t.js("JSON.stringify(window.__tiamat.G.state.defeated)")
+            import json as _j
+            new = [k for k in _j.loads(after) if k not in _j.loads(before)]
+            stops.append((','.join(new) or 'event', pos[1], pos[2]))
+            if len(stops) >= 3 and stops[-1] == stops[-2] == stops[-3]: print('stuck on a repeating event at', pos); break
+    print(mid, 'stopped by:', stops)
+    print(mid, 'reached:', await t.js(f"[{W}.mapView.id, {W}.player.tx, {W}.player.ty]"))
+    print(mid, 'beaten:', await t.js("(" + repr(trainers) + ").map(id => id + '=' + !!window.__tiamat.G.state.defeated[id]).join(' ')"))
+
+
+async def route1walk(t, port):
+    await walk_route(t, port, 'route1', (16, 48), (16, 0), ['r1_ollie', 'r1_dana', 'r1_nell', 'r1_theo'])
+
+
+async def route4walk(t, port):
+    await walk_route(t, port, 'route4', (16, 52), (16, 0), ['r4_hiker', 'r4_lady', 'r4_mystic', 'r4_scholar', 'r4_ranger'])
+
+
+async def thornwalk(t, port):
+    await walk_route(t, port, 'thornwild', (1, 10), (30, 39), ['tw_bugs', 'tw_ranger', 'tw_mystic', 'tw_acolyte_1', 'tw_acolyte_2', 'rival2_cindlet'])
+
+
+async def thorndbg(t, port):
+    await t.p.goto(f'http://localhost:{port}/?map=thornwild&x=0&y=10&debug')
+    await wait_for(t, f"window.__tiamat && {W}.player", 40000, 'world')
+    await t.wait(1500)
+    print(await t.js(f"{W}.npcs.map(n => n.def.id + '@' + n.actor.tx + ',' + n.actor.ty + ' ' + n.actor.face + ' active=' + n.active + ' tr=' + n.def.trainer + ' sight=' + n.def.sight).join(' | ')"))
+    print(await t.js(f"[{W}.player.tx, {W}.player.ty, {W}.busy, window.__tiamat.input.top()]"))
+
+
+# ── the new capsule art: ground item, Team menu icon, bag, foe pips, a throw, a send-out ──
+async def capsulelook(t, port):
+    B = "window.__tiamat.game.scene.getScene('Battle')"
+    await t.p.goto(f'http://localhost:{port}/?map=route1&x=22&y=32&debug')
+    await wait_for(t, f"window.__tiamat && {W}.player", 40000, 'world')
+    await t.wait(1200)
+    await t.js("""(() => { const T = window.__tiamat, G = T.G; G.settings.textSpeed = 'instant';
+      G.state.flags.got_starter = true; G.state.vars.starter = 'cindlet';
+      const a = T.createMon('cindreaver', 30); a.capsule = 'dusk_capsule';
+      G.state.party = [a, T.createMon('beakling', 20)];
+      Object.assign(G.state.bag, { capsule: 9, prime_capsule: 5, apex_capsule: 3, dusk_capsule: 4, swift_capsule: 2, covenant_capsule: 1 }); })()""")
+    await t.shot('ground_item')
+    await t.key('c', 60, 700); await t.shot('pause_menu')
+    await t.key('ArrowDown'); await t.key('z', 60, 600)
+    await t.key('ArrowRight', 60, 400); await t.shot('bag_capsules')
+    for _ in range(3): await t.key('ArrowDown', 60, 200)
+    await t.shot('bag_capsules_3')
+    await t.key('x', 60, 400); await t.key('x', 60, 600)
+    # a trainer battle: the foe's team pips, and our Morph coming out of its Dusk Capsule
+    await t.js(f"void {W}.S.battle('r1_nell')")
+    await t.wait(2600)
+    for i in range(3): await t.key('z', 60, 250)
+    await t.wait(150); await t.shot('send_out')
+    await t.wait(1500); await t.shot('foe_pips')
+    await t.p.goto(f'http://localhost:{port}/?map=route1&x=22&y=32&debug')
+    await wait_for(t, f"window.__tiamat && {W}.player", 40000, 'world')
+    await t.wait(900)
+    for cap in ['prime_capsule', 'apex_capsule', 'swift_capsule', 'covenant_capsule']:
+        await t.js("""(() => { const T = window.__tiamat, G = T.G; G.settings.textSpeed = 'instant'; G.state.party = [T.createMon('cindreaver', 30)]; })()""")
+        await t.js(f"void {W}.S.wild('beakling', 5)")
+        await t.wait(3200)
+        await t.js(f"void {B}.capture({B}.battle, '{cap}', 2, false)")
+        await t.wait(1250); await t.shot(f'throw_{cap}')
+        await t.p.goto(f'http://localhost:{port}/?map=route1&x=22&y=32&debug')
+        await wait_for(t, f"window.__tiamat && {W}.player", 40000, 'world')
+        await t.wait(900)

@@ -276,11 +276,10 @@ def furniture(name, variant=0):
         s = Spr(48, 26); oy = 8
         s.rect(1, oy - 4, 46, 12, '#e8ecf0'); s.rect(1, oy - 4, 46, 2, '#ffffff'); s.rect(1, oy + 7, 46, 2, '#9aa6b4')
         s.rect(3, oy + 9, 3, 7, METAL[1]); s.rect(42, oy + 9, 3, 7, METAL[1])
-        for i, c in enumerate(['#4caf50', '#ff7a3d', '#3d8bfd']):
+        from capsules import starter_ball
+        for i, c in enumerate(['#4caf50', '#ff7a3d', '#3d8bfd']):   # the three starters' capsules
             cx = 10 + i * 14
-            s.shaded_ellipse(cx, oy, 5, 5, ramp('#e8e8f0', 4, 0.15))
-            s.rect(cx - 5, oy - 1, 10, 1, '#3a3848'); s.shaded_ellipse(cx, oy - 3, 4.5, 2.4, ramp(c, 4, 0.15))
-            s.px(cx, oy, '#3a3848')
+            s.blit(starter_ball(c), cx - 5, oy - 7)
         s.outline(None, darken=0.3)
         return s, 0, oy, 3, 1
     if name == 'statue':

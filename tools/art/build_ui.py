@@ -7,6 +7,7 @@ from spr import Spr, C
 from pal import hx, ramp, shift
 import decor as D
 from buildings import icon, text_small, text_width
+import capsules as CAP
 
 TYPES = {
     'Plain': '#a8a29a', 'Nature': '#4caf50', 'Ember': '#ff7a3d', 'Tide': '#3d8bfd', 'Static': '#f5c542',
@@ -44,32 +45,6 @@ def save_atlas(frames, path, name):
     sheet.image().save(path, optimize=True)
     with open(path.replace('.png', '.json'), 'w') as f:
         json.dump({'frames': meta, 'meta': {'image': name, 'size': {'w': sheet.w, 'h': sheet.h}, 'scale': '1'}}, f)
-
-
-def capsule(col, band='#2a2838', size=10, open_=False):
-    s = Spr(size + 2, size + 2)
-    r = size / 2
-    top = ramp(col, 5, 0.15)
-    bot = ramp('#eeeef4', 5, 0.1)
-    c = r + 1
-    s.shaded_ellipse(c, c, r, r, bot)
-    ys = __import__('numpy').mgrid[0:s.h, 0:s.w]
-    m = s.shaded_ellipse(c, c, r, r, top)
-    # keep only the top half coloured
-    for y in range(s.h):
-        for x in range(s.w):
-            if y >= c and m[y, x]:
-                pass
-    s2 = Spr(s.w, s.h)
-    s2.shaded_ellipse(c, c, r, r, bot)
-    for y in range(s.h):
-        for x in range(s.w):
-            if y < c - 0.5 and m[y, x]:
-                s2.a[y, x] = s.a[y, x]
-    s2.hline(1, s.w - 2, int(c), band)
-    s2.px(int(c), int(c), '#ffffff'); s2.px(int(c) - 1, int(c), band); s2.px(int(c) + 1, int(c), band)
-    s2.outline('#1c1a28')
-    return s2
 
 
 def bottle(col):
@@ -117,7 +92,8 @@ def ui_frames():
     for k in range(3):
         F.append((f'grass_rustle_{k}', D.grass_rustle(k)))
         F.append((f'grass_rustle_e{k}', D.grass_rustle(k, True)))
-    ball = Spr(16, 16); ball.blit(capsule('#e2555f', size=9), 2, 5); F.append(('item_ball', ball))
+    F.append(('item_ball', CAP.item_ground()))           # an item lying on the ground
+    F.append(('party_pip', CAP.party_pip()))             # the foe's team count in battle
     br = Spr(16, 20)
     thorn = ramp('#4a6a2a', 5, 0.14)
     for (cx, cy, rx, ry) in [(8, 12, 7, 6), (5, 8, 4, 4), (11, 7, 4, 4)]:
@@ -146,9 +122,8 @@ def ui_frames():
     pin.outline('#1c1a28')
     F.append(('map_pin', pin))
     # capsules for battle throws
-    for name, col in [('capsule', '#e2555f'), ('prime_capsule', '#3d8bfd'), ('apex_capsule', '#f5c542'),
-                      ('dusk_capsule', '#3a4a5a'), ('swift_capsule', '#4fc7b8'), ('covenant_capsule', '#6a4cd8')]:
-        F.append((f'throw_{name}', capsule(col, size=10)))
+    for name, draw in CAP.DESIGNS.items():
+        F.append((f'throw_{name}', draw()))
     # type badges
     for t, col in TYPES.items():
         tw = text_width(t)
@@ -197,7 +172,7 @@ def ui_frames():
     # menu icons 16×16
     def mi(name, fn):
         s = Spr(16, 16); fn(s); s.outline('#1c1a28'); F.append((f'menu_{name}', s))
-    mi('party', lambda s: (s.shaded_ellipse(8, 9, 6, 6, ramp('#e2555f', 5, 0.15)), s.hline(2, 13, 9, '#1c1a28'), s.ellipse(8, 9, 1.5, 1.5, '#ffffff')))
+    F.append(('menu_party', CAP.team_icon()))
     mi('bag', lambda s: (s.rect(3, 5, 10, 9, '#b87a3a'), s.rect(3, 5, 10, 2, '#d89a5a'), s.rect(6, 2, 4, 3, '#8a5a2a'), s.rect(7, 8, 2, 2, '#f0d24a')))
     mi('index', lambda s: (s.rect(3, 2, 10, 12, '#e2555f'), s.rect(4, 3, 8, 5, '#8ad8ff'), s.px(5, 10, '#ffffff'), s.px(7, 10, '#f5c542')))
     mi('card', lambda s: (s.rect(1, 4, 14, 9, '#3d8bfd'), s.rect(2, 5, 4, 5, '#f3cfae'), s.hline(8, 13, 6, '#ffffff'), s.hline(8, 12, 9, '#ffffff')))
@@ -365,10 +340,8 @@ def fx_frames():
 
 def icon_frames():
     F = []
-    caps = {'capsule': '#e2555f', 'prime_capsule': '#3d8bfd', 'apex_capsule': '#f5c542', 'dusk_capsule': '#3a4a5a',
-            'swift_capsule': '#4fc7b8', 'covenant_capsule': '#6a4cd8'}
-    for k, c in caps.items():
-        s = Spr(16, 16); s.blit(capsule(c, size=11), 2, 2); F.append((k, s))
+    for k in CAP.DESIGNS:
+        F.append((k, CAP.icon16(k)))
     for k, c in {'tonic': '#e2555f', 'strong_tonic': '#e8823a', 'grand_tonic': '#3d8bfd', 'full_tonic': '#f5c542', 'panacea': '#b86ae8', 'focus_drop': '#4fc7b8'}.items():
         F.append((k, bottle(c)))
     for k, c in {'purge_herb': '#8a5ac8', 'cool_salve': '#5ab8e8', 'wake_chime': '#f5c542', 'thaw_draught': '#e87a3a', 'nerve_balm': '#e8d84a', 'clarity_leaf': '#6aba4a'}.items():

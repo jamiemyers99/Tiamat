@@ -47,6 +47,12 @@ def analyse(mid):
             continue
         if t == 'warp':
             doors.append((x, y)); continue
+        if t == 'trigger' and ('block' in p.get('script', '') or 'gate' in p.get('script', '')) and p.get('cond'):
+            # a story gate ("nobody passes until ...") — treat it as closed
+            for k in range(int(p.get('w', 1))):
+                for j in range(int(p.get('h', 1))):
+                    blocked.add((x + k, y + j))
+            continue
         if t in SOLID_PROPS and not p.get('walk'):
             blocked.add((x, y))
         if t == 'npc' and p.get('trainer'):
