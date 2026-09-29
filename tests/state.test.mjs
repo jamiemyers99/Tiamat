@@ -27,6 +27,16 @@ test('old or partial saves are migrated safely', () => {
   assert.equal(readSlot(7), null);
 });
 
+test('older saves with 8 PC boxes get the new boxes, names and wallpapers', () => {
+  const eight = Array.from({ length: 8 }, (_, i) => ({ name: i === 2 ? 'Keepers' : `Box ${i + 1}`, slots: i === 2 ? [null, { species: 'nibbit', uid: 5, level: 9 }] : [] }));
+  const s = migrate({ player: { name: 'Old' }, party: [], boxes: [...eight, null] });
+  assert.equal(s.boxes.length, 16);
+  assert.equal(s.boxes[2].name, 'Keepers');
+  assert.equal(s.boxes[2].slots[1].species, 'nibbit');
+  assert.equal(s.boxes[8].name, 'Box 9');
+  assert.ok(s.boxes.every((b) => b.slots.length === 30 && Number.isInteger(b.wall)));
+});
+
 test('bag and storage overflow', () => {
   G.state = newState();
   giveItem('tonic', 2);

@@ -38,7 +38,7 @@ export function newState() {
     player: { name: 'Rowan', style: 0, gender: 'm', map: 'home_2f', x: 5, y: 4, face: 'down', surfing: false },
     rivalName: 'Wren',
     party: [],
-    boxes: Array.from({ length: BOX_COUNT }, (_, i) => ({ name: `Box ${i + 1}`, slots: Array(BOX_SIZE).fill(null) })),
+    boxes: Array.from({ length: BOX_COUNT }, (_, i) => ({ name: `Box ${i + 1}`, wall: i % 8, slots: Array(BOX_SIZE).fill(null) })),
     bag: {},
     money: 3000,
     flags: {},
@@ -222,8 +222,14 @@ export function migrate(s) {
   out.bag = s.bag || {};
   out.defeated = s.defeated || {};
   out.party = (Array.isArray(s.party) ? s.party : []).filter((m) => m && SPECIES[m.species]);
-  out.boxes = Array.isArray(s.boxes) && s.boxes.length ? s.boxes : base.boxes;
-  out.boxes.forEach((b) => { b.slots = Array.from({ length: BOX_SIZE }, (_, k) => { const m = (b.slots || [])[k]; return m && SPECIES[m.species] ? m : null; }); });
+  out.boxes = (Array.isArray(s.boxes) && s.boxes.length ? s.boxes : base.boxes).map((b) => (b && typeof b === 'object' ? b : { slots: [] }));
+  // older saves had 8 boxes: add the new empty ones, and give every box a name and a wallpaper
+  while (out.boxes.length < BOX_COUNT) { out.boxes.push({ name: `Box ${out.boxes.length + 1}`, slots: [] }); }
+  out.boxes.forEach((b, i) => {
+    if (typeof b.name !== 'string' || !b.name.trim()) { b.name = `Box ${i + 1}`; }
+    if (!Number.isInteger(b.wall)) { b.wall = i % 8; }
+    b.slots = Array.from({ length: BOX_SIZE }, (_, k) => { const m = (b.slots || [])[k]; return m && SPECIES[m.species] ? m : null; });
+  });
   const all = () => [...out.party, ...out.boxes.flatMap((b) => b.slots)].filter(Boolean);
   // Morphs from saves made before male/female forms and natures: a sex and nature that stay the same every load
   upgrade('sex+nature', () => all().forEach((m) => {

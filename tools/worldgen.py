@@ -848,34 +848,52 @@ def frostspire_house():
 
 @reg
 def route6():
-    m = M('route6', 54, 30, name='Route 6 · Rimepass', kind='route', base='snow', music='route_b', battle='snow',
+    # Rimepass, laid out like a classic route: one winding pass between the trees, and every trainer stands
+    # where the path is narrow enough that you can't slip past without them seeing you. Ledges only go one
+    # way (east is downhill); the way back west hops down the ledge into the entrance hollow.
+    m = M('route6', 54, 30, fill='N', name='Route 6 · Rimepass', kind='route', base='snow', music='route_b', battle='snow',
           weather='snow', west='frostspire 0', east='riftgate 4')
-    m.border(ch='N', gaps=[('w', 16, 17), ('e', 14, 15)])
-    # east half: ash and dead trees
-    m.rect(28, 0, 53, 29, 'a')
-    m.rect(28, 0, 53, 1, 'X'); m.rect(28, 28, 53, 29, 'X'); m.rect(52, 0, 53, 29, 'X')
-    m.rect(52, 14, 53, 15, ':')
-    m.path([(0, 16), (12, 16), (12, 8), (24, 8), (24, 20), (38, 20), (38, 14), (53, 14)], ':')
-    # cliffs & ledges stepping down to the east
-    m.rect(2, 2, 9, 5, 'R'); m.rect(30, 2, 45, 5, 'R'); m.rect(30, 24, 49, 25, 'R')
-    m.vline(20, 10, 18, '>'); m.vline(34, 8, 18, '>')
-    m.rect(14, 22, 21, 26, 'G'); m.rect(26, 10, 31, 16, 'G'); m.rect(4, 20, 9, 25, 'G'); m.rect(40, 16, 47, 21, 'G')
-    m.grove(14, 12, 4, 4, 'N'); m.grove(2, 8, 6, 4, 'N')
-    for (x, y) in [(36, 10), (44, 8), (48, 22), (30, 20), (41, 25)]:
+    m.rect(28, 0, 53, 29, 'Q')                                   # bare ash-rock where the snow ends...
+    m.rect(28, 0, 53, 1, 'X'); m.rect(28, 26, 53, 29, 'X'); m.rect(52, 0, 53, 29, 'X'); m.rect(28, 0, 29, 29, 'X')   # ...ringed by dead trees
+    m.rect(12, 8, 21, 13, 'R')                                   # a snowy crag between the ridge and the hollow
+    # ── the snowy climb ──
+    m.rect(0, 16, 1, 17, '.')                                    # from Frostspire
+    m.rect(2, 14, 14, 19, '.')                                   # entrance hollow
+    m.rect(2, 20, 7, 25, '.')                                    # side meadow
+    m.rect(8, 8, 11, 13, '.')                                    # the climb north
+    m.rect(2, 4, 25, 7, '.')                                     # the ridge (with a nook at its west end)
+    m.rect(22, 8, 25, 13, '.')                                   # the drop
+    m.rect(16, 14, 27, 21, '.')                                  # the basin
+    # ── the ash flats ──
+    m.rect(28, 18, 39, 21, 'a')                                  # into the ash
+    m.rect(36, 8, 39, 21, 'a')                                   # up the gully
+    m.rect(36, 8, 47, 11, 'a')                                   # along the rim
+    m.rect(42, 12, 47, 17, 'a')                                  # the gate square
+    m.rect(48, 12, 49, 13, 'a')                                  # a lookout by the road
+    m.rect(48, 14, 53, 15, 'a')                                  # the road to Riftgate
+    m.rect(42, 18, 47, 25, 'a')                                  # ash hollow (south) — nothing grows this close to the Riven
+    # the path, then grass, ledges and rocks on top
+    m.path([(0, 16), (8, 16), (8, 4), (22, 4), (22, 16), (26, 16), (26, 19), (37, 19), (37, 9), (44, 9), (44, 14), (53, 14)], ':')
+    m.rect(2, 20, 7, 25, 'G'); m.rect(12, 6, 17, 7, 'G'); m.rect(10, 10, 11, 13, 'G'); m.rect(16, 18, 21, 21, 'G')
+    m.hline(10, 22, 25, 'v')                                     # ledge down the drop (one way)
+    m.vline(15, 14, 19, '<')                                     # ledge back down to the hollow (one way, west)
+    for (x, y) in [(3, 7), (24, 12), (27, 14), (16, 14), (36, 21), (29, 21), (47, 12)]:
         m.put(x, y, 'o')
-    for (x, y) in [(39, 7), (47, 11), (32, 22)]:
+    m.rect(46, 10, 47, 11, 'Q')
+    for (x, y) in [(36, 12), (46, 8), (33, 21), (43, 22), (46, 20)]:
         m.obj(f'prop {x} {y} rift_rock')
     m.sign(3, 15, 'ROUTE 6 · RIMEPASS|West: Frostspire   East: Riftgate')
-    m.sign(49, 13, 'RIFTGATE|City on the edge of the world.')
-    m.trainer(14, 9, 'r6_skier_1', 'skier', face='down', sight=4)
-    m.trainer(22, 18, 'r6_skier_2', 'skier', face='down', sight=4, move='look')
-    m.trainer(28, 21, 'r6_hiker', 'hiker', face='right', sight=4)
-    m.trainer(40, 17, 'r6_acolyte', 'acolyte', face='up', sight=4, leave='1')
-    m.trainer(46, 13, 'r6_ace', 'ace', face='left', sight=4)
-    m.item(3, 6, 'full_tonic')
-    m.item(47, 20, 'apex_capsule')
-    m.item(15, 25, 'strong_incense', hidden=True)
-    m.item(31, 12, 'rekindle_seed')
+    m.sign(47, 16, 'RIFTGATE|City on the edge of the world.')
+    # trainers: each one faces across the pass, so their line of sight covers its whole width
+    m.trainer(8, 10, 'r6_skier_1', 'skier', face='right', sight=4)
+    m.trainer(20, 7, 'r6_skier_2', 'skier', face='up', sight=4)
+    m.trainer(31, 18, 'r6_hiker', 'hiker', face='down', sight=4)
+    m.trainer(39, 14, 'r6_acolyte', 'acolyte', face='left', sight=4, leave='1')
+    m.trainer(48, 13, 'r6_ace', 'ace', face='down', sight=4)
+    m.item(2, 4, 'full_tonic')
+    m.item(47, 25, 'apex_capsule')
+    m.item(2, 25, 'strong_incense', hidden=True)
+    m.item(27, 21, 'rekindle_seed')
     return m
 
 
@@ -1056,7 +1074,7 @@ HIDDEN_IN = {
     'route3': [(12, 10, 'prime_capsule', 2, 'rock')],
     'route4': [(3, 12, 'star_shard', 1, 'bush'), (27, 40, 'focus_drop', 1, 'rock')],
     'hollowmere': [(24, 28, 'pearl', 1, 'rock')],
-    'route6': [(14, 15, 'grand_tonic', 1, 'tree'), (30, 20, 'growth_fruit', 1, 'rock')],
+    'route6': [(15, 21, 'grand_tonic', 1, 'tree'), (29, 21, 'growth_fruit', 1, 'rock')],
 }
 
 

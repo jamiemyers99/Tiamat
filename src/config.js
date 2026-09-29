@@ -23,7 +23,7 @@ export const DEPTH = {
 export const REAL_MS_PER_GAME_MIN = 2000 / 60 * 2; // 1 game hour ≈ 2 real minutes
 
 export const MAX_PARTY = 6;
-export const BOX_COUNT = 8;
+export const BOX_COUNT = 16;
 export const BOX_SIZE = 30;
 export const MONEY_CAP = 999999;
 export const MAX_LEVEL = 100;

@@ -2,7 +2,7 @@
 // m(id, name, type, category, power, accuracy, pp, fx, desc)
 //   category: phys | spec | status      accuracy: null = never misses
 //   fx: status/chance, confuse, flinch, stat (+target), multi, charge, recoil,
-//       drain, heal, highCrit, fixed, seed, protect, selfStat, prio
+//       drain, heal, highCrit, fixed, seed, protect, selfStat, prio, spare (never knocks the foe out)
 
 export const MOVES = {};
 function m(id, name, type, cat, power, acc, pp, fx = {}, desc = '') {
@@ -21,6 +21,7 @@ m('wishing_star', 'Wishing Star', 'Fae', 'status', 0, null, 10, { heal: 0.5 }, '
 m('astral_purr', 'Astral Purr', 'Mind', 'spec', 95, 100, 10, {}, 'A purr that resonates from somewhere beyond the sky.');
 m('dreamshatter', 'Dreamshatter', 'Mind', 'spec', 120, 90, 5, { confuse: 0.1 }, 'Shatters the walls between dream and waking right on top of the foe. May confuse.');
 m('aurora_benediction', 'Aurora Benediction', 'Fae', 'spec', 110, 95, 5, { drain: 0.3 }, 'Bathes the field in auroral light, restoring some of the damage dealt.');
+m('lullaby_siphon', 'Lullaby Siphon', 'Fae', 'spec', 40, 90, 10, { status: 'sleep', chance: 1, drain: 0.5, spare: true }, 'Hums a starlit lullaby that puts the foe to sleep while sipping away its strength. Restores half the damage dealt, and is too gentle to knock the foe out.');
 m('cosmic_insight', 'Cosmic Insight', 'Mind', 'spec', 140, 90, 5, { selfStat: { spa: -2 } }, 'Unleashes everything it has ever understood. Sharply lowers the user\'s Sp. Atk.');
 
 // ── Starter signature moves (only the three starter lines learn these) ─────

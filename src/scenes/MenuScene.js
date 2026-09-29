@@ -25,6 +25,18 @@ const STAT_LABEL = { hp: 'HP', atk: 'Attack', def: 'Defense', spa: 'Sp. Atk', sp
 
 const MENU_EXIT = Symbol('menu-exit');
 
+// PC box wallpapers (pattern drawn in MenuScene._wallpaper). Saved per box as an index into this list.
+const WALLPAPERS = [
+  { id: 'meadow', name: 'Meadow', base: 0x2f5a3a, accent: 0x3d7049, pattern: 'grass' },
+  { id: 'ocean', name: 'Ocean', base: 0x1d4468, accent: 0x2a5a86, pattern: 'waves' },
+  { id: 'ember', name: 'Ember', base: 0x5e2820, accent: 0x74352a, pattern: 'diamonds' },
+  { id: 'frost', name: 'Frost', base: 0x4a6886, accent: 0x6886a4, pattern: 'snow' },
+  { id: 'dusk', name: 'Dusk', base: 0x3f2a58, accent: 0x4d346a, pattern: 'stripes' },
+  { id: 'stone', name: 'Stone', base: 0x46433f, accent: 0x58544f, pattern: 'bricks' },
+  { id: 'blossom', name: 'Blossom', base: 0x683452, accent: 0x844466, pattern: 'petals' },
+  { id: 'night', name: 'Night', base: 0x141838, accent: 0x3a4290, pattern: 'stars' },
+];
+
 export class MenuScene extends Phaser.Scene {
   constructor() { super('Menu'); }
   init(data) { this.cfg = data || {}; }
@@ -295,10 +307,10 @@ export class MenuScene extends Phaser.Scene {
   }
 
   // ─── summary ─────────────────────────────────────────────────────────
-  async summary(i) {
+  async summary(i, list = G.state.party) {
     let page = 0;
     for (;;) {
-      const party = G.state.party;
+      const party = list;
       const m = party[i];
       const sp = SPECIES[m.species];
       const st = calcStats(m);
@@ -363,7 +375,7 @@ export class MenuScene extends Phaser.Scene {
         c.add(txt(this, 198, 150, `Friendship: ${m.friendship >= 200 ? 'Adores you' : m.friendship >= 120 ? 'Very close' : m.friendship >= 80 ? 'Friendly' : 'Getting used to you'}`, { face: 'small' }));
         c.add(txt(this, 198, 164, `Caught on: ${m.metMap ? (this.cache.json.get('mapIndex')[m.metMap] || {}).name || m.metMap : 'a gift'}`, { face: 'small' }));
       }
-      c.add(txt(this, GAME_W - 12, GAME_H - 10, fmtKeys('< > page   ^ v Morph   {BTN:cancel} back'), { face: 'small', color: 'gray', align: 'right' }));
+      c.add(txt(this, GAME_W - 12, GAME_H - 10, fmtKeys('left / right: page   up / down: Morph   {BTN:cancel}: back'), { face: 'small', color: 'gray', align: 'right' }));
       const act = await this.loop(() => {
         const o = this.owner;
         if (input.nav('left', o)) { return 'l'; }
@@ -1105,98 +1117,396 @@ export class MenuScene extends Phaser.Scene {
   }
 
   // ─── storage (PC) ─────────────────────────────────────────────────────
+  // Works like the classics' PC: flip between boxes with the box name at the top (or PgUp/PgDn, L/R,
+  // RUN), pick a Morph up and carry it to any slot in any box or the team, and tidy boxes up with
+  // names, wallpapers and sorting. A Morph being carried is never lost: backing out always puts it
+  // somewhere free (its own slot first).
   async storage() {
-    let box = 0, cx = 0, cy = 0, held = null, heldFrom = null;
-    let side = 'box'; // or 'party'
-    let pi = 0;
+    const S = G.state;
+    const boxes = S.boxes;
+    const nb = boxes.length;
+    let box = Math.max(0, Math.min(nb - 1, Number.isInteger(S.pcBox) ? S.pcBox : 0));
+    let zone = 'box'; // 'head' (box name), 'box' (the grid) or 'team'
+    let cx = 0, cy = 0, pi = 0;
+    let held = null, heldFrom = null, hole = null; // hole: the space the first Morph was lifted from
+    const party = () => S.party;
+    const healthy = (list) => list.some((m) => m && m.hp > 0);
+    const boxCount = (b) => b.slots.filter(Boolean).length;
+    const slotAt = () => (zone === 'box' ? boxes[box].slots[cy * 6 + cx] : zone === 'team' ? party()[pi] : null);
+    const teamRows = () => Math.max(1, Math.min(6, party().length + (held && party().length < 6 ? 1 : 0)));
+
+    // layout (480×270): details on the left, the box in the middle, the team on the right
+    const GX = 128, GY = 32, CW = 37, CH = 41;
+    const cellX = (k) => GX + (k % 6) * CW, cellY = (k) => GY + Math.floor(k / 6) * CH;
+    const TX = 366, TY = 26, TH = 36;
+
+    // every layer is its own top-level object (drawn in this order) so the box can be clipped while it slides
     const c = this.add.container(0, 0);
-    const redraw = () => {
-      c.removeAll(true);
-      c.add(this.dim(0.94));
-      const bx = G.state.boxes[box];
-      c.add(panel(this, 8, 8, 318, 254, 'dark'));
-      c.add(txt(this, 167, 14, `< ${bx.name} >`, { align: 'center', color: 'gold' }));
-      for (let k = 0; k < 30; k++) {
-        const x = 18 + (k % 6) * 50, y = 32 + Math.floor(k / 6) * 44;
-        c.add(this.add.rectangle(x, y, 46, 40, 0x262a47).setOrigin(0, 0));
-        const m = bx.slots[k];
-        if (m) { c.add(this.add.image(x + 23, y + 20, 'mons', monFrame(m, 'i'))); }
-      }
-      c.add(panel(this, 332, 8, 140, 254, 'dark'));
-      c.add(txt(this, 402, 14, 'Team', { align: 'center', color: 'gold' }));
-      G.state.party.forEach((m, k) => {
-        const y = 30 + k * 38;
-        c.add(this.add.rectangle(340, y, 124, 34, 0x262a47).setOrigin(0, 0));
-        c.add(this.add.image(358, y + 17, 'mons', monFrame(m, 'i')));
-        c.add(txt(this, 378, y + 5, monName(m).slice(0, 10), { face: 'main' }));
-        c.add(txt(this, 378, y + 19, `Lv${m.level}`, { face: 'small', color: 'gray' }));
-      });
-      // cursor
-      let sx, sy, sw = 48, sh = 42;
-      if (side === 'box') { sx = 17 + cx * 50; sy = 31 + cy * 44; }
-      else { sx = 339; sy = 29 + pi * 38; sw = 126; sh = 36; }
-      c.add(this.add.rectangle(sx, sy, sw, sh).setOrigin(0, 0).setStrokeStyle(2, held ? 0x7cea8c : 0xffd65c));
-      if (held) { c.add(this.add.image(sx + sw - 6, sy + 4, 'mons', monFrame(held, 'i')).setScale(0.9)); }
-      // detail
-      const m = side === 'box' ? bx.slots[cy * 6 + cx] : G.state.party[pi];
-      const show = held || m;
-      if (show) { c.add(txt(this, 14, GAME_H - 22, `${monName(show)} ${sexSymbol(show)}  Lv${show.level}  ${SPECIES[show.species].types.join('/')}`, { face: 'small' })); }
-      c.add(txt(this, GAME_W - 12, GAME_H - 11, fmtKeys(held ? '{BTN:confirm}: place   {BTN:cancel}: cancel' : (input.lastDevice === 'key' ? '{BTN:confirm}: pick up   PgUp/PgDn: box   {BTN:cancel}: close' : '{BTN:confirm}: pick up   left edge: box   {BTN:cancel}: close')), { face: 'small', color: 'gray', align: 'right' }));
+    c.add(this.dim(0.94));
+    c.add(panel(this, 6, 6, 112, 240, 'dark'));
+    c.add(panel(this, 122, 6, 236, 240, 'dark'));
+    c.add(panel(this, 362, 6, 112, 240, 'dark'));
+    c.add(txt(this, 418, 11, 'Team', { align: 'center', color: 'gold' }));
+    const boxLayer = this.add.container(0, 0);
+    const clip = this.make.graphics({ x: 0, y: 0 }, false);
+    clip.fillStyle(0xffffff).fillRect(125, 29, 230, 214);
+    boxLayer.setMask(clip.createGeometryMask());
+    const head = this.add.container(0, 0);
+    const teamLayer = this.add.container(0, 0);
+    const detail = this.add.container(0, 0);
+    const cursor = this.add.rectangle(0, 0, 10, 10).setOrigin(0, 0);
+    const carry = this.add.image(0, 0, 'mons', 'nibbit_i').setVisible(false);
+    const bob = { off: 0 };
+    let carryY = 0;
+    const carryBob = this.tweens.add({ targets: bob, off: 3, duration: 420, yoyo: true, repeat: -1, ease: 'Sine.easeInOut', onUpdate: () => { carry.y = carryY - bob.off; } });
+    const hint = txt(this, GAME_W - 8, GAME_H - 15, '', { face: 'small', color: 'gray', align: 'right' });
+    const note = txt(this, 10, GAME_H - 15, '', { face: 'small', color: 'gold' });
+    const layers = [c, boxLayer, head, teamLayer, detail, cursor, carry, hint, note, clip];
+    let noteTimer = null;
+    const say = (text, color = 'gold') => {
+      note.setText(text); note.setFont(`small_${color}`);
+      if (noteTimer) { noteTimer.remove(); }
+      noteTimer = this.time.delayedCall(2600, () => { note.setText(''); noteTimer = null; });
     };
-    redraw();
-    await this.loop(() => {
-      const o = this.owner;
-      const bx = G.state.boxes[box];
-      let moved = false;
-      if (input.pressed('pageup', o)) { box = (box + G.state.boxes.length - 1) % G.state.boxes.length; moved = true; }
-      else if (input.pressed('pagedown', o)) { box = (box + 1) % G.state.boxes.length; moved = true; }
-      else if (side === 'box') {
-        if (input.nav('left', o)) { if (cx > 0) { cx--; } else { box = (box + G.state.boxes.length - 1) % G.state.boxes.length; cx = 5; } moved = true; }
-        else if (input.nav('right', o)) { if (cx < 5) { cx++; } else { side = 'party'; pi = Math.min(cy, Math.max(0, G.state.party.length - 1)); } moved = true; }
-        else if (input.nav('up', o)) { cy = (cy + 4) % 5; moved = true; }
-        else if (input.nav('down', o)) { cy = (cy + 1) % 5; moved = true; }
-      } else {
-        const n = Math.max(1, G.state.party.length + (held ? 1 : 0));
-        if (input.nav('left', o)) { side = 'box'; cx = 5; moved = true; }
-        else if (input.nav('up', o)) { pi = (pi + n - 1) % Math.min(6, n); moved = true; }
-        else if (input.nav('down', o)) { pi = (pi + 1) % Math.min(6, n); moved = true; }
+
+    const renderBox = (slide = 0) => {
+      boxLayer.removeAll(true);
+      const bx = boxes[box];
+      boxLayer.add(this.add.image(126, 30, this._wallpaper(bx.wall)).setOrigin(0, 0));
+      for (let k = 0; k < 30; k++) {
+        boxLayer.add(this.add.rectangle(cellX(k) + 2, cellY(k) + 2, CW - 4, CH - 4, 0x0b0c16, 0.22).setOrigin(0, 0));
+        const m = bx.slots[k];
+        if (m) { boxLayer.add(this.add.image(cellX(k) + CW / 2, cellY(k) + CH / 2 + 1, 'mons', monFrame(m, 'i'))); }
       }
-      if (moved) { audio.sfx('cursor'); redraw(); return undefined; }
-      if (input.pressed('confirm', o)) {
-        if (side === 'box') {
-          const k = cy * 6 + cx;
-          const here = bx.slots[k];
-          if (!held && here) { held = here; bx.slots[k] = null; heldFrom = { box, k }; }
-          else if (held) { healMon(held); bx.slots[k] = held; held = here || null; heldFrom = held ? { box, k } : null; }   // storage heals
-        } else {
-          const here = G.state.party[pi];
-          if (!held && here) {
-            if (G.state.party.filter((m) => m.hp > 0).length <= 1 && here.hp > 0) { audio.blip('bump'); this._msg(c, 'Your last healthy Morph must stay with you!'); return undefined; }
-            held = here; G.state.party.splice(pi, 1); heldFrom = { party: true };
-            pi = Math.max(0, Math.min(pi, G.state.party.length - 1));
-          } else if (held) {
-            if (here) { G.state.party[pi] = held; held = here; }
-            else if (G.state.party.length < 6) { G.state.party.push(held); held = null; }
-          }
-        }
-        audio.sfx('select');
-        redraw();
-        return undefined;
+      if (slide) {
+        boxLayer.x = slide * 40; boxLayer.alpha = 0.3;
+        this.tweens.add({ targets: boxLayer, x: 0, alpha: 1, duration: 140, ease: 'Cubic.easeOut' });
+      } else { boxLayer.x = 0; boxLayer.alpha = 1; }
+      renderHead();
+    };
+    const renderHead = () => {
+      head.removeAll(true);
+      const bx = boxes[box];
+      const on = zone === 'head';
+      head.add(panel(this, 128, 9, 224, 19, on ? 'gold' : 'ghost'));
+      head.add(txt(this, 136, 13, '<', { color: on ? 'gold' : 'gray' }));
+      head.add(txt(this, 344, 13, '>', { color: on ? 'gold' : 'gray' }));
+      head.add(txt(this, 240, 13, bx.name, { align: 'center', color: on ? 'gold' : 'white' }));
+      head.add(txt(this, 334, 15, `${boxCount(bx)}/30`, { face: 'small', color: 'gray', align: 'right' }));
+      head.add(txt(this, 148, 15, `${box + 1}/${nb}`, { face: 'small', color: 'gray' }));
+    };
+    const renderTeam = () => {
+      teamLayer.removeAll(true);
+      for (let k = 0; k < 6; k++) {
+        const y = TY + k * TH;
+        const m = party()[k];
+        teamLayer.add(this.add.rectangle(TX, y, 104, TH - 2, m ? 0x262a47 : 0x1b1e33).setOrigin(0, 0).setStrokeStyle(1, 0x2f3558));
+        if (!m) { continue; }
+        teamLayer.add(this.add.image(TX + 17, y + 16, 'mons', monFrame(m, 'i')));
+        teamLayer.add(txt(this, TX + 34, y + 4, monName(m).slice(0, 9), { color: m.hp > 0 ? 'white' : 'gray' }));
+        teamLayer.add(txt(this, TX + 34, y + 17, `Lv${m.level}`, { face: 'small', color: 'gray' }));
+        const bar = new Bar(this, TX + 60, y + 19, 38, 2);
+        bar.set(m.hp / maxHp(m)); bar.addTo(teamLayer);
       }
-      if (input.pressed('cancel', o)) {
-        if (held) {
-          // put it back where it came from
-          if (heldFrom && heldFrom.party) { G.state.party.push(held); }
-          else if (heldFrom) { healMon(held); G.state.boxes[heldFrom.box].slots[heldFrom.k] = held; }
-          held = null; redraw(); audio.sfx('cancel');
-          return undefined;
-        }
-        audio.sfx('cancel');
+    };
+    const renderDetail = () => {
+      detail.removeAll(true);
+      const m = held || slotAt();
+      if (!m) {
+        const bx = boxes[box];
+        detail.add(txt(this, 62, 14, bx.name, { align: 'center', color: 'gold' }));
+        detail.add(txt(this, 62, 28, `${boxCount(bx)} of 30 spaces used`, { face: 'small', color: 'gray', align: 'center' }));
+        const total = boxes.reduce((n, b) => n + boxCount(b), 0);
+        detail.add(txt(this, 62, 40, `${total} Morphs in storage`, { face: 'small', color: 'gray', align: 'center' }));
+        const lines = zone === 'head'
+          ? ['Press', fmtKeys('{BTN:confirm} for box'), 'options:', 'jump, rename,', 'wallpaper, sort.', '', '< > flips boxes.']
+          : zone === 'team' ? ['An empty space', 'in your team.'] : ['An empty space.'];
+        lines.forEach((l, j) => detail.add(txt(this, 62, 110 + j * 12, l, { align: 'center', color: 'gray' })));
+        return;
+      }
+      const sp = SPECIES[m.species];
+      detail.add(txt(this, 12, 11, monName(m), { color: 'gold' }));
+      detail.add(sexMark(this, 12, 11, m, monName(m)));
+      if (m.shiny) { detail.add(txt(this, 112, 11, '★', { color: 'gold', align: 'right' })); }
+      detail.add(this.add.image(62, 120, 'mons', monFrame(m, 'f')).setOrigin(0.5, 1));
+      detail.add(txt(this, 12, 123, `Lv${m.level}`));
+      detail.add(txt(this, 112, 125, `No.${String(sp.num).padStart(3, '0')}`, { face: 'small', color: 'gray', align: 'right' }));
+      sp.types.forEach((t, j) => detail.add(this.add.image(12 + j * 36, 138, 'ui', `type_${t}`).setOrigin(0, 0)));
+      detail.add(txt(this, 12, 152, `${m.nature || '—'} nature`, { face: 'small', color: 'gray' }));
+      detail.add(txt(this, 12, 163, 'HP', { face: 'small' }));
+      const bar = new Bar(this, 26, 164, 50, 3); bar.set(m.hp / maxHp(m)); bar.addTo(detail);
+      detail.add(txt(this, 112, 163, `${m.hp}/${maxHp(m)}`, { face: 'small', align: 'right' }));
+      if (m.status && m.hp > 0) { detail.add(this.add.image(12, 174, 'ui', `st_${m.status}`).setOrigin(0, 0)); }
+      (m.moves || []).forEach((mv, j) => {
+        const d = MOVES[mv.id];
+        if (!d) { return; }
+        detail.add(this.add.rectangle(12, 184 + j * 12, 3, 9, TYPE_COLORS[d.type]).setOrigin(0, 0));
+        detail.add(txt(this, 18, 185 + j * 12, d.name, { face: 'small' }));
+      });
+      if (held) { detail.add(txt(this, 62, 238, 'Carrying', { face: 'small', color: 'green', align: 'center' })); }
+    };
+    const renderCursor = () => {
+      let x, y, w, h;
+      if (zone === 'head') { x = 127; y = 8; w = 226; h = 21; }
+      else if (zone === 'box') { const k = cy * 6 + cx; x = cellX(k); y = cellY(k); w = CW; h = CH; }
+      else { x = TX - 1; y = TY + pi * TH - 1; w = 106; h = TH; }
+      cursor.setPosition(x, y).setSize(w, h).setStrokeStyle(2, held ? 0x7cea8c : 0xffd65c);
+      cursor.setVisible(zone !== 'head');
+      if (held) {
+        carry.setFrame(monFrame(held, 'i')).setVisible(true);
+        carry.x = zone === 'team' ? x + 17 : x + w / 2;
+        carryY = zone === 'head' ? y + h + 8 : y - 4;
+        carry.y = carryY - bob.off;
+      } else { carry.setVisible(false); }
+      const dev = input.lastDevice;
+      const flip = dev === 'touch' ? '{BTN:run}: next box' : dev === 'pad' ? 'L / R: box' : 'PgUp / PgDn: box';
+      // (the small font has no arrow symbols, so directions are spelled out)
+      let h1;
+      if (zone === 'head') { h1 = `left / right: switch box   {BTN:confirm}: box options   ${held ? '' : '{BTN:cancel}: close'}`; }
+      else if (held) { h1 = `{BTN:confirm}: place here   ${flip}   {BTN:cancel}: put back`; }
+      else if (slotAt()) { h1 = `{BTN:confirm}: options   ${flip}   {BTN:cancel}: close`; }
+      else { h1 = `${flip}   {BTN:cancel}: close`; }
+      hint.setText(fmtKeys(h1.trim()));
+    };
+    const refresh = ({ box: b = false, team = false, slide = 0 } = {}) => {
+      if (b) { renderBox(slide); } else { renderHead(); }
+      if (team) { renderTeam(); }
+      renderDetail();
+      renderCursor();
+    };
+    const switchBox = (d) => {
+      box = (box + d + nb) % nb;
+      S.pcBox = box;
+      audio.sfx('cursor');
+      refresh({ box: true, slide: d });
+    };
+
+    // somewhere free for a Morph: its own space first, then this box, then any box, then the team
+    const putBack = () => {
+      if (!held) { return; }
+      const m = held;
+      const spots = [heldFrom, hole].filter(Boolean);
+      held = null; heldFrom = null; hole = null;
+      for (const from of spots) {
+        if (from.party && party().length < 6) { party().splice(Math.min(from.i ?? 6, party().length), 0, m); return; }
+        if (from.box !== undefined && !boxes[from.box].slots[from.k]) { healMon(m); boxes[from.box].slots[from.k] = m; return; }
+      }
+      for (const b of [boxes[box], ...boxes]) {
+        const k = b.slots.indexOf(null);
+        if (k >= 0) { healMon(m); b.slots[k] = m; return; }
+      }
+      party().push(m); // (can't happen: something was always freed when it was picked up)
+    };
+    const pickUp = () => {
+      if (zone === 'box') {
+        const k = cy * 6 + cx;
+        held = boxes[box].slots[k]; boxes[box].slots[k] = null; heldFrom = { box, k }; hole = heldFrom;
         return true;
       }
+      const m = party()[pi];
+      if (!healthy(party().filter((x) => x !== m))) { audio.blip('bump'); say('Your last healthy Morph has to stay with you!', 'red'); return false; }
+      party().splice(pi, 1); held = m; heldFrom = { party: true, i: pi }; hole = heldFrom;
+      return true;
+    };
+    const place = () => {
+      if (zone === 'box') {
+        const k = cy * 6 + cx;
+        const here = boxes[box].slots[k];
+        healMon(held);                                  // storage heals
+        boxes[box].slots[k] = held;
+        held = here || null; heldFrom = here ? { box, k } : null;
+        if (!held) { hole = null; }
+        return true;
+      }
+      const here = party()[pi];
+      if (!here) { party().push(held); held = null; heldFrom = null; hole = null; pi = party().length - 1; return true; }
+      const after = party().map((x) => (x === here ? held : x));
+      if (!healthy(after)) { audio.blip('bump'); say('Your team needs at least one healthy Morph!', 'red'); return false; }
+      party()[pi] = held; held = here; heldFrom = { party: true, i: pi };
+      return true;
+    };
+    const firstFree = (from) => {
+      for (let j = 0; j < nb; j++) {
+        const b = (from + j) % nb;
+        const k = boxes[b].slots.indexOf(null);
+        if (k >= 0) { return { b, k }; }
+      }
+      return null;
+    };
+
+    const onKey = () => {
+      const o = this.owner;
+      if (input.pressed('pageup', o)) { switchBox(-1); return undefined; }
+      if (input.pressed('pagedown', o) || input.pressed('run', o)) { switchBox(1); return undefined; }
+      let moved = false;
+      if (zone === 'head') {
+        if (input.nav('left', o)) { switchBox(-1); return undefined; }
+        if (input.nav('right', o)) { switchBox(1); return undefined; }
+        if (input.nav('down', o)) { zone = 'box'; cy = 0; moved = true; }
+        else if (input.nav('up', o)) { zone = 'box'; cy = 4; moved = true; }
+      } else if (zone === 'box') {
+        if (input.nav('left', o)) { if (cx > 0) { cx--; } else { zone = 'team'; pi = Math.min(Math.floor(cy * 6 / 5), teamRows() - 1); } moved = true; }
+        else if (input.nav('right', o)) { if (cx < 5) { cx++; } else { zone = 'team'; pi = Math.min(Math.floor(cy * 6 / 5), teamRows() - 1); } moved = true; }
+        else if (input.nav('up', o)) { if (cy > 0) { cy--; } else { zone = 'head'; } moved = true; }
+        else if (input.nav('down', o)) { if (cy < 4) { cy++; } else { zone = 'head'; } moved = true; }
+      } else {
+        const n = teamRows();
+        if (input.nav('left', o)) { zone = 'box'; cx = 5; cy = Math.min(4, Math.floor(pi * 5 / 6)); moved = true; }
+        else if (input.nav('right', o)) { zone = 'box'; cx = 0; cy = Math.min(4, Math.floor(pi * 5 / 6)); moved = true; }
+        else if (input.nav('up', o)) { pi = (pi + n - 1) % n; moved = true; }
+        else if (input.nav('down', o)) { pi = (pi + 1) % n; moved = true; }
+      }
+      if (moved) { audio.sfx('cursor'); refresh(); return undefined; }
+      if (input.pressed('confirm', o)) { return 'confirm'; }
+      if (input.pressed('info', o) && !held && slotAt()) { return 'summary'; }
+      if (input.pressed('cancel', o)) { return 'cancel'; }
       return undefined;
-    });
-    c.destroy();
+    };
+
+    refresh({ box: true, team: true });
+    try {
+      for (;;) {
+        const act = await this.loop(onKey);
+        if (act === 'cancel') {
+          if (held) { putBack(); audio.sfx('cancel'); refresh({ box: true, team: true }); continue; }
+          audio.sfx('cancel');
+          return null;
+        }
+        if (act === 'summary') { audio.sfx('select'); await this._storageSummary(zone, box, cy * 6 + cx, pi, (k) => { if (zone === 'box') { cx = k % 6; cy = Math.floor(k / 6); } else { pi = k; } }); refresh(); continue; }
+        // confirm
+        if (zone === 'head') { audio.sfx('select'); await this._boxOptions(box, (b) => { box = b; S.pcBox = b; }, () => refresh({ box: true })); refresh({ box: true }); continue; }
+        if (held) {
+          if (place()) { audio.sfx('select'); }
+          refresh({ box: true, team: true });
+          continue;
+        }
+        const m = slotAt();
+        if (!m) { audio.blip('bump'); continue; }
+        audio.sfx('select');
+        const inTeam = zone === 'team';
+        const opts = [{ label: 'Move', value: 'move' }, { label: 'Summary', value: 'sum' }];
+        if (inTeam) { opts.push({ label: 'Deposit', value: 'deposit' }); }
+        else { opts.push({ label: 'Withdraw', value: 'withdraw', disabled: party().length >= 6, right: party().length >= 6 ? 'full' : undefined }); }
+        opts.push({ label: 'Release', value: 'release' }, { label: 'Cancel', value: null });
+        const opt = await choose(this, opts, { x: GAME_W - 10, y: GAME_H - 20, anchor: 'bottom-right', depth: 20 });
+        if (opt === 'move') { if (pickUp()) { audio.sfx('select'); } refresh({ box: true, team: true }); }
+        else if (opt === 'sum') { await this._storageSummary(zone, box, cy * 6 + cx, pi, (k) => { if (zone === 'box') { cx = k % 6; cy = Math.floor(k / 6); } else { pi = k; } }); refresh(); }
+        else if (opt === 'withdraw') {
+          const k = cy * 6 + cx;
+          boxes[box].slots[k] = null; party().push(m);
+          audio.sfx('heal'); say(`${monName(m)} joined your team.`);
+          refresh({ box: true, team: true });
+        } else if (opt === 'deposit') {
+          if (!healthy(party().filter((x) => x !== m))) { audio.blip('bump'); say('Your last healthy Morph has to stay with you!', 'red'); }
+          else {
+            const spot = firstFree(box);
+            if (!spot) { audio.blip('bump'); say('Every box is full!', 'red'); }
+            else {
+              party().splice(pi, 1); healMon(m); boxes[spot.b].slots[spot.k] = m;
+              pi = Math.max(0, Math.min(pi, party().length - 1));
+              audio.sfx('heal'); say(`${monName(m)} was sent to ${boxes[spot.b].name}.`);
+            }
+          }
+          refresh({ box: true, team: true });
+        } else if (opt === 'release') {
+          if (inTeam && !healthy(party().filter((x) => x !== m))) { audio.blip('bump'); say('Your last healthy Morph has to stay with you!', 'red'); }
+          else if (await this.confirm(`Release ${monName(m)}? It won't come back.`)) {
+            if (inTeam) { party().splice(pi, 1); pi = Math.max(0, Math.min(pi, party().length - 1)); }
+            else { boxes[box].slots[cy * 6 + cx] = null; }
+            audio.sfx('cancel');
+            say(`${monName(m)} was released. Bye-bye, ${monName(m)}!`);
+          }
+          refresh({ box: true, team: true });
+        } else { refresh(); }
+      }
+    } finally {
+      putBack();                                        // never lose a carried Morph, whatever closes the PC
+      if (noteTimer) { noteTimer.remove(); }
+      carryBob.remove();
+      boxLayer.clearMask(true);
+      layers.forEach((o) => o.destroy());
+    }
+  }
+
+  // Summary for a Morph in the PC; up/down flips through the others in the same box (or the team).
+  // setIndex(k) moves the PC cursor onto whichever Morph the summary ended on.
+  async _storageSummary(zone, box, k, pi, setIndex) {
+    if (zone === 'team') { setIndex(await this.summary(pi, G.state.party)); return; }
+    const slots = G.state.boxes[box].slots;
+    const list = slots.filter(Boolean);
+    const at = list.indexOf(slots[k]);
+    if (at < 0) { return; }
+    const j = await this.summary(at, list);
+    setIndex(slots.indexOf(list[j]));
+  }
+
+  // Box options: jump to any box, rename it, change its wallpaper or sort it.
+  async _boxOptions(box, setBox, redraw) {
+    const S = G.state;
+    const bx = S.boxes[box];
+    const opt = await choose(this, [
+      { label: 'Jump to box', value: 'jump' }, { label: 'Rename', value: 'name' }, { label: 'Wallpaper', value: 'wall' },
+      { label: 'Sort', value: 'sort' }, { label: 'Cancel', value: null },
+    ], { x: 10, y: 30, depth: 20 });
+    if (opt === 'jump') {
+      const items = S.boxes.map((b, i) => ({ label: b.name, right: `${b.slots.filter(Boolean).length}/30`, value: i }));
+      const pick = await choose(this, items, { x: 10, y: 30, width: 150, visible: 12, index: box, depth: 20 });
+      if (pick !== null && pick !== undefined) { setBox(pick); }
+    } else if (opt === 'name') {
+      const name = await nameEntry(this, { title: 'Name this box', initial: bx.name, max: 12, owner: this.owner, allowEmpty: true, depth: 60 });
+      input.clear();
+      if (name !== null) { bx.name = name.replace(/[^A-Za-z0-9 '\-.!?]/g, '').slice(0, 12).trim() || `Box ${box + 1}`; }
+    } else if (opt === 'wall') {
+      const was = bx.wall;
+      const items = WALLPAPERS.map((w, i) => ({ label: w.name, value: i }));
+      const pick = await choose(this, items, { x: 10, y: 30, width: 104, index: was, depth: 20, onMove: (_, i) => { bx.wall = i; redraw(); } });
+      bx.wall = pick === null || pick === undefined ? was : pick;
+    } else if (opt === 'sort') {
+      const how = await choose(this, [
+        { label: 'By Index No.', value: 'num' }, { label: 'By level', value: 'level' }, { label: 'By name', value: 'name' },
+        { label: 'By type', value: 'type' }, { label: 'Close gaps', value: 'gaps' }, { label: 'Cancel', value: null },
+      ], { x: 10, y: 30, depth: 21 });
+      if (how) {
+        const list = bx.slots.filter(Boolean);
+        const num = (m) => SPECIES[m.species].num;
+        const by = {
+          num: (a, b) => num(a) - num(b) || b.level - a.level,
+          level: (a, b) => b.level - a.level || num(a) - num(b),
+          name: (a, b) => monName(a).localeCompare(monName(b)) || b.level - a.level,
+          type: (a, b) => SPECIES[a.species].types[0].localeCompare(SPECIES[b.species].types[0]) || num(a) - num(b),
+        }[how];
+        if (by) { list.sort(by); }
+        bx.slots = Array.from({ length: bx.slots.length }, (_, k) => list[k] || null);
+        audio.sfx('select');
+      }
+    }
+  }
+
+  // Box wallpapers: drawn once into a texture each.
+  _wallpaper(i) {
+    const w = WALLPAPERS[((i % WALLPAPERS.length) + WALLPAPERS.length) % WALLPAPERS.length] || WALLPAPERS[0];
+    const key = `pcwall_${w.id}`;
+    if (this.textures.exists(key)) { return key; }
+    const W = 228, H = 212;
+    const g = this.make.graphics({ x: 0, y: 0 }, false);
+    g.fillStyle(w.base).fillRect(0, 0, W, H);
+    g.fillStyle(w.accent);
+    const P = w.pattern;
+    if (P === 'grass') { for (let y = 6; y < H; y += 14) { for (let x = (y / 14) % 2 ? 4 : 11; x < W; x += 14) { g.fillRect(x, y + 2, 1, 3); g.fillRect(x + 2, y, 1, 5); g.fillRect(x + 4, y + 2, 1, 3); } } }
+    if (P === 'waves') { for (let y = 8; y < H; y += 16) { for (let x = 0; x < W; x += 2) { g.fillRect(x, y + Math.round(2 * Math.sin(x / 5)), 2, 1); } } }
+    if (P === 'diamonds') { for (let y = 0; y < H + 12; y += 20) { for (let x = (y / 20) % 2 ? 10 : 0; x < W + 10; x += 20) { g.fillTriangle(x, y - 6, x + 6, y, x, y + 6); g.fillTriangle(x, y - 6, x - 6, y, x, y + 6); } } }
+    if (P === 'snow') { for (let y = 5; y < H; y += 17) { for (let x = (y / 17) % 2 ? 3 : 12; x < W; x += 18) { g.fillRect(x - 2, y, 5, 1); g.fillRect(x, y - 2, 1, 5); } } }
+    if (P === 'stripes') { for (let x = -H; x < W; x += 12) { g.fillStyle(w.accent).beginPath(); g.moveTo(x, H); g.lineTo(x + H, 0); g.lineTo(x + H + 5, 0); g.lineTo(x + 5, H); g.closePath(); g.fillPath(); } }
+    if (P === 'bricks') { for (let y = 0; y < H; y += 12) { g.fillRect(0, y, W, 1); for (let x = (y / 12) % 2 ? 0 : 12; x < W; x += 24) { g.fillRect(x, y, 1, 12); } } }
+    if (P === 'petals') { for (let y = 8; y < H; y += 22) { for (let x = (y / 22) % 2 ? 6 : 17; x < W; x += 22) { g.fillCircle(x, y, 2); g.fillCircle(x + 3, y + 2, 2); g.fillCircle(x - 1, y + 3, 2); } } }
+    if (P === 'stars') {
+      let seed = 7;
+      const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+      for (let n = 0; n < 90; n++) { g.fillStyle(n % 5 ? w.accent : 0xd8dcff, n % 5 ? 1 : 0.8).fillRect(Math.floor(rnd() * W), Math.floor(rnd() * H), 1, 1); }
+    }
+    g.generateTexture(key, W, H);
+    g.destroy();
+    return key;
   }
 
   _msg(c, text) {

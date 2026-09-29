@@ -242,6 +242,10 @@ def build_map(src, all_src, tileset, links):
                 t = TERRAIN_CH.get(c, None) if c in TERRAIN_CH else None
                 if c in ('=', 'H'):
                     t = 'water'
+                if c in 'XQ':
+                    t = 'ash'      # dead trees and ash cliffs always stand on ash (Route 6's snow gives way to ash)
+                elif c == 'o' and sum(ch(x + dx, y + dy) in ('a', 'X', 'Q') for dx in (-1, 0, 1) for dy in (-1, 0, 1)) >= 4:
+                    t = 'ash'      # a boulder out on the ash sits on ash, not on the map's base snow
                 if t is None:
                     t = base
                 row.append(t)
@@ -275,13 +279,14 @@ def build_map(src, all_src, tileset, links):
                     k = 'left' if c == '<' else 'right'
                     lay.decor.blit(D.ledge_tile(k, ch(x, y - 1) == c, ch(x, y + 1) == c, base), x * T, y * T)
                     lay.meta[y][x] = MI['ledge_' + k]
-                elif c == 'R':
-                    up, dn, lf, rt = ch(x, y - 1) == 'R', ch(x, y + 1) == 'R', ch(x - 1, y) == 'R', ch(x + 1, y) == 'R'
+                elif c in 'RQ':
+                    # R: rock cliff (snowy on snow maps); Q: bare ash-rock cliff
+                    up, dn, lf, rt = ch(x, y - 1) == c, ch(x, y + 1) == c, ch(x - 1, y) == c, ch(x + 1, y) == c
                     if y == 0: up = True
                     if y == H - 1: dn = True
                     if x == 0: lf = True
                     if x == W - 1: rt = True
-                    lay.decor.blit(D.rock_cell(up, dn, lf, rt, cave, snow=(base == 'snow')), x * T, y * T)
+                    lay.decor.blit(D.rock_cell(up, dn, lf, rt, cave, snow=(base == 'snow' and c == 'R'), ash=(c == 'Q')), x * T, y * T)
                     lay.meta[y][x] = MI['solid']
                 elif c == '#':
                     lay.meta[y][x] = MI['solid']

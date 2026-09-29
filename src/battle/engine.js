@@ -367,6 +367,8 @@ export class Battle {
       } else {
         res = this.rawDamage(b, t, move.power, move.cat, move.type, move.fx.highCrit, eff);
       }
+      // gentle moves (Lullaby Siphon) always leave the foe with at least 1 HP — handy for catching
+      if (move.fx.spare) { res.damage = Math.max(0, Math.min(res.damage, t.mon.hp - 1)); }
       await this.ui.moveAnim(this, b, t, move, eff);
       const before = t.mon.hp;
       t.mon.hp = Math.max(0, t.mon.hp - res.damage);

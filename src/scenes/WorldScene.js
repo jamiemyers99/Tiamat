@@ -126,7 +126,7 @@ export class WorldScene extends Phaser.Scene {
   }
 
   _nearestFree(x, y) {
-    for (let r = 1; r <= 8; r++) {
+    for (let r = 1; r <= 16; r++) {
       for (let dy = -r; dy <= r; dy++) {
         for (let dx = -r; dx <= r; dx++) {
           if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) { continue; }

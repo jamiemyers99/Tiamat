@@ -780,3 +780,174 @@ async def surfleak(t, port):
     await t.js(f"{W}.S.warp('frostspire', 20, 14, 'down')")
     await t.wait(4000)
     print('frostspire:', await t.js(MUS))
+
+
+# ── PC storage: flip boxes, carry a Morph between boxes, swap, withdraw / deposit, box options ──
+async def pcbox(t, port):
+    await t.p.goto(f'http://localhost:{port}/?map=rootmere&x=16&y=8&debug')
+    await wait_for(t, f"window.__tiamat && {W}.player", 40000, 'world')
+    await t.wait(800)
+    await t.js("""(() => { const T = window.__tiamat, G = T.G; G.settings.textSpeed = 'instant';
+      const faint = T.createMon('beakling', 12); faint.hp = 0;
+      G.state.party = [T.createMon('cindlet', 20), faint];
+      const b = G.state.boxes;
+      [['nibbit', 5, 0], ['trotter', 9, 1], ['pebbling', 14, 2], ['chittik', 6, 7], ['puddlet', 11, 12]].forEach(([s, l, k]) => { b[0].slots[k] = T.createMon(s, l); });
+      b[1].slots[3] = T.createMon('burrlet', 8); b[1].slots[4] = T.createMon('beakling', 4);
+      G.state.pcBox = 0; })()""")
+    count = "(() => { const S = window.__tiamat.G.state; return S.party.length + S.boxes.reduce((n, b) => n + b.slots.filter(Boolean).length, 0); })()"
+    total0 = await t.js(count)
+    where = lambda b, k: t.js(f"(() => {{ const m = window.__tiamat.G.state.boxes[{b}].slots[{k}]; return m ? m.species : null; }})()")
+    await t.js(f"void {W}.S.openScreen('storage')")
+    await t.wait(900)
+    await t.shot('pc_open')
+    print('top:', await t.top())
+    # flip boxes from the box name
+    await t.key('ArrowUp'); await t.shot('on_header')
+    await t.key('ArrowRight'); await t.wait(250); await t.shot('box2')
+    print('after right on header, pcBox =', await t.js("window.__tiamat.G.state.pcBox"))
+    await t.key('ArrowLeft'); await t.key('ArrowDown')
+    # carry Nibbit from Box 1 slot 0 to Box 3 slot 0
+    await t.key('z', 60, 300); await t.shot('mon_menu'); await t.key('z', 60, 300)
+    await t.shot('carrying')
+    await t.key('ArrowUp'); await t.key('ArrowRight'); await t.key('ArrowRight'); await t.wait(200)
+    await t.shot('carrying_box3')
+    await t.key('ArrowDown'); await t.key('z', 60, 300)
+    print('box1[0] =', await where(0, 0), ' box3[0] =', await where(2, 0))
+    await t.shot('placed_box3')
+    # PgUp back to Box 1 and swap Trotter (slot 1) onto Pebbling (slot 2), then back out
+    await t.key('PageUp'); await t.key('PageUp'); await t.wait(200)
+    await t.key('ArrowRight'); await t.key('z', 60, 300); await t.key('z', 60, 300)
+    await t.key('ArrowRight'); await t.key('z', 60, 300)
+    await t.shot('swapped_holding_pebbling')
+    print('after swap: slot1', await where(0, 1), 'slot2', await where(0, 2))
+    await t.key('x', 60, 300)
+    print('after put back: slot0', await where(0, 0), 'slot1', await where(0, 1), 'slot2', await where(0, 2))
+    # withdraw Pebbling (slot 1) into the team
+    await t.key('ArrowLeft'); await t.key('z', 60, 300); await t.key('ArrowDown'); await t.key('ArrowDown'); await t.key('z', 60, 300)
+    print('party after withdraw:', await t.js("window.__tiamat.G.state.party.map(m => m.species).join()"))
+    await t.shot('withdrawn')
+    # the only healthy team member can't be lifted
+    await t.js("window.__tiamat.G.state.party[2].hp = 0")
+    for _ in range(5): await t.key('ArrowRight')
+    await t.key('z', 60, 300); await t.key('z', 60, 300)
+    await t.shot('last_healthy_blocked')
+    print('held after trying to lift the last healthy:', await t.js("window.__tiamat.G.state.party.length"))
+    await t.js("window.__tiamat.healMon(window.__tiamat.G.state.party[2])")
+    # deposit Beakling (team row 1)
+    await t.key('ArrowDown'); await t.key('z', 60, 300); await t.key('ArrowDown'); await t.key('ArrowDown'); await t.key('z', 60, 400)
+    print('party after deposit:', await t.js("window.__tiamat.G.state.party.map(m => m.species).join()"), '| beakling healed in box:', await t.js("window.__tiamat.G.state.boxes[0].slots.filter(Boolean).some(m => m.species === 'beakling' && m.hp > 0)"))
+    await t.shot('deposited')
+    # summary from the box with the info key, flip to the next Morph
+    for _ in range(6): await t.key('ArrowLeft')
+    await t.key('r', 60, 500); await t.shot('summary'); await t.key('ArrowDown', 60, 300); await t.shot('summary_next'); await t.key('x', 60, 400)
+    await t.shot('after_summary')
+    # box options: wallpaper, sort by level, jump
+    await t.key('ArrowUp')
+    print('still in the PC:', await t.js("window.__tiamat.input.top()"))
+    await t.key('z', 60, 300); await t.shot('box_options')
+    await t.key('ArrowDown'); await t.key('ArrowDown'); await t.key('z', 60, 300)
+    for _ in range(7): await t.key('ArrowDown', 60, 150)
+    await t.shot('wallpaper_night'); await t.key('z', 60, 300)
+    print('wall:', await t.js("window.__tiamat.G.state.boxes[0].wall"))
+    await t.key('z', 60, 300); await t.key('ArrowDown'); await t.key('ArrowDown'); await t.key('ArrowDown'); await t.key('z', 60, 300); await t.key('ArrowDown'); await t.key('z', 60, 300)
+    print('sorted by level:', await t.js("window.__tiamat.G.state.boxes[0].slots.slice(0, 6).map(m => m ? m.species + m.level : '-').join()"))
+    await t.shot('sorted')
+    await t.key('z', 60, 300); await t.key('z', 60, 300)
+    for _ in range(5): await t.key('ArrowDown', 60, 150)
+    await t.shot('jump_list'); await t.key('z', 60, 300)
+    print('jumped to box', await t.js("window.__tiamat.G.state.pcBox"))
+    await t.shot('jumped')
+    # rename it
+    await t.key('z', 60, 300); await t.key('ArrowDown'); await t.key('z', 60, 400)
+    for _ in range(6): await t.key('Backspace', 40, 60)
+    for ch in 'Keepers': await t.key(ch, 40, 60)
+    await t.key('Enter', 60, 400)
+    print('renamed:', await t.js("window.__tiamat.G.state.boxes[window.__tiamat.G.state.pcBox].name"))
+    # lift a Morph, then close the PC entirely: nothing may be lost
+    await t.key('PageUp'); await t.key('PageUp'); await t.key('PageUp'); await t.key('PageUp'); await t.key('PageUp')
+    await t.key('ArrowDown'); await t.key('z', 60, 300); await t.key('z', 60, 300)
+    await t.key('x', 60, 300); await t.key('x', 60, 500)
+    print('top after close:', await t.top(), '| Morphs before', total0, 'after', await t.js(count))
+    await t.shot('closed')
+
+
+# ── Route 6: walk the pass from Frostspire to Riftgate; every trainer must stop you ──
+async def route6walk(t, port):
+    import trainer_gates as tg
+    await t.p.goto(f'http://localhost:{port}/?map=route6&x=1&y=16&debug')
+    await wait_for(t, f"window.__tiamat && {W}.player", 40000, 'world')
+    await t.wait(800)
+    await t.js("""(() => { const T = window.__tiamat, G = T.G; G.settings.textSpeed = 'instant'; G.settings.battleAnims = false;
+      G.state.flags.sigil_rime = true; G.state.flags.got_starter = true; G.state.vars.starter = 'cindlet';
+      G.state.party = [T.createMon('cindreaver', 100, { moves: ['hydro_burst', 'grand_slam', 'riftbreaker', 'umbral_flare'] })];
+      G.state.party[0].moves.forEach((mv) => { mv.pp = 999; mv.max = 999; }); })()""")
+    await t.js(AUTO)
+    keymap = {'up': 'ArrowUp', 'down': 'ArrowDown', 'left': 'ArrowLeft', 'right': 'ArrowRight'}
+    async def walk(mid, goal, label, limit=260):
+        battles = []
+        for _ in range(limit):
+            pos = await t.js(f"[{W}.mapView.id, {W}.player.tx, {W}.player.ty]")
+            if pos[0] != mid or (pos[1], pos[2]) == goal: return battles, pos
+            steps = tg.route(mid, (pos[1], pos[2]), goal)
+            if not steps: print('no route from', pos); return battles, pos
+            await t.key(keymap[steps[0]], 170, 40)
+            for _ in range(20):
+                if not await t.js(f"{W}.player.moving"): break
+                await t.wait(40)
+            if not await t.js(f"{W}.busy === 0 && window.__tiamat.input.top() === 'world'"):
+                await t.wait(300)
+                who = await t.js(f"(() => {{ const w = {W}; const n = w.npcs.find(n => n.def.trainer && !window.__tiamat.G.state.defeated[n.def.trainer] && Math.abs(n.actor.tx - w.player.tx) + Math.abs(n.actor.ty - w.player.ty) <= 5); return n ? n.def.trainer : '?'; }})()")
+                if len(battles) < 5: await t.shot(f'{label}_spotted_{len(battles)}')
+                await idle(t, 90000, 'battle')
+                battles.append((who, pos[1], pos[2]))
+        return battles, await t.js(f"[{W}.mapView.id, {W}.player.tx, {W}.player.ty]")
+    await wait_for(t, f"{W}.mapView.id === 'route6' && {W}.busy === 0", 20000, 'route6')
+    await t.wait(600)
+    await t.shot('route6_start')
+    print('entered route6 at', await t.js(f"[{W}.player.tx, {W}.player.ty]"))
+    battles, end = await walk('route6', (53, 14), 'east')
+    print('eastbound battles:', battles)
+    print('reached:', end)
+    print('defeated:', await t.js("['r6_skier_1','r6_skier_2','r6_hiker','r6_acolyte','r6_ace'].map(id => id + '=' + !!window.__tiamat.G.state.defeated[id]).join(' ')"))
+    await t.key('ArrowRight', 600, 60)
+    await wait_for(t, f"{W}.mapView.id === 'riftgate'", 15000, 'riftgate')
+    await t.wait(900)
+    print('now on', await t.js(f"[{W}.mapView.id, {W}.player.tx, {W}.player.ty]"))
+    await t.shot('riftgate_arrival')
+    # and back west again (ledges make the return quicker)
+    for _ in range(12):
+        if await t.js(f"{W}.mapView.id") == 'route6': break
+        await t.key('ArrowLeft', 170, 250)
+    await wait_for(t, f"{W}.mapView.id === 'route6' && {W}.busy === 0", 15000, 'back to route6')
+    await t.wait(400)
+    battles, end = await walk('route6', (0, 16), 'west')
+    print('westbound battles:', battles, 'reached:', end)
+    for _ in range(6):
+        if await t.js(f"{W}.mapView.id") == 'frostspire': break
+        await t.key('ArrowLeft', 170, 250)
+    await wait_for(t, f"{W}.mapView.id === 'frostspire'", 15000, 'frostspire')
+    print('back on', await t.js(f"[{W}.mapView.id, {W}.player.tx, {W}.player.ty]"))
+
+
+# ── Lullaby Siphon (Twinklit line, Lv42): sleep + drain, then an easy catch ──
+async def lullaby(t, port):
+    await t.p.goto(f'http://localhost:{port}/?map=route6&x=18&y=16&debug')
+    await wait_for(t, f"window.__tiamat && {W}.player", 40000, 'world')
+    await t.wait(800)
+    await t.js("""(() => { const T = window.__tiamat, G = T.G; G.settings.textSpeed = 'instant';
+      const s = T.createMon('seraphelis', 42, { moves: ['lullaby_siphon', 'astral_purr', 'wishing_star', 'dreamshatter'] }); s.hp = Math.floor(s.hp / 2);
+      G.state.party = [s]; G.state.bag.capsule = 5; })()""")
+    await t.js(f"void {W}.S.wild('glaciursa', 36)")
+    await t.wait(2600)
+    for i in range(6): await t.key('z', 60, 350)
+    await t.shot('menu')
+    await t.key('z', 60, 400); await t.shot('moves')
+    await t.key('z', 60, 250)
+    for i in range(8):
+        await t.wait(450)
+        if i in (1, 3, 5): await t.shot(f'siphon_{i}')
+        st = await t.js("(() => { const b = window.__tiamat.game.scene.getScene('Battle'); const e = b && b.battle && b.battle.e && b.battle.e.mon; return e ? [e.status, e.hp] : null; })()")
+        if st and st[0] == 'sleep': break
+    print('foe:', await t.js("(() => { const b = window.__tiamat.game.scene.getScene('Battle').battle; return [b.e.mon.status, b.e.mon.hp, b.p.mon.hp]; })()"))
+    for i in range(10): await t.key('z', 60, 300)
+    await t.shot('after')

@@ -11,50 +11,52 @@ east: riftgate 4
 layout:
 NNNNNNNNNNNNNNNNNNNNNNNNNNNNXXXXXXXXXXXXXXXXXXXXXXXXXX
 NNNNNNNNNNNNNNNNNNNNNNNNNNNNXXXXXXXXXXXXXXXXXXXXXXXXXX
-NNRRRRRRRR..................aaRRRRRRRRRRRRRRRRaaaaaaXX
-NNRRRRRRRR..................aaRRRRRRRRRRRRRRRRaaaaaaXX
-NNRRRRRRRR..................aaRRRRRRRRRRRRRRRRaaaaaaXX
-NNRRRRRRRR..................aaRRRRRRRRRRRRRRRRaaaaaaXX
-NN..........................aaaaaaaaaaaaaaaaaaaaaaaaXX
-NN..........................aaaaaaaaaaaaaaaaaaaaaaaaXX
-NNNNNNNN....::::::::::::::..aaaaaa>aaaaaaaaaoaaaaaaaXX
-NNNNNNNN....::::::::::::::..aaaaaa>aaaaaaaaaaaaaaaaaXX
-NNNNNNNN....::......>...::GGGGGGaa>aoaaaaaaaaaaaaaaaXX
-NNNNNNNN....::......>...::GGGGGGaa>aaaaaaaaaaaaaaaaaXX
-NN..........::NNNN..>...::GGGGGGaa>aaaaaaaaaaaaaaaaaXX
-NN..........::NNNN..>...::GGGGGGaa>aaaaaaaaaaaaaaaaaXX
-NN..........::NNNN..>...::GGGGGGaa>aaa::::::::::::::::
-NN..........::NNNN..>...::GGGGGGaa>aaa::::::::::::::::
-::::::::::::::......>...::GGGGGGaa>aaa::GGGGGGGGaaaaXX
-:::::::::::::.......>...::..aaaaaa>aaa::GGGGGGGGaaaaXX
-NN..................>...::..aaaaaa>aaa::GGGGGGGGaaaaXX
-NN......................::..aaaaaaaaaa::GGGGGGGGaaaaXX
-NN..GGGGGG..............::::::o:::::::::GGGGGGGGaaaaXX
-NN..GGGGGG..............:::::::::::::::aGGGGGGGGaaaaXX
-NN..GGGGGG....GGGGGGGG......aaaaaaaaaaaaaaaaaaaaoaaaXX
-NN..GGGGGG....GGGGGGGG......aaaaaaaaaaaaaaaaaaaaaaaaXX
-NN..GGGGGG....GGGGGGGG......aaRRRRRRRRRRRRRRRRRRRRaaXX
-NN..GGGGGG....GGGGGGGG......aaRRRRRRRRRRRoRRRRRRRRaaXX
-NN............GGGGGGGG......aaaaaaaaaaaaaaaaaaaaaaaaXX
-NN..........................aaaaaaaaaaaaaaaaaaaaaaaaXX
+NNNNNNNNNNNNNNNNNNNNNNNNNNNNXXQQQQQQQQQQQQQQQQQQQQQQXX
+NNNNNNNNNNNNNNNNNNNNNNNNNNNNXXQQQQQQQQQQQQQQQQQQQQQQXX
+NN......::::::::::::::::..NNXXQQQQQQQQQQQQQQQQQQQQQQXX
+NN......::::::::::::::::..NNXXQQQQQQQQQQQQQQQQQQQQQQXX
+NN......::..GGGGGG....::..NNXXQQQQQQQQQQQQQQQQQQQQQQXX
+NN.o....::..GGGGGG....::..NNXXQQQQQQQQQQQQQQQQQQQQQQXX
+NNNNNNNN::..RRRRRRRRRR::..NNXXQQQQQQaaaaaaaaaaaaQQQQXX
+NNNNNNNN::..RRRRRRRRRR::..NNXXQQQQQQa:::::::::aaQQQQXX
+NNNNNNNN::GGRRRRRRRRRRvvvvNNXXQQQQQQa:::::::::QQQQQQXX
+NNNNNNNN::GGRRRRRRRRRR::..NNXXQQQQQQa::aaaaa::QQQQQQXX
+NNNNNNNN::GGRRRRRRRRRR::o.NNXXQQQQQQa::aQQaa::aoaaQQXX
+NNNNNNNN::GGRRRRRRRRRR::..NNXXQQQQQQa::aQQaa::aaaaQQXX
+NN......::.....<o.....::...oXXQQQQQQa::aQQaa::::::::::
+NN......::.....<......::....XXQQQQQQa::aQQaa::::::::::
+::::::::::.....<......::::::XXQQQQQQa::aQQaaaaaaQQQQXX
+:::::::::......<......::::::XXQQQQQQa::aQQaaaaaaQQQQXX
+NN.............<GGGGGG....::aaaaaaaaa::aQQaaaaaaQQQQXX
+NN.............<GGGGGG....:::::::::::::aQQaaaaaaQQQQXX
+NNGGGGGGNNNNNNNNGGGGGG....::::::::::::aaQQaaaaaaQQQQXX
+NNGGGGGGNNNNNNNNGGGGGG......aoaaaaaaoaaaQQaaaaaaQQQQXX
+NNGGGGGGNNNNNNNNNNNNNNNNNNNNXXQQQQQQQQQQQQaaaaaaQQQQXX
+NNGGGGGGNNNNNNNNNNNNNNNNNNNNXXQQQQQQQQQQQQaaaaaaQQQQXX
+NNGGGGGGNNNNNNNNNNNNNNNNNNNNXXQQQQQQQQQQQQaaaaaaQQQQXX
+NNGGGGGGNNNNNNNNNNNNNNNNNNNNXXQQQQQQQQQQQQaaaaaaQQQQXX
+NNNNNNNNNNNNNNNNNNNNNNNNNNNNXXXXXXXXXXXXXXXXXXXXXXXXXX
+NNNNNNNNNNNNNNNNNNNNNNNNNNNNXXXXXXXXXXXXXXXXXXXXXXXXXX
 NNNNNNNNNNNNNNNNNNNNNNNNNNNNXXXXXXXXXXXXXXXXXXXXXXXXXX
 NNNNNNNNNNNNNNNNNNNNNNNNNNNNXXXXXXXXXXXXXXXXXXXXXXXXXX
 end
 
 objects:
-prop 39 7 rift_rock
-prop 47 11 rift_rock
-prop 32 22 rift_rock
+prop 36 12 rift_rock
+prop 46 8 rift_rock
+prop 33 21 rift_rock
+prop 43 22 rift_rock
+prop 46 20 rift_rock
 prop 3 15 sign text="ROUTE 6 · RIMEPASS|West: Frostspire   East: Riftgate"
-prop 49 13 sign text="RIFTGATE|City on the edge of the world."
-npc 14 9 id=r6_skier_1 sprite=skier face=down move=still trainer=r6_skier_1 sight=4
-npc 22 18 id=r6_skier_2 sprite=skier face=down move=look trainer=r6_skier_2 sight=4
-npc 28 21 id=r6_hiker sprite=hiker face=right move=still trainer=r6_hiker sight=4
-npc 40 17 id=r6_acolyte sprite=acolyte face=up move=still trainer=r6_acolyte sight=4 leave=1
-npc 46 13 id=r6_ace sprite=ace face=left move=still trainer=r6_ace sight=4
-item 3 6 item=full_tonic qty=1 flag=item_route6_3_6
-item 47 20 item=apex_capsule qty=1 flag=item_route6_47_20
-item 15 25 item=strong_incense qty=1 flag=item_route6_15_25 hidden=1
-item 31 12 item=rekindle_seed qty=1 flag=item_route6_31_12
-item 14 15 item=grand_tonic qty=1 flag=item_route6_14_15 hidden=1 in=tree
-item 30 20 item=growth_fruit qty=1 flag=item_route6_30_20 hidden=1 in=rock
+prop 47 16 sign text="RIFTGATE|City on the edge of the world."
+npc 8 10 id=r6_skier_1 sprite=skier face=right move=still trainer=r6_skier_1 sight=4
+npc 20 7 id=r6_skier_2 sprite=skier face=up move=still trainer=r6_skier_2 sight=4
+npc 31 18 id=r6_hiker sprite=hiker face=down move=still trainer=r6_hiker sight=4
+npc 39 14 id=r6_acolyte sprite=acolyte face=left move=still trainer=r6_acolyte sight=4 leave=1
+npc 48 13 id=r6_ace sprite=ace face=down move=still trainer=r6_ace sight=4
+item 2 4 item=full_tonic qty=1 flag=item_route6_2_4
+item 47 25 item=apex_capsule qty=1 flag=item_route6_47_25
+item 2 25 item=strong_incense qty=1 flag=item_route6_2_25 hidden=1
+item 27 21 item=rekindle_seed qty=1 flag=item_route6_27_21
+item 15 21 item=grand_tonic qty=1 flag=item_route6_15_21 hidden=1 in=tree
+item 29 21 item=growth_fruit qty=1 flag=item_route6_29_21 hidden=1 in=rock

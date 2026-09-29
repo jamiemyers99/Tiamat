@@ -21,7 +21,8 @@ function estimate(self, foe, move) {
   if (move.fx.charge) { power *= 0.55; }
   const L = self.mon.level;
   const dmg = ((((2 * L) / 5 + 2) * power * A / D) / 50 + 2) * stab * eff * 0.92;
-  return dmg * ((move.acc ?? 100) / 100);
+  const exp = dmg * ((move.acc ?? 100) / 100);
+  return move.fx.spare ? Math.min(exp, Math.max(0, foe.mon.hp - 1)) : exp;   // gentle moves never finish a foe off
 }
 
 export function chooseEnemyMove(battle, self, foe, skill = 1) {

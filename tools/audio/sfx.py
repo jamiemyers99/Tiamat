@@ -494,6 +494,7 @@ SIG = {
     'dreamshatter': ([('nova', .15, .8, 1.3), ('ice', .15, .4, .8)], 'B5 F5 B4', 'glass'),
     'aurora_benediction': ([('heal', 0, .5, .8), ('beam', .1, .4, 1.1)], 'D5 F#5 A5 D6', 'choir'),
     'cosmic_insight': ([('charge', 0, .5, .8), ('nova', .45, .9, .8), ('beam', .4, .5, .9)], 'C4 E4 G4 B4 D5', 'choir'),
+    'lullaby_siphon': ([('drain', .25, .6, 1.2), ('fae', 0, .35, .7)], 'E5 G5 E5 C5 D5', 'harp'),
     # Spriglet line
     'sprout_tackle': ([('tackle', .12, 1, 1.1), ('leaf', .12, .4, 1.4)], 'G5 C6', 'pluck'),
     'petal_cloak': ([('leaf', 0, .6, 1), ('protect', .2, .5, 1.2)], 'E5 G5', 'bell'),

@@ -15,6 +15,7 @@ PINE = ramp('#2c6e4f', 6, 0.14, hue=16)
 TRUNK = ramp('#7a5236', 5, 0.14)
 ROCK = ramp('#8e8a86', 6, 0.14)
 CAVE_ROCK = ramp('#6d5a4e', 6, 0.13)
+ASH_ROCK = ramp('#443c4a', 6, 0.16)
 SNOW = [hx('#a9bddc'), hx('#cfdcf0'), hx('#eef4fc'), hx('#ffffff')]
 WOOD = ramp('#a4703f', 5, 0.14)
 OUTLINE = hx('#1d2a26')
@@ -342,10 +343,10 @@ def bridge_tile(horizontal=True, edge_a=False, edge_b=False):
 
 
 @lru_cache(None)
-def rock_cell(up, down, left, right, cave=False, ul=True, ur=True, snow=False):
-    """Cliff/rock mass cell. Neighbour flags = is the neighbour also rock."""
+def rock_cell(up, down, left, right, cave=False, ul=True, ur=True, snow=False, ash=False):
+    """Cliff/rock mass cell. Neighbour flags = is the neighbour also rock. ash: bare grey-violet rock (no grass)."""
     s = Spr(16, 16)
-    rr = CAVE_ROCK if cave else ROCK
+    rr = CAVE_ROCK if cave else (ASH_ROCK if ash else ROCK)
     top = rr[2] if cave else rr[3]
     s.rect(0, 0, 16, 16, top)
     if snow:
@@ -373,9 +374,13 @@ def rock_cell(up, down, left, right, cave=False, ul=True, ur=True, snow=False):
         if k:
             s.px(x, y + 1, rr[1] if cave else rr[2])
     s.line(3, 6, 6, 8, rr[1] if cave else rr[2]); s.line(10, 13, 13, 14, rr[1] if cave else rr[2])
-    if not cave:
+    if not cave and not ash:
         for (x, y) in [(4, 4), (12, 9), (7, 13)]:
             s.px(x, y, '#6f9a4c'); s.px(x + 1, y - 1, '#86b45a')
+    if ash:
+        # scorched basalt: a faint violet glint of rift crystal here and there
+        for (x, y) in [(5, 3), (13, 10), (3, 12)]:
+            s.px(x, y, '#8a6cc8'); s.px(x + 1, y, '#5e4a8a')
     if not down:
         # front cliff face
         for y in range(7, 16):
