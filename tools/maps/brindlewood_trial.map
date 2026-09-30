@@ -5,6 +5,7 @@ floor: wood
 wall: green
 music: trial
 battle: arena
+done: sigil_moss
 
 layout:
 WWWWWWWWWWWWWWWWW
@@ -37,3 +38,7 @@ furn 6 2 statue
 furn 10 2 statue
 furn 0 15 plant
 furn 16 15 plant
+warp 10 15 to=brindlewood_trial:8,3 face=up cond=sigil_moss quiet=1
+plate 10 15 on=sigil_moss onframe=warden_pad
+warp 5 3 to=brindlewood_trial:7,15 face=down cond=sigil_moss quiet=1
+plate 5 3 on=sigil_moss onframe=warden_pad

@@ -42,6 +42,13 @@ export async function adeptsCleared(S, warden) {
   return false;
 }
 
+// A won Trial powers down like a finished gym: the floor stops sliding, the gates stay open (see the map's `done`
+// condition) and the Warden's pads light up to take you straight out, or straight back in on a later visit.
+export async function trialWon(S) {
+  S.sfx('mv_orb');
+  await S.say(null, "With the Trial won, the hall's puzzle powers down.|A glowing Warden's pad appears nearby: step on it to go straight back to the entrance. There's one by the entrance too, whenever you come back.");
+}
+
 export default {
   // Trial floor switches: flip a flag; gates and the switch lights update straight away.
   'trial.flip': async (S, ctx) => {

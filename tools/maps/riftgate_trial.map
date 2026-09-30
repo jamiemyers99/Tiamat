@@ -5,6 +5,7 @@ floor: arena
 wall: stone
 music: trial
 battle: arena
+done: sigil_wyrm
 
 layout:
 WWWWWWWWWWWWWWWWWWWWW
@@ -35,10 +36,10 @@ npc 12 17 id=rg_adept_1 sprite=ace face=down move=still trainer=rg_adept_1 sight
 npc 14 18 id=rg_adept_2 sprite=ace_b face=up move=still trainer=rg_adept_2 sight=3 post=1
 npc 12 3 id=rg_adept_3 sprite=guard face=left move=still trainer=rg_adept_3 sight=3 post=1
 npc 7 18 id=riftgate_trial_guide sprite=ace face=down move=still text="This is it — the Wyrm Trial. The floor is rift-glass: you slide on it. Glide over a glowing seal to switch the crystal gates — the violet seal works Seren's door, the gold one the gates on the glass. Frost is your best weapon against Drake Morphs."
-gate 10 4 open=rg_a frame=gate_crystal openframe=gate_crystal_open
-gate 8 15 open=rg_b frame=gate_crystal openframe=gate_crystal_open
-gate 17 15 open=rg_b frame=gate_crystal openframe=gate_crystal_open
-gate 19 10 open=rg_b frame=gate_crystal openframe=gate_crystal_open
+gate 10 4 open=rg_a|sigil_wyrm frame=gate_crystal openframe=gate_crystal_open
+gate 8 15 open=rg_b|sigil_wyrm frame=gate_crystal openframe=gate_crystal_open
+gate 17 15 open=rg_b|sigil_wyrm frame=gate_crystal openframe=gate_crystal_open
+gate 19 10 open=rg_b|sigil_wyrm frame=gate_crystal openframe=gate_crystal_open
 trigger 1 7 script=trial.flip flag=rg_a
 plate 1 7 on=rg_a frame=plate_rift_off onframe=plate_rift_a
 trigger 12 13 script=trial.flip flag=rg_b
@@ -47,3 +48,7 @@ furn 1 2 pillar
 furn 19 2 pillar
 furn 7 2 banner
 furn 13 2 banner
+warp 7 17 to=riftgate_trial:10,3 face=up cond=sigil_wyrm quiet=1
+plate 7 17 on=sigil_wyrm onframe=warden_pad
+warp 6 3 to=riftgate_trial:9,18 face=down cond=sigil_wyrm quiet=1
+plate 6 3 on=sigil_wyrm onframe=warden_pad

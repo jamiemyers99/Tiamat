@@ -1,7 +1,7 @@
 // Act I — Roots: Rootmere, the Marsh Lab, Route 1 and Brindlewood.
 import { SPECIES } from '../data/species.js';
 import { RIVAL_PICK } from '../data/trainers.js';
-import { rivalBattle, adeptsCleared } from './common.js';
+import { rivalBattle, adeptsCleared, trialWon } from './common.js';
 import { partnerIvs } from '../data/difficulty.js';
 import { INDEX_TOTAL, indexCount, dueRewards, nextReward, rewardFlag } from '../data/indexRewards.js';
 
@@ -254,6 +254,7 @@ export default {
     S.sigil('moss'); S.set('sigil_moss');
     S.jingle('jingle_sigil');
     await S.say(null, '{PLAYER} received the Moss Sigil from Warden Mossa!');
+    await trialWon(S);
     await S.say('Mossa', 'The Moss Sigil. Keep it close. It is more than a badge — though nobody has asked me what more in a very long time.');
     await S.give('td07');
     await S.say('Mossa', 'TD07 is Bloom Blast. A Tech Disc can be used again and again.');

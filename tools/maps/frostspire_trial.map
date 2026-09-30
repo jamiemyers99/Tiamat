@@ -5,6 +5,7 @@ floor: ice
 wall: ice
 music: trial
 battle: arena
+done: sigil_rime
 
 layout:
 WWWWWWWWWWWWWWWWWWW
@@ -43,3 +44,7 @@ furn 1 2 statue
 furn 17 2 statue
 furn 5 2 statue
 furn 13 2 statue
+warp 10 21 to=frostspire_trial:9,3 face=up cond=sigil_rime quiet=1
+plate 10 21 on=sigil_rime onframe=warden_pad
+warp 6 3 to=frostspire_trial:8,22 face=down cond=sigil_rime quiet=1
+plate 6 3 on=sigil_rime onframe=warden_pad

@@ -1,5 +1,5 @@
 // Act IV — The Riven: Frostspire, Rimepass, Riftgate, the Sunken Chapel, the Cradle and the Crown.
-import { rivalBattle, bossBattle, adeptsCleared } from './common.js';
+import { rivalBattle, bossBattle, adeptsCleared, trialWon } from './common.js';
 import { audio } from '../core/audio.js';
 import { SPECIES } from '../data/species.js';
 import { CROWN_ORDER } from '../data/trainers.js';
@@ -59,6 +59,7 @@ export default {
     S.sigil('rime'); S.set('sigil_rime');
     S.jingle('jingle_sigil');
     await S.say(null, '{PLAYER} received the Rime Sigil from Warden Hale!');
+    await trialWon(S);
     await S.give('td05');
     await S.say('Hale', "TD05, Rime Ray. You've got five Sigils now. Five! Most Tamers stop at three and settle down.");
     await S.say('Hale', "...Morrow sent a bird. She thinks you're being used. I think you should go to Riftgate anyway — but go carefully.");
@@ -91,6 +92,7 @@ export default {
     S.sigil('wyrm'); S.set('sigil_wyrm');
     S.jingle('jingle_sigil');
     await S.say(null, '{PLAYER} received the Wyrm Sigil from Warden Seren!');
+    await trialWon(S);
     await S.give('td16');
     await S.say('Seren', 'Six Sigils. The first Tamer in a hundred years to hold them all.|...I should be proud. Why do I feel afraid?');
   },

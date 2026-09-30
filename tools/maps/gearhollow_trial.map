@@ -5,6 +5,7 @@ floor: lab
 wall: white
 music: trial
 battle: arena
+done: sigil_spark
 
 layout:
 WWWWWWWWWWWWWWWWWW
@@ -35,13 +36,13 @@ npc 6 12 id=gh_adept_1 sprite=engineer face=left move=still trainer=gh_adept_1 s
 npc 6 7 id=gh_adept_2 sprite=scholar face=left move=still trainer=gh_adept_2 sight=4 post=1
 npc 11 7 id=gh_adept_3 sprite=engineer face=right move=still trainer=gh_adept_3 sight=4 post=1
 npc 11 17 id=gearhollow_trial_guide sprite=ace face=down move=still text="Hey hey! Iskra wired the whole hall. Step on a switch and every yellow gate swaps with every blue one! Her Morphs are Static — and half are Iron too. Stone Morphs shrug off lightning."
-gate 4 14 open=!gh_flip frame=gate_y openframe=gate_open
-gate 13 14 open=gh_flip frame=gate_b openframe=gate_open
-gate 4 10 open=gh_flip frame=gate_b openframe=gate_open
-gate 13 10 open=!gh_flip frame=gate_y openframe=gate_open
-gate 8 7 open=!gh_flip frame=gate_y openframe=gate_open
-gate 9 7 open=!gh_flip frame=gate_y openframe=gate_open
-gate 13 5 open=gh_flip frame=gate_b openframe=gate_open
+gate 4 14 open=!gh_flip|sigil_spark frame=gate_y openframe=gate_open
+gate 13 14 open=gh_flip|sigil_spark frame=gate_b openframe=gate_open
+gate 4 10 open=gh_flip|sigil_spark frame=gate_b openframe=gate_open
+gate 13 10 open=!gh_flip|sigil_spark frame=gate_y openframe=gate_open
+gate 8 7 open=!gh_flip|sigil_spark frame=gate_y openframe=gate_open
+gate 9 7 open=!gh_flip|sigil_spark frame=gate_y openframe=gate_open
+gate 13 5 open=gh_flip|sigil_spark frame=gate_b openframe=gate_open
 trigger 2 12 script=trial.flip flag=gh_flip
 plate 2 12 on=gh_flip frame=plate_y onframe=plate_b
 trigger 15 12 script=trial.flip flag=gh_flip
@@ -56,3 +57,7 @@ furn 5 2 statue
 furn 11 2 statue
 furn 1 17 machine
 furn 16 17 machine
+warp 6 18 to=gearhollow_trial:8,3 face=up cond=sigil_spark quiet=1
+plate 6 18 on=sigil_spark onframe=warden_pad
+warp 5 3 to=gearhollow_trial:8,18 face=down cond=sigil_spark quiet=1
+plate 5 3 on=sigil_spark onframe=warden_pad

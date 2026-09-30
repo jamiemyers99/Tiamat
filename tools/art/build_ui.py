@@ -129,6 +129,15 @@ def puzzle_frames():
             s.px(round(8 + 5 * math.cos(math.radians(a)) - 0.5), round(8 + 5 * math.sin(math.radians(a)) - 0.5), '#ffffff' if name != 'plate_rift_off' else '#6a5a8a')
         s.poly([(8, 5), (10.5, 8), (8, 11), (5.5, 8)], col)
         F.append((name, s))
+    # a Warden's pad: appears once a Trial is won and whisks you between the entrance and the Warden
+    s = Spr(16, 16)
+    s.ellipse(8, 8, 7.5, 7.5, '#1c1a28'); s.ellipse(8, 8, 6.6, 6.6, '#d09a3c'); s.ellipse(8, 8, 5.2, 5.2, '#fff0b0')
+    s.ellipse(8, 8, 4.2, 4.2, '#f5c542')
+    for a in range(0, 360, 45):
+        s.px(round(8 + 6 * math.cos(math.radians(a)) - 0.5), round(8 + 6 * math.sin(math.radians(a)) - 0.5), '#ffffff')
+    s.poly([(8, 3.5), (9.3, 6.7), (12.5, 8), (9.3, 9.3), (8, 12.5), (6.7, 9.3), (3.5, 8), (6.7, 6.7)], '#ffffff')
+    s.poly([(8, 5.5), (8.8, 7.2), (10.5, 8), (8.8, 8.8), (8, 10.5), (7.2, 8.8), (5.5, 8), (7.2, 7.2)], '#ffe070')
+    F.append(('warden_pad', s))
     return F
 
 

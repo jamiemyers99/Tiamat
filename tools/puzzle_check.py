@@ -23,9 +23,12 @@ FURN_SIZE = {'healer': (2, 1), 'shelf': (2, 1), 'capsule_table': (3, 1), 'banner
 
 def load(mid):
     lines = open(os.path.join(ROOT, 'tools', 'maps', f'{mid}.map'), encoding='utf-8').read().split('\n')
-    layout, objs, sec = [], [], None
+    layout, objs, sec, props = [], [], None, {}
     for raw in lines:
         s = raw.strip()
+        if sec is None and ': ' in s and not s.endswith(':'):
+            k, v = s.split(': ', 1)
+            props[k] = v
         if sec == 'layout':
             if s == 'end':
                 sec = None
@@ -41,7 +44,7 @@ def load(mid):
             kv = dict(a.split('=', 1) for a in p[3:] if '=' in a)
             args = [a for a in p[3:] if '=' not in a]
             objs.append((p[0], int(p[1]), int(p[2]), args, kv))
-    return layout, objs
+    return layout, objs, props
 
 
 def cond(expr, flags):
@@ -58,7 +61,8 @@ def cond(expr, flags):
 
 def analyse(mid, verbose=False, plan=None):
     """plan=((x, y), flags): just return the button presses from there to the Warden (for playtests)."""
-    L, objs = load(mid)
+    L, objs, props = load(mid)
+    done_flag = props.get('done')
     H, W = len(L), len(L[0])
     solid = set()
     people = {}
@@ -82,7 +86,7 @@ def analyse(mid, verbose=False, plan=None):
             gates.append(((x, y), kv.get('open', '')))
         elif t == 'warp' and ':' in kv.get('to', '') and kv['to'].split(':')[0] == mid:
             tx, ty = map(int, kv['to'].split(':')[1].split(','))
-            pads[(x, y)] = (tx, ty)
+            pads[(x, y)] = ((tx, ty), kv.get('cond', ''))
         elif t == 'trigger' and kv.get('script') == 'trial.flip':
             switches[(x, y)] = kv['flag']
     start = None
@@ -109,14 +113,16 @@ def analyse(mid, verbose=False, plan=None):
         """After arriving on (x,y) moving d: apply pads, switches, ice and currents. Returns final state."""
         for _ in range(400):
             path.append((x, y))
-            if (x, y) in pads:
-                x, y = pads[(x, y)]
+            if (x, y) in pads and (not pads[(x, y)][1] or cond(pads[(x, y)][1], flags)):
+                x, y = pads[(x, y)][0]
                 path.append((x, y))
                 return x, y, flags
             if (x, y) in switches:
                 f = switches[(x, y)]
                 flags = flags - {f} if f in flags else flags | {f}
             c = L[y][x]
+            if done_flag and done_flag in flags:      # a won hall is powered down: nothing slides
+                return x, y, flags
             nd = d if c in 'ij' else PUSH.get(c)
             if not nd:
                 return x, y, flags
@@ -126,11 +132,11 @@ def analyse(mid, verbose=False, plan=None):
             x, y, d = x + dx, y + dy, nd
         raise RuntimeError('endless slide')
 
-    def solve(avoid=frozenset(), frm=None, flags0=frozenset()):
+    def solve(avoid=frozenset(), frm=None, flags0=frozenset(), goal=None):
         s0 = ((frm or start)[0], (frm or start)[1], frozenset(flags0))
         prev = {s0: None}
         q = deque([s0])
-        goal = (warden[0], warden[1] + 1)
+        goal = goal or (warden[0], warden[1] + 1)
         while q:
             x, y, flags = q.popleft()
             if (x, y) == goal:
@@ -153,8 +159,8 @@ def analyse(mid, verbose=False, plan=None):
                     q.append(st)
         return None
 
-    if plan is not None:
-        return solve(frm=plan[0], flags0=plan[1])
+    if plan is not None:     # ((x, y), flags[, goal])
+        return solve(frm=plan[0], flags0=plan[1], goal=plan[2] if len(plan) > 2 else None)
     sol = solve()
     print(f'== {mid} ({W}x{H}) start {start} warden {warden}')
     print(f'   solution: {len(sol) if sol else "NONE"} presses')
@@ -172,6 +178,15 @@ def analyse(mid, verbose=False, plan=None):
             sight.add((tx, ty))
         ok = solve(frozenset(sight))
         print(f"   {kv['trainer']:<14} at {x},{y} facing {kv.get('face')}: {'can be avoided' if ok else 'unavoidable'}")
+    if done_flag:
+        # once won, the hall must be easy both ways: walk (or pad) in to the Warden and back out again
+        fl = frozenset({done_flag})
+        front = (warden[0], warden[1] + 1)
+        inn, out = solve(flags0=fl), solve(frm=front, flags0=fl, goal=start)
+        print(f'   after the Trial is won: in {len(inn) if inn is not None else "BLOCKED"} presses, '
+              f'out {len(out) if out is not None else "BLOCKED"} presses')
+        if inn is None or out is None or len(inn) > 4 or len(out) > 4:
+            print('   !! a won Trial should have Warden\'s pads right by the entrance and the Warden')
     return sol
 
 

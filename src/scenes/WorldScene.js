@@ -211,10 +211,11 @@ export class WorldScene extends Phaser.Scene {
   _spawnDyn(o) {
     const pr = o.props;
     const base = this.mapView.behavior(o.x, o.y);
-    const img = this.add.image(o.x * TILE + 8, o.y * TILE + 16, 'ui', pr.frame).setOrigin(0.5, 1);
+    const img = this.add.image(o.x * TILE + 8, o.y * TILE + 16, 'ui', pr.frame || pr.onframe).setOrigin(0.5, 1);
     const d = { o, base, img, isGate: o.type === 'gate' };
     (this.dyn || (this.dyn = [])).push(d);
     this._applyDyn(d);
+    d.shown = img.visible;
   }
 
   _applyDyn(d) {
@@ -226,7 +227,9 @@ export class WorldScene extends Phaser.Scene {
       d.img.setDepth(open ? DEPTH.decor + 0.5 : DEPTH.actors + (d.o.y * TILE + 16) / 100);
     } else {
       const on = evalCond(pr.on, false);
-      d.img.setFrame(on && pr.onframe ? pr.onframe : pr.frame).setDepth(DEPTH.decor + 0.5);
+      // a plate with no `frame` is invisible until it switches on (a Warden's pad appearing)
+      if (!on && !pr.frame) { d.img.setVisible(false); return; }
+      d.img.setVisible(true).setFrame(on && pr.onframe ? pr.onframe : pr.frame).setDepth(DEPTH.decor + 0.5);
     }
   }
 
@@ -235,6 +238,8 @@ export class WorldScene extends Phaser.Scene {
       const was = d.img.frame.name;
       this._applyDyn(d);
       if (d.isGate && was !== d.img.frame.name && d.img.visible) { d.img.setAlpha(0.3); this.tweens.add({ targets: d.img, alpha: 1, duration: 220 }); }
+      if (!d.isGate && !d.shown && d.img.visible && !d.o.props.frame) { d.img.setAlpha(0); this.tweens.add({ targets: d.img, alpha: 1, duration: 600 }); }
+      d.shown = d.img.visible;
     }
   }
 
@@ -436,7 +441,8 @@ export class WorldScene extends Phaser.Scene {
       if (G.state.repel === 0) { this.busy++; await UI.say(null, 'The Ward Incense wore off.'); this.busy--; }
     }
     // step warps (stairs, mats, holes)
-    const w = mv.objectsAt(p.tx, p.ty, 'warp')[0];
+    // (a `quiet` warp whose condition isn't met yet — a Trial's Warden's pad — just isn't there)
+    const w = mv.objectsAt(p.tx, p.ty, 'warp').find((o) => !(o.props.quiet && o.props.cond && !evalCond(o.props.cond, true)));
     if (w && !(w.props.door === '1' || w.props.door === true)) { await this.doWarp(w, p.face); return; }
     // triggers
     for (const t of mv.objectsAt(p.tx, p.ty, 'trigger')) {
@@ -462,6 +468,8 @@ export class WorldScene extends Phaser.Scene {
   // Returns true if the player was moved (the next tile's afterStep carries on from there).
   async forcedMove() {
     const p = this.player;
+    // a Trial hall that's been won powers down: ice and rift glass stop sliding and the currents go still
+    if (evalCond(this.mapView.props.done, false)) { return false; }
     const b = this.mapView.behavior(p.tx, p.ty);
     let dir = null;
     if (b === 'ice') { dir = p.face; }
@@ -696,7 +704,7 @@ export class WorldScene extends Phaser.Scene {
     const key = (x, y) => `${x},${y}`;
     const exits = new Set();
     for (const o of mv.objects || []) {
-      if (o.type === 'warp') { for (let k = 0; k < (o.w || 1); k++) { exits.add(key(o.x + k, o.y)); } }
+      if (o.type === 'warp' && !o.props.quiet) { for (let k = 0; k < (o.w || 1); k++) { exits.add(key(o.x + k, o.y)); } }
     }
     const prev = new Map([[key(a.tx, a.ty), null]]);
     const q = [[a.tx, a.ty, 0]];

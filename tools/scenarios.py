@@ -1014,7 +1014,7 @@ async def solve_trial(t, port, mid, sigil, shots=True):
       G.state.flags.got_starter = true; G.state.vars.starter = 'cindlet'; G.state.flags.ironworks_done = true;
       G.state.party = [T.createMon('cindreaver', 100, { moves: ['hydro_burst', 'grand_slam', 'riftbreaker', 'umbral_flare'] })];
       G.state.party[0].moves.forEach((mv) => { mv.pp = 999; mv.max = 999; }); })()""")
-    L, objs = pc.load(mid)
+    L, objs, _ = pc.load(mid)
     start = next((x, y - 1) for y, row in enumerate(L) for x, c in enumerate(row) if c == 'm')
     await t.js(f"{W}.transition('{mid}', {start[0]}, {start[1]}, 'up')")
     await t.wait(900)
@@ -1046,6 +1046,22 @@ async def solve_trial(t, port, mid, sigil, shots=True):
     beaten = await t.js("Object.keys(window.__tiamat.G.state.defeated).filter(k => /_adept_/.test(k)).length")
     got = await t.js(f'!!window.__tiamat.G.state.flags.{sigil}')
     print(f'{mid}: {n} presses, reached {pos}, adepts beaten: {beaten}, sigil: {got}')
+    # once won, the hall powers down: the Warden's pad takes you out, and the one by the entrance takes you back in
+    async def walk(goal, label):
+        steps = 0
+        for _ in range(40):
+            here = await t.js(f"[{W}.player.tx, {W}.player.ty]")
+            if tuple(here) == goal: break
+            route = pc.analyse(mid, plan=(tuple(here), {sigil}, goal))
+            if not route: print(mid, label, 'NO ROUTE from', here); break
+            await t.key(keymap[route[0]], 150, 30)
+            steps += 1
+            await t.wait(500)
+            await idle(t, 20000, label)
+        return steps, await t.js(f"[{W}.player.tx, {W}.player.ty]")
+    if shots: await t.shot(f'{mid}_pads')
+    wx, wy = next((x, y) for (tp, x, y, a, kv) in objs if tp == 'npc' and kv.get('script', '').endswith('.warden'))
+    print(f'   after winning: out', *(await walk(tuple(start), 'out')), ' back in', *(await walk((wx, wy + 1), 'in')))
 
 
 async def trials(t, port):

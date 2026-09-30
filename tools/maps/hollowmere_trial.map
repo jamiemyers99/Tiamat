@@ -5,6 +5,7 @@ floor: chapel
 wall: dark
 music: trial
 battle: arena
+done: sigil_veil
 light: dark
 
 layout:
@@ -76,3 +77,7 @@ furn 7 2 crystal
 furn 12 2 crystal
 furn 7 18 pot
 furn 12 18 pot
+warp 7 17 to=hollowmere_trial:10,3 face=up cond=sigil_veil quiet=1
+plate 7 17 on=sigil_veil onframe=warden_pad
+warp 12 3 to=hollowmere_trial:9,18 face=down cond=sigil_veil quiet=1
+plate 12 3 on=sigil_veil onframe=warden_pad

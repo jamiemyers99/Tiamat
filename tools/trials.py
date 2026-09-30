@@ -17,11 +17,26 @@ import random
 from mapkit import M, TRIAL_STYLE
 
 
+# Once a Trial is won the hall powers down, like a finished gym in the classics: ice and rift glass stop sliding,
+# currents go still, every gate stays open, and a pair of Warden's pads lights up: one by the entrance that takes you
+# straight to the Warden, one by the Warden that takes you straight back out. (hall: sigil, pad in, pad out)
+DONE = {
+    'brindlewood_trial': ('moss', (10, 15), (5, 3)),
+    'saltreach_trial': ('tide', (5, 18), (11, 3)),
+    'gearhollow_trial': ('spark', (6, 18), (5, 3)),
+    'hollowmere_trial': ('veil', (7, 17), (12, 3)),
+    'frostspire_trial': ('rime', (10, 21), (6, 3)),
+    'riftgate_trial': ('wyrm', (7, 17), (6, 3)),
+}
+
+
 def room(id, town, type_, rows, warden, adepts, guide, objs=(), light=None):
     st = TRIAL_STYLE[type_]
     H, W = len(rows), len(rows[0])
     assert all(len(r) == W for r in rows), f'{id}: ragged rows ' + str([len(r) for r in rows])
-    props = dict(name=f'{town} Trial Hall', floor=st['floor'], wall=st['wall'], music='trial', battle='arena')
+    sigil, pad_in, pad_out = DONE[id]
+    done = f'sigil_{sigil}'
+    props = dict(name=f'{town} Trial Hall', floor=st['floor'], wall=st['wall'], music='trial', battle='arena', done=done)
     if light:
         props['light'] = light
     m = M(id, W, H, kind='interior', **props)
@@ -35,7 +50,21 @@ def room(id, town, type_, rows, warden, adepts, guide, objs=(), light=None):
     gx, gy, text = guide
     m.npc(gx, gy, f'{id}_guide', 'ace', text=text)
     for o in objs:
+        if o.startswith('gate ') and ' open=' in o:          # gates stay open once the Trial is won
+            head, rest = o.split(' open=', 1)
+            cond, _, tail = rest.partition(' ')
+            o = f'{head} open={cond}|{done} {tail}'.rstrip()
         m.obj(o)
+    # the Warden's pads (hidden and inactive until the Trial is won)
+    mx, my = next((x, y) for y, r in enumerate(rows) for x, c in enumerate(r) if c == 'm')
+    taken = {(int(o.split()[1]), int(o.split()[2])) for o in objs if o.startswith('furn ')}
+    taken |= {(a[2], a[3]) for a in adepts} | {(wx, wy), (guide[0], guide[1])}
+    for (px, py), (tx, ty, face) in ((pad_in, (wx, wy + 1, 'up')), (pad_out, (mx, my - 1, 'down'))):
+        assert rows[py][px] in '._' and (px, py) not in taken, f'{id}: Warden pad at {px},{py} is not on free floor'
+        assert (tx, ty) not in taken, f'{id}: Warden pad arrival {tx},{ty} is taken'
+        assert rows[ty][tx] in '._', f'{id}: Warden pad arrival {tx},{ty} is not on the floor'
+        m.obj(f'warp {px} {py} to={id}:{tx},{ty} face={face} cond={done} quiet=1')
+        m.obj(f'plate {px} {py} on={done} onframe=warden_pad')
     return m
 
 

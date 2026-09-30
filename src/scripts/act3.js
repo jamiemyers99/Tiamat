@@ -1,5 +1,5 @@
 // Act III — Fog and Glass: Moorwind Way, Hollowmere and Glasslake.
-import { bossBattle, adeptsCleared } from './common.js';
+import { bossBattle, adeptsCleared, trialWon } from './common.js';
 
 export default {
   'route4.circle': async (S) => {
@@ -41,6 +41,7 @@ export default {
     S.sigil('veil'); S.set('sigil_veil');
     S.jingle('jingle_sigil');
     await S.say(null, '{PLAYER} received the Veil Sigil from Warden Morrow!');
+    await trialWon(S);
     await S.give('td09');
     await S.say('Morrow', "And now, the story you've been wondering about. Sit. Listen.");
     await S.say('Morrow', "Long ago the sea-dragon Tiamat was sundered, and the Reach was built from her body. She did not die. She sleeps.");

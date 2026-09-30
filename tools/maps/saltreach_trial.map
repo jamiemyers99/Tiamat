@@ -5,6 +5,7 @@ floor: tile
 wall: blue
 music: trial
 battle: arena
+done: sigil_tide
 
 layout:
 WWWWWWWWWWWWWWWWWW
@@ -39,3 +40,7 @@ furn 6 2 barrel
 furn 11 2 barrel
 furn 4 18 crate
 furn 13 18 crate
+warp 5 18 to=saltreach_trial:8,3 face=up cond=sigil_tide quiet=1
+plate 5 18 on=sigil_tide onframe=warden_pad
+warp 11 3 to=saltreach_trial:8,18 face=down cond=sigil_tide quiet=1
+plate 11 3 on=sigil_tide onframe=warden_pad

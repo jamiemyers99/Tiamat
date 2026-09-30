@@ -1,5 +1,5 @@
 // Act II — Salt and Iron: Thornwild, Saltreach, the Coldforge Mines and Gearhollow.
-import { rivalBattle, bossBattle, adeptsCleared } from './common.js';
+import { rivalBattle, bossBattle, adeptsCleared, trialWon } from './common.js';
 
 function starter(S) { return S.var('starter', 'spriglet'); }
 
@@ -90,6 +90,7 @@ export default {
     S.sigil('tide'); S.set('sigil_tide');
     S.jingle('jingle_sigil');
     await S.say(null, '{PLAYER} received the Tide Sigil from Captain Brann!');
+    await trialWon(S);
     await S.give('td08');
     await S.say('Brann', "TD08's Tide Pulse. And take this — my old Skiff. Folds up small enough for a pocket.");
     await S.give('skiff');
@@ -173,6 +174,7 @@ export default {
     S.sigil('spark'); S.set('sigil_spark');
     S.jingle('jingle_sigil');
     await S.say(null, '{PLAYER} received the Spark Sigil from Warden Iskra!');
+    await trialWon(S);
     await S.give('td04');
     await S.say('Iskra', 'TD04 is Thunder Arc. And — oh! — take one of these. I built it for couriers.');
     await S.give('wing_whistle');
