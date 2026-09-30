@@ -1,7 +1,8 @@
 // Loads a Tiled map (.tmj) into Phaser layers and exposes collision/behaviour data.
 import { TILE, DEPTH } from '../config.js';
 
-const META = ['none', 'solid', 'water', 'grass', 'ledge_down', 'ledge_left', 'ledge_right', 'counter', 'door', 'bridge', 'noenc'];
+const META = ['none', 'solid', 'water', 'grass', 'ledge_down', 'ledge_left', 'ledge_right', 'counter', 'door', 'bridge', 'noenc',
+  'ice', 'push_up', 'push_down', 'push_left', 'push_right'];
 
 function propsToObj(props) {
   const o = {};

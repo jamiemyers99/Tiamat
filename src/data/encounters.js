@@ -52,6 +52,12 @@ export const ENCOUNTERS = {
     cave: [['wyrmkin', 40, 43, 20], ['wyrmguard', 42, 45, 10], ['cairnite', 40, 43, 15], ['borebeast', 40, 43, 15], ['ferroclad', 41, 44, 10], ['vesperel', 40, 43, 15], ['duskwing', 40, 43, 15], ['scorvex', 40, 43, 10], ['grimshroud', 40, 43, 10], ['oculith', 41, 44, 6], ['wyverant', 41, 44, 4], ['alloyena', 40, 43, 8], ['juggernox', 43, 45, 3]],
     water: [['medusheen', 40, 44, 40], ['pincerock', 40, 44, 30], ['stormgull', 40, 44, 30], ['thundeel', 40, 44, 20]],
   },
+  // under Rootmere, after the Crown Challenge: the strongest wild Morphs in the Reach
+  ancient_tunnel: {
+    cave: [['cairnite', 52, 56, 18], ['montolith', 53, 57, 10], ['ferroclad', 52, 56, 14], ['borebeast', 52, 56, 14], ['alloyena', 52, 56, 12],
+      ['oculith', 53, 57, 10], ['wyrmguard', 54, 57, 8], ['juggernox', 55, 58, 6], ['coilossus', 54, 57, 6], ['wyverant', 55, 58, 4]],
+    water: [['medusheen', 52, 56, 40], ['thundeel', 52, 56, 30], ['pincerock', 52, 56, 30]],
+  },
 };
 
 if (typeof window !== 'undefined') { window.__encounters = ENCOUNTERS; }

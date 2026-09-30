@@ -27,17 +27,38 @@ TT..............::..............TT
 TT..............::..............TT
 TT..............::..............TT
 TT....::::::::::::::::::::::....TT
-TT..............................TT
-TT.......ss~~~~ss.....ffffffff..TT
-TT......s~~~~~~~s.....fFFFFFFf..TT
-TT......s~~~~~~~s.....fFFFFFFf..TT
-TT.......ss~~~ss......ffff.fff..TT
-TT..............................TT
+TT................::............TT
+TT.......ss~~~~ss.::..ffffffff..TT
+TT......s~~~~~~~s.::..fFFFFFFf..TT
+TT......s~~~~~~~s.::..fFFFFFFf..TT
+TT.......ss~~~ss..::..ffff.fff..TT
+TT................::............TT
+TTTTTTTTTTTTTTTTTT::TTTTTTTTTTTTTT
+TTTTTTTTTTTTTTTTTT::TTTTTTTTTTTTTT
+TTTTTTTT....::::::::....TTTTTTTTTT
+TTTTTTTT....:::::::...FFTTTTTTTTTT
+TTTTTTTTTT..::..........TTTTTTTTTT
+TTTTTTTTTTF.::..........TTTTTTTTTT
+TTTTTTTTTT..::.........FTTTTTTTTTT
+TTTTTTTTTT.F::..........TTTTTTTTTT
+TTTTTTTTTT..:::::::.......TTTTTTTT
+TTTTTTTTTTF.:::::::..F....TTTTTTTT
+TTTTTTTT..............F..FTTTTTTTT
+TTTTTTTT.F.....F..........TTTTTTTT
 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
 end
 
 objects:
+ancient_door 16 28 to=ancient_tunnel:15,37 face=up cond=ancient_door_open locked="An enormous door of carved stone, far older than Rootmere. In the middle of it is an empty hollow, the shape of a gem."
+plate 18 31 on=ancient_door_open frame=ancient_slab onframe=ancient_open
+trigger 18 32 script=rootmere.ancient_door w=1 h=1 cond=has:crown_gem&!ancient_door_open
+prop 15 31 stone
+prop 21 31 stone
+prop 11 28 stone
+prop 22 29 stone
+prop 20 33 sign text="THE OLD DOOR|Older than Rootmere itself. Nobody knows who built it, or how it opens."
+npc 14 29 id=rm_elder sprite=elder face=right move=still script=rootmere.elder
 building 4 3 house w=5 h=4 roof=red variant=0 to=home_1f
 building 21 2 lab w=7 h=5 roof=slate wall=white label=LAB to=marsh_lab
 building 5 13 house w=4 h=4 roof=blue wall=wood variant=1 to=wren_house
@@ -45,11 +66,11 @@ building 24 13 house w=4 h=4 roof=green wall=timber variant=2 to=rootmere_cottag
 prop 15 5 sign text="ROOTMERE|Where every journey takes root."
 prop 20 7 sign text="MARSH MORPH LAB|Dr. Ione Marsh, Morph Researcher"
 prop 10 6 sign text="{PLAYER}'S HOUSE"
-prop 18 22 sign text="ROOTMERE POND|Please do not feed the Puddlets."
+prop 17 22 sign text="ROOTMERE POND|Please do not feed the Puddlets."
 prop 9 6 mailbox
 prop 30 20 hay
 prop 30 21 hay
-prop 19 19 hay
+prop 21 19 hay
 npc 11 22 id=rm_kid sprite=kid face=down move=wander text="When I'm older I'm going to be a Tamer too! I'll catch a Puddlet from the pond... once they stop splashing me." radius=2
 npc 25 20 id=rm_farmer sprite=farmer face=down move=still text="The Nibbits keep nibbling my carrots. Can't stay cross at them, though. Look at their little faces!"
 npc 21 11 id=rm_woman sprite=woman face=down move=wander radius=2 script=rootmere.woman

@@ -3,12 +3,50 @@ import { SPECIES } from '../data/species.js';
 import { RIVAL_PICK } from '../data/trainers.js';
 import { rivalBattle, adeptsCleared } from './common.js';
 import { partnerIvs } from '../data/difficulty.js';
+import { INDEX_TOTAL, indexCount, dueRewards, nextReward, rewardFlag } from '../data/indexRewards.js';
 
 const STARTERS = {
   spriglet: { name: 'Spriglet', type: 'Nature', blurb: 'Spriglet, the Nature Morph. Patient and tough — it drinks sunlight and shrugs off Tide and Stone attacks.' },
   cindlet: { name: 'Cindlet', type: 'Ember', blurb: 'Cindlet, the Ember Morph. A fiery little scrapper that burns through Nature and Frost.' },
   puddlet: { name: 'Puddlet', type: 'Tide', blurb: 'Puddlet, the Tide Morph. Playful and quick — it douses Ember and Stone Morphs.' },
 };
+
+// Dr. Marsh hands out a reward for every Index milestone you've reached since your last visit.
+async function indexRewards(S) {
+  for (const r of dueRewards(S.state.index.caught, S.state.flags)) {
+    S.set(rewardFlag(r));
+    if (r.at === 'all') {
+      await S.say('Dr. Marsh', `All ${INDEX_TOTAL}... {PLAYER}, you've done it. Every Morph in the Riven Reach, caught and catalogued. Nobody has ever managed that. Nobody!`);
+      await S.say('Dr. Marsh', 'Here — some prize money, and the Radiant Charm. Carry it, and Radiant Morphs will find you three times as often.');
+      S.money(r.money);
+      await S.say(null, `{PLAYER} received ${r.money.toLocaleString()}¢!`);
+      await S.give('radiant_charm');
+      await S.say('Dr. Marsh', "And... there's something else. When this lab was built, the diggers found an egg deep under the village. Iron-hard. Cold as stone. It has never hatched.");
+      await S.say('Dr. Marsh', "This morning it was warm. And when you walked in just now, it started to glow. I think it has been waiting for you.");
+      await S.give('mystery_egg');
+      await S.say('Dr. Marsh', "The old Covenant records speak of 'the cradle of the Deep King' — behind the ancient stone door at the south end of Rootmere. Nobody has opened it in a thousand years.");
+      if (S.flag('ancient_door_open')) {
+        await S.say('Dr. Marsh', "...You've already opened it?! Then take the egg down there, {PLAYER}. Whatever is waiting below has been waiting for this.");
+      } else if (S.has('crown_gem')) {
+        await S.say('Dr. Marsh', "Wait — that gem in your bag. The Wardens' Crown Gem! The carvings match the door. {PLAYER}... go and see.");
+      } else {
+        await S.say('Dr. Marsh', "The records say only the Champion of the Wardens' Crown holds its key. If anyone could earn that, it's you.");
+      }
+      continue;
+    }
+    await S.say('Dr. Marsh', `${r.at} Morphs caught! That's a real milestone, {PLAYER}. Your records are a gift to my research — so here's something in return.`);
+    S.money(r.money);
+    await S.say(null, `{PLAYER} received ${r.money.toLocaleString()}¢!`);
+    for (const [id, qty] of r.items) { await S.give(id, qty); }
+  }
+  const next = nextReward(S.state.index.caught);
+  if (next) {
+    const left = (next.at === 'all' ? INDEX_TOTAL : next.at) - indexCount(S.state.index.caught);
+    await S.say('Dr. Marsh', next.at === 'all'
+      ? `Just ${left} more to complete the whole Index! I have something very special waiting for whoever does.`
+      : `Catch ${left} more and come back — I'll have another reward ready for you.`);
+  }
+}
 
 export default {
   // ── home ────────────────────────────────────────────────────────────────
@@ -107,14 +145,18 @@ export default {
   },
   'lab.marsh': async (S) => {
     if (!S.flag('got_starter')) { await S.say('Dr. Marsh', 'Take your time. A Tamer and their first Morph are partners for life.'); return; }
-    const seen = S.state.index.seen.length, caught = S.state.index.caught.length;
-    await S.say('Dr. Marsh', `Let me see your Index... ${seen} seen, ${caught} caught.`);
-    const verdict = caught >= 60 ? "Extraordinary. You've nearly catalogued the whole Reach!"
-      : caught >= 40 ? 'Superb work. The Index has never been this full.'
-        : caught >= 20 ? 'A fine start! Every new Morph teaches us something.'
-          : caught >= 8 ? "Good! Keep an eye on the tall grass — different Morphs come out at night."
-            : 'Everyone starts somewhere. Weaken wild Morphs, then throw a Capsule!';
+    const seen = S.state.index.seen.length;
+    const caught = indexCount(S.state.index.caught);
+    await S.say('Dr. Marsh', `Let me see your Index... ${seen} seen, ${caught} of ${INDEX_TOTAL} caught.`);
+    const verdict = caught >= INDEX_TOTAL ? 'Every single Morph in the Reach. The Index is complete!'
+      : caught >= 100 ? "Extraordinary. Only a handful left in the whole Reach!"
+        : caught >= 60 ? "Remarkable. You've catalogued most of the Reach!"
+          : caught >= 40 ? 'Superb work. The Index has never been this full.'
+            : caught >= 20 ? 'A fine start! Every new Morph teaches us something.'
+              : caught >= 8 ? "Good! Keep an eye on the tall grass — different Morphs come out at night."
+                : 'Everyone starts somewhere. Weaken wild Morphs, then throw a Capsule!';
     await S.say('Dr. Marsh', verdict);
+    await indexRewards(S);
     if (S.state.sigils.length >= 6 && !S.flag('cradle_done')) {
       await S.say('Dr. Marsh', "Six Sigils... Be careful, {PLAYER}. I've read the old records. The Sigils were never meant to be together.");
     }

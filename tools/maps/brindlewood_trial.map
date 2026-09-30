@@ -7,66 +7,33 @@ music: trial
 battle: arena
 
 layout:
-WWWWWWWWWWWWWW
-WWWwWWWWWWwWWW
-..............
-..............
-......__......
-......__......
-......__......
-......__......
-......__......
-......__......
-......__......
-......__......
-......__......
-......__......
-......__......
-......__......
-......__......
-......mm......
+WWWWWWWWWWWWWWWWW
+WWWWWWWWWWWWWWWWW
+........_........
+.......___.......
+hhhhhhhhh.hhhhhhh
+h...............h
+hhhhhhhhhhhhhhh.h
+h...h.......h...h
+h.h.h.hhhhh.h.hhh
+h.h.....h...h.h.h
+h.hhhhh.h.h.h.h.h
+h.....h.h.h.....h
+hhhhh.h.h.hhhhh.h
+h.......h.......h
+hhhhhhh.hhhhhhhhh
+h......._.......h
+.......mm........
 end
 
 objects:
-furn 1 2 banner
-furn 12 2 banner
-furn 5 2 statue
-furn 8 2 statue
-furn 3 6 plant
-furn 10 6 plant
-furn 3 10 plant
-furn 10 10 plant
-furn 3 14 plant
-furn 10 14 plant
-furn 0 16 plant
-furn 13 16 plant
-furn 0 12 rail v=2
-furn 1 12 rail v=3
-furn 2 12 rail v=3
-furn 3 12 rail v=3
-furn 4 12 rail v=1
-furn 8 12 rail v=2
-furn 9 12 rail v=3
-furn 10 12 rail v=3
-furn 11 12 rail v=3
-furn 12 12 rail v=3
-furn 13 12 rail v=1
-npc 5 12 id=bw_adept_1 sprite=lass face=right move=still trainer=bw_adept_1 sight=3
-furn 0 8 rail v=2
-furn 1 8 rail v=3
-furn 2 8 rail v=3
-furn 3 8 rail v=3
-furn 4 8 rail v=3
-furn 5 8 rail v=1
-furn 9 8 rail v=2
-furn 10 8 rail v=3
-furn 11 8 rail v=3
-furn 12 8 rail v=3
-furn 13 8 rail v=1
-npc 8 8 id=bw_adept_2 sprite=ranger face=left move=still trainer=bw_adept_2 sight=3
-npc 6 3 id=mossa sprite=mossa face=down move=still script=brindlewood_trial.warden
-npc 9 15 id=brindlewood_trial_guide sprite=ace face=down move=still text="Hey, challenger! Warden Mossa's Morphs are Nature type. Fire burns them, and birds peck them to bits. Tide Morphs will struggle in here!"
-furn 1 10 plant
-furn 12 10 plant
-furn 1 14 plant
-furn 12 14 plant
+npc 8 2 id=mossa sprite=mossa face=down move=still script=brindlewood_trial.warden
+npc 6 9 id=bw_adept_1 sprite=lass face=left move=still trainer=bw_adept_1 sight=3 post=1
+npc 12 11 id=bw_adept_2 sprite=ranger face=right move=still trainer=bw_adept_2 sight=3 post=1
+npc 6 15 id=brindlewood_trial_guide sprite=ace face=down move=still text="Hey, challenger! Warden Mossa grew this hedge maze herself. Find your way to her! Her Morphs are Nature type — Fire burns them, and birds peck them to bits."
+furn 0 2 plant
+furn 16 2 plant
+furn 6 2 statue
+furn 10 2 statue
+furn 0 15 plant
+furn 16 15 plant

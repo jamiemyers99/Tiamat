@@ -2,6 +2,7 @@
 import { rivalBattle, bossBattle, adeptsCleared } from './common.js';
 import { audio } from '../core/audio.js';
 import { SPECIES } from '../data/species.js';
+import { CROWN_ORDER } from '../data/trainers.js';
 
 function starter(S) { return S.var('starter', 'spriglet'); }
 
@@ -217,6 +218,8 @@ export default {
 
   // ── The Warden's Crown ─────────────────────────────────────────────────
   'map:spire_crown': async (S) => {
+    // like a Pokémon League: walk out of the Crown and the Challenge starts again from the first Warden
+    if (S.flag('game_clear')) { S.setVar('crown_round', 0); }
     if (!S.flag('cradle_done') || S.flag('crown_scene')) { return; }
     S.set('crown_scene');
     await S.wait(300);
@@ -246,6 +249,7 @@ export default {
   },
   'crown.warden': async (S, ctx) => {
     const id = ctx.npc ? ctx.npc.id.replace('crown_', '') : '';
+    const name = cap(id);
     const lines = {
       mossa: "Come and visit my garden, dear. It's quieter now. The stone still sings, but it's a happier song.",
       brann: "Fancy a sail? The Riven's safe to sail now. Imagine that!",
@@ -254,12 +258,98 @@ export default {
       hale: "When you want a real climb, come find me. I know a peak nobody's named yet.",
       seren: 'The Spire is open to you whenever you want it, Covenant.',
     };
-    await S.say(id.charAt(0).toUpperCase() + id.slice(1), lines[id] || '...');
+    if (!S.flag('game_clear')) { await S.say(name, lines[id] || '...'); return; }
+    const round = S.var('crown_round', 0);
+    if (round >= CROWN_ORDER.length) { await S.say(name, 'Six Wardens down. Only Wren is left, {PLAYER} — go on!'); return; }
+    const next = CROWN_ORDER[round];
+    if (id !== next) {
+      if (round === 0) {
+        await S.say(name, lines[id] || '...');
+        await S.say(name, S.flag('crown_champion')
+          ? "Back for another Crown Challenge, Champion? Mossa goes first, as always."
+          : "If you want a real test, {PLAYER}, speak to Mossa. The Crown Challenge starts with her.");
+      } else {
+        await S.say(name, `Patience! It's ${cap(next)}'s turn. Round ${round + 1} of the Crown Challenge.`);
+      }
+      return;
+    }
+    if (round === 0) {
+      if (!S.flag('crown_explained')) {
+        await S.say('Mossa', "Now then, dear. The Wardens have been talking. You beat each of us once, one at a time, with weeks to train in between.|The Crown Challenge is different. All six Wardens at full strength, one after another. Then Wren, who has been training every single day.");
+        await S.say('Mossa', "There's no Haven up here, so bring plenty of medicine. If you lose, or walk out of the Crown, you start again with me.|Win all seven, and you're the Champion of the Warden's Crown. Seren has something for whoever manages it.");
+        S.set('crown_explained');
+      }
+      if (!(await S.ask('Mossa', 'Take the Crown Challenge?', 'Bring it on', 'Not yet'))) { await S.say('Mossa', "Take your time. We're not going anywhere."); return; }
+    }
+    await crownRun(S);
   },
   'crown.wren': async (S) => {
-    await S.say('Wren', "Grandma cried. Don't tell her I told you. Want a rematch sometime? I'll be training.");
+    if (!S.flag('game_clear')) { await S.say('Wren', "Grandma cried. Don't tell her I told you. Want a rematch sometime? I'll be training."); return; }
+    const round = S.var('crown_round', 0);
+    if (round < CROWN_ORDER.length) {
+      await S.say('Wren', round === 0
+        ? (S.flag('crown_champion')
+          ? "Champion! I've been training. Beat all six Wardens again and I'll be right here for the last round."
+          : "I'm the last round of the Crown Challenge. Beat all six Wardens first — start with Mossa. I'll be right here.")
+        : `${6 - round} Warden${6 - round === 1 ? '' : 's'} to go. Don't keep me waiting!`);
+      return;
+    }
+    await crownFinal(S);
   },
 };
+
+const cap = (id) => id.charAt(0).toUpperCase() + id.slice(1);
+
+// Face the Wardens in order. After each win you can carry straight on, or stop to use items and talk to the next
+// Warden when you're ready. A loss (or leaving the Crown) sends you back to round one.
+async function crownRun(S) {
+  for (;;) {
+    const round = S.var('crown_round', 0);
+    const id = CROWN_ORDER[round];
+    S.face(`crown_${id}`, 'player');
+    const r = await S.battle(`elite_${id}`, { noWhiteout: true, boss: true });
+    if (r !== 'win') { await crownLost(S); return; }
+    S.setVar('crown_round', round + 1);
+    if (round + 1 >= CROWN_ORDER.length) {
+      await S.say('Seren', 'All six Wardens. Only one challenger remains, {PLAYER}.');
+      if (await S.ask(null, 'Face Wren for the final round?', 'Yes', 'Not yet')) { await crownFinal(S); }
+      else { await S.say(null, 'Talk to Wren when you are ready. (Leaving the Crown restarts the Challenge.)'); }
+      return;
+    }
+    const next = cap(CROWN_ORDER[round + 1]);
+    if (!(await S.ask(null, `Round ${round + 2} of 7: face ${next} now?`, 'Yes', 'Not yet'))) {
+      await S.say(null, `Talk to ${next} when you are ready. (Leaving the Crown restarts the Challenge.)`);
+      return;
+    }
+  }
+}
+
+async function crownLost(S) {
+  S.setVar('crown_round', 0);
+  await S.whiteout();
+}
+
+async function crownFinal(S) {
+  S.face('crown_wren', 'player');
+  await S.say('Wren', S.flag('crown_champion')
+    ? "The Champion, back again! This time I've got you. I can feel it!"
+    : "Seven rounds. Six Wardens. And me. I've waited a long time for this, {PLAYER}.");
+  const r = await S.battle(`elite_wren_${starter(S)}`, { noWhiteout: true, boss: true });
+  if (r !== 'win') { await crownLost(S); return; }
+  S.setVar('crown_round', 0);
+  S.setVar('crown_wins', S.var('crown_wins', 0) + 1);
+  await S.heal();
+  if (S.flag('crown_champion')) {
+    await S.say('Seren', 'Champion of the Warden\'s Crown, again. The Reach is in good hands, {PLAYER}.');
+    return;
+  }
+  S.set('crown_champion');
+  await S.say('Seren', "Seven battles without a Haven. It has not been done since the first Covenant.|{PLAYER}, you are the Champion of the Warden's Crown.");
+  await S.say('Seren', 'When the first Covenant built the Spire, they left a gem on this crown for the Tamer who could stand where you stand now. Take it.');
+  await S.give('crown_gem');
+  await S.say('Seren', "The old records say it is a key. Under your own village, Rootmere, there is a door of carved stone that nobody has opened in a thousand years.|It was sealed by the same hands that sealed Tiamat. I think it is time someone found out why.");
+  await S.say('Wren', "The weird old door behind the village? We used to dare each other to knock on it! ...Go on then, Champion. Tell me what's inside.");
+}
 
 async function finale(S) {
   S.set('cradle_done');

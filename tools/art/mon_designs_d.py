@@ -61,3 +61,43 @@ NEW['seraphelis'] = (dict(body='#fff6ff', belly='#ffffff', accent='#ffc2ea', inn
     Spot(41, 39, 3, 'gem', z=3.6, view='front'), Spot(40.2, 38, 1, 'belly', z=3.7, view='front'),
     Spot(30.5, 50, 2.4, 'inner', z=3.5, view='front'), Spot(50.5, 49.5, 2.4, 'inner', z=3.5, view='front'),
     star(40, 67, 4.2, 'star', z=1.2)], s=1.12, dy=0))
+
+# 106. abzurath -- Tiamat's counterpart, the Draco King: the deep bedrock under the first sea, given a shape.
+# A massive four-legged iron dragon: dark plated hide with molten amber seams, a bronze crown of horns, a heavy
+# anchor-fluked tail (he holds the world still) and a glowing core in his chest.
+NEW['abzurath'] = (dict(body='#3e4658', belly='#9aa4b8', plate='#6a7488', bronze='#d09a3c', core='#ffb040',
+                        horn='#e8d8b0', wing='#2e3446', claw='#e8d8b0'), [
+    # folded plate-wings (behind)
+    Leaf(62, 44, 34, 16, -1.05, 'wing', z=-3.4), Leaf(66, 48, 28, 12, -0.55, 'wing', z=-3.5),
+    Tri([(58, 30), (66, 16), (64, 34)], 'bronze', z=-3.3),
+    # anchor tail sweeping behind
+    Cap(70, 70, 84, 62, 7, 4.5, 'body', z=-2), Cap(84, 62, 90, 48, 4.5, 2.6, 'body', z=-2.1),
+    Tri([(84, 46), (95, 44), (90, 38)], 'bronze', z=-2.05), Tri([(84, 46), (86, 36), (90, 42)], 'bronze', z=-2.06),
+    Cap(76, 66, 88, 56, 1.4, 1, 'core', z=-1.9),
+    # hind legs
+    E(66, 74, 10, 12, 'body', z=-1), Cap(68, 80, 70, 88, 5.5, 5, 'body', z=-0.9), E(70, 89, 7, 2.6, 'claw', z=-0.8),
+    # the great plated body
+    E(54, 64, 22, 16, 'body', z=0, rot=-0.08),
+    Tri([(40, 50), (46, 40), (50, 51)], 'plate', z=-0.2), Tri([(50, 49), (57, 38), (60, 50)], 'plate', z=-0.3),
+    Tri([(60, 50), (68, 41), (70, 54)], 'plate', z=-0.4),
+    Cap(38, 64, 70, 66, 1.2, 1.2, 'core', z=0.4),                      # molten seam along the flank
+    E(44, 70, 12, 9, 'belly', z=0.6),
+    # front legs (thick pillars)
+    Cap(40, 70, 38, 86, 7, 6, 'body', z=1.2), E(37, 89, 8, 2.8, 'claw', z=1.3),
+    Cap(52, 72, 54, 86, 6, 5.5, 'body', z=0.8), E(55, 89, 7, 2.6, 'claw', z=0.9),
+    E(38, 78, 6.5, 3, 'plate', z=1.3), E(53, 78, 6, 3, 'plate', z=0.9),
+    # chest and its glowing core
+    E(34, 58, 11, 12, 'body', z=1.5), E(31, 60, 7, 9, 'belly', z=1.6),
+    Spot(31, 64, 4, 'core', z=2.2), Spot(30, 62.6, 1.5, 'horn', z=2.3),
+    Tri([(27, 64), (31, 57), (35, 64), (31, 71)], 'bronze', z=2.15),    # the core's bronze setting
+    # neck and head
+    Cap(34, 50, 26, 34, 8, 6.5, 'body', z=2), Cap(30, 50, 22, 36, 3.4, 2.4, 'belly', z=2.1),
+    E(20, 28, 11, 8.5, 'body', z=2.5, rot=0.05), E(10, 33, 8, 5.2, 'body', z=2.6), E(12, 37, 7.4, 2.4, 'belly', z=2.7),
+    Tri([(5, 35), (6, 39), (8, 35)], 'claw', z=2.8), Tri([(10, 36), (11, 40), (13, 36)], 'claw', z=2.8),
+    Cap(18, 32, 25, 36, 1, 1, 'core', z=2.75),                          # a glowing seam along the jaw
+    # the Draco King's crown of horns
+    Cap(24, 22, 38, 8, 2.8, 1, 'horn', z=2.3), Cap(28, 26, 42, 16, 2.4, 1, 'horn', z=2.2),
+    Cap(15, 22, 26, 20, 1.6, 1.6, 'bronze', z=2.9),
+    Tri([(14.5, 22.5), (15, 13), (18.5, 21.5)], 'bronze', z=2.95), Tri([(18.5, 21.5), (20.5, 11), (23, 21)], 'bronze', z=2.95),
+    Tri([(22.5, 21), (25.5, 14), (26.5, 21.5)], 'bronze', z=2.95), Spot(20.5, 20.5, 1.3, 'core', z=3),
+    Eye(16, 27, 3, 'fierce', iris='#ffb040')])

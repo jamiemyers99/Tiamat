@@ -1,0 +1,94 @@
+id: ancient_tunnel
+kind: cave
+name: Ancient Tunnel
+base: cave
+music: cave
+battle: cave
+light: dark
+enc_floor: 1
+escape: rootmere:18,32
+
+layout:
+RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR
+RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR
+RRRRRRRRRRRR.......RRRRRRRRRRRRR
+RRRRRRRRRRRR.......RRRRRRRRRRRRR
+RRRRRRRRRRRR.......RRRRRRRRRRRRR
+RRRRRRRRRRRR.......RRRRRRRRRRRRR
+RRRRRRRR...................RRRRR
+RRRRRRRR...................RRRRR
+RRRRRRRR...................RRRRR
+RRRRRRRR...................RRRRR
+RRRRRRRR...................RRRRR
+RRRRRRRRRRRRRRRRRRRRRRR....RRRRR
+RRRRRRRRRRRRRRRRRRRRRRR....R...R
+RRRRRRRRRRRRRRRRRRRRRRR....R...R
+RRRRRRRRRRRRRRRRRRRRRRR........R
+RRRRRRRRRRRRRRRRRRRRRRR....R...R
+RRRR.......................R...R
+RRRR.......................RRRRR
+RRRR.....~~~~~.............RRRRR
+RRRR.....~~~~~.............RRRRR
+RRRR.....~~~~~.............RRRRR
+RRRR.......................RRRRR
+RRRR....RRRRRRRRRRRRR..RRRRRRRRR
+RRo.....RRRRRRRRRRRRR..RRRRRRRRR
+RR......RRRRRRRRRRRRRRRRRRRRRRRR
+RR........RRRRRRRRRRRRRRRRRRRRRR
+RR........RRRRRRRRRRRRRRRRRRRRRR
+RRRR......RRRRRRRRRRRRRRRRRRRRRR
+RRRR......RRRRRRRRRRRRRRRRRRRRRR
+RRRR.....oRRRRRRRRRRRRRRRRRRRRRR
+RRRR....RRRRRRRRRRRRRRRRRRRRRRRR
+RRRR....RRR..........RRRRRRRRRRR
+RRRR.................RRRRRRRRRRR
+RRRR........................RRRR
+RRRR........................RRRR
+RRRRRRRRRRR.................RRRR
+RRRRRRRRRRR.................RRRR
+RRRRRRRRRRR..........RRRRRRRRRRR
+RRRRRRRRRRRRRRR..RRRRRRRRRRRRRRR
+RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR
+end
+
+objects:
+warp 15 38 to=rootmere:18,32 face=down
+warp 16 38 to=rootmere:18,32 face=down
+furn 13 33 pillar
+furn 18 33 pillar
+furn 13 35 pillar
+furn 18 35 pillar
+furn 16 16 pillar
+furn 20 16 pillar
+furn 9 16 pillar
+furn 14 8 pillar
+furn 18 8 pillar
+ancient_door 13 2 to=deep_cradle cond=keeper_met locked="The carved slab will not move."
+plate 15 5 on=keeper_met frame=ancient_slab onframe=ancient_open
+prop 12 31 stone
+prop 19 31 stone
+prop 12 36 stone
+prop 19 36 stone
+prop 4 16 stone
+prop 26 16 stone
+prop 8 6 stone
+prop 20 6 stone
+prop 11 6 stone
+prop 21 33 crystal
+prop 27 36 crystal
+prop 4 34 crystal
+prop 26 21 crystal
+prop 4 21 crystal
+prop 30 12 crystal
+prop 26 6 crystal
+npc 15 6 id=keeper_enna sprite=elder_b face=down move=still script=tunnel.keeper name=Enna hide=keeper_met
+npc 13 6 id=keeper_enna_side sprite=elder_b face=right move=still script=tunnel.keeper name=Enna show=keeper_met
+trigger 21 6 script=tunnel.keeper w=1 h=5 cond=!keeper_met
+npc 6 27 id=at_ace sprite=ace face=down move=still trainer=at_ace sight=4
+npc 18 21 id=at_mystic sprite=mystic face=up move=still trainer=at_mystic sight=3
+npc 23 11 id=at_ace_b sprite=ace_b face=right move=still trainer=at_ace_b sight=3
+item 26 34 item=apex_capsule qty=3 flag=item_ancient_tunnel_26_34
+item 5 17 item=full_tonic qty=2 flag=item_ancient_tunnel_5_17
+item 29 15 item=growth_fruit qty=1 flag=item_ancient_tunnel_29_15
+item 24 7 item=bloom_seed qty=1 flag=item_ancient_tunnel_24_7 hidden=1
+item 6 33 item=panacea qty=1 flag=item_ancient_tunnel_6_33

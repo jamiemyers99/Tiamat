@@ -100,6 +100,33 @@ export class Actor {
   }
 
   // Hop over a ledge: move `tiles` in dir with an arc.
+  // Glide one tile without stepping (ice, water currents). `face` is kept unless given.
+  slide(dir, ms, face = null) {
+    const [dx, dy] = DIRS[dir];
+    if (face) { this.face = face; }
+    this.moving = true;
+    const sx = this.sprite.x, sy = this.sprite.y;
+    this.tx += dx; this.ty += dy;
+    return new Promise((resolve) => {
+      let t = 0;
+      const upd = (time, delta) => {
+        t += delta;
+        const k = Math.min(1, t / ms);
+        this.sprite.x = sx + dx * TILE * k;
+        this.sprite.y = sy + dy * TILE * k;
+        this._frame(0);
+        this._depth();
+        if (k >= 1) {
+          this.scene.events.off('update', upd);
+          this.moving = false;
+          this._place();
+          resolve();
+        }
+      };
+      this.scene.events.on('update', upd);
+    });
+  }
+
   hop(dir, tiles = 2, ms = 420) {
     const [dx, dy] = DIRS[dir];
     this.face = dir;

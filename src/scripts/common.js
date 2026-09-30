@@ -43,6 +43,13 @@ export async function adeptsCleared(S, warden) {
 }
 
 export default {
+  // Trial floor switches: flip a flag; gates and the switch lights update straight away.
+  'trial.flip': async (S, ctx) => {
+    const f = ctx.trigger && ctx.trigger.props.flag;
+    if (!f) { return; }
+    S.set(f, !S.flag(f));
+    S.sfx(f.startsWith('gh') ? 'mv_zap' : 'mv_orb');
+  },
   'home.pc': async (S) => {
     await S.say(null, '{PLAYER} booted up the PC.');
     await S.openScreen('storage');

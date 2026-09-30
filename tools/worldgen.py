@@ -8,6 +8,7 @@ Coordinates are tiles; (0,0) is the top-left.
 """
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import trials
 from mapkit import M, haven, house, trial
 
 MAPS = []
@@ -30,10 +31,25 @@ def conn(a, side, b, off):
 # ═══════════════════════════════════════════════════════════════════════════
 @reg
 def rootmere():
-    m = M('rootmere', 34, 26, name='Rootmere', kind='town', base='grass', music='rootmere', weather='none',
+    m = M('rootmere', 34, 38, name='Rootmere', kind='town', base='grass', music='rootmere', weather='none',
           battle='meadow', north='route1 0', fly='6,7')
     m.border(gaps=[('n', 16, 17)])
     m.path([(16, 0), (16, 17)])
+    # ── the south glade and the Old Door (Covenant stonework, older than the village; there all game) ──
+    m.rect(2, 24, 31, 25, 'T')
+    m.path([(18, 17), (18, 26), (12, 26), (12, 32), (18, 32)])
+    m.grove(2, 26, 8, 10); m.grove(24, 26, 8, 10)
+    m.rect(8, 26, 9, 27, '.'); m.rect(24, 32, 25, 35, '.'); m.rect(8, 34, 9, 35, '.')
+    m.path([(18, 24), (18, 25)])
+    m.scatter([(10, 29), (11, 31), (22, 27), (23, 30), (23, 27), (21, 33), (10, 33), (15, 35), (22, 34), (9, 35), (25, 34)], 'F')
+    m.obj('ancient_door 16 28 to=ancient_tunnel:15,37 face=up cond=ancient_door_open '
+          'locked="An enormous door of carved stone, far older than Rootmere. In the middle of it is an empty hollow, the shape of a gem."')
+    m.obj('plate 18 31 on=ancient_door_open frame=ancient_slab onframe=ancient_open')
+    m.trigger(18, 32, 'rootmere.ancient_door', cond='has:crown_gem&!ancient_door_open')
+    for (x, y) in [(15, 31), (21, 31), (11, 28), (22, 29)]:
+        m.obj(f'prop {x} {y} stone')
+    m.sign(20, 33, 'THE OLD DOOR|Older than Rootmere itself. Nobody knows who built it, or how it opens.')
+    m.npc(14, 29, 'rm_elder', 'elder', face='right', script='rootmere.elder')
     m.rect(4, 7, 29, 7, ':')
     m.rect(6, 17, 27, 17, ':')
     m.rect(12, 3, 13, 4, 'b')
@@ -56,9 +72,9 @@ def rootmere():
     m.sign(15, 5, 'ROOTMERE|Where every journey takes root.')
     m.sign(20, 7, 'MARSH MORPH LAB|Dr. Ione Marsh, Morph Researcher')
     m.sign(10, 6, "{PLAYER}'S HOUSE")
-    m.sign(18, 22, 'ROOTMERE POND|Please do not feed the Puddlets.')
+    m.sign(17, 22, 'ROOTMERE POND|Please do not feed the Puddlets.')
     m.obj('prop 9 6 mailbox')
-    m.obj('prop 30 20 hay'); m.obj('prop 30 21 hay'); m.obj('prop 19 19 hay')
+    m.obj('prop 30 20 hay'); m.obj('prop 30 21 hay'); m.obj('prop 21 19 hay')
     m.npc(11, 22, 'rm_kid', 'kid', move='wander', radius=2,
           text="When I'm older I'm going to be a Tamer too! I'll catch a Puddlet from the pond... once they stop splashing me.")
     m.npc(25, 20, 'rm_farmer', 'farmer', face='down',
@@ -187,12 +203,7 @@ def brindlewood_haven():
 
 @reg
 def brindlewood_trial():
-    m = trial('brindlewood_trial', 'Brindlewood', 'Nature', 'mossa', 'mossa',
-              [('bw_adept_1', 'lass', 5, 12, 'right'), ('bw_adept_2', 'ranger', 8, 8, 'left')],
-              "Hey, challenger! Warden Mossa's Morphs are Nature type. Fire burns them, and birds peck them to bits. Tide Morphs will struggle in here!")
-    for (x, y) in [(1, 10), (12, 10), (1, 14), (12, 14)]:
-        m.obj(f'furn {x} {y} plant')
-    return m
+    return trials.brindlewood_trial()
 
 
 @reg
@@ -367,12 +378,7 @@ def saltreach_haven():
 
 @reg
 def saltreach_trial():
-    m = trial('saltreach_trial', 'Saltreach', 'Tide', 'brann', 'brann',
-              [('st_adept_1', 'sailor', 5, 12, 'right'), ('st_adept_2', 'fisher', 8, 8, 'left'), ('st_adept_3', 'sailor', 5, 5, 'right')],
-              "Ahoy! Captain Brann's crew are all Tide type. Nature and Static Morphs make short work of them. Try not to get soaked!")
-    for (x, y) in [(1, 10), (12, 10), (1, 14), (12, 14)]:
-        m.obj(f'furn {x} {y} crate')
-    return m
+    return trials.saltreach_trial()
 
 
 @reg
@@ -557,12 +563,7 @@ def gearhollow_haven():
 
 @reg
 def gearhollow_trial():
-    m = trial('gearhollow_trial', 'Gearhollow', 'Static', 'iskra', 'iskra',
-              [('gh_adept_1', 'engineer', 5, 12, 'right'), ('gh_adept_2', 'scholar', 8, 8, 'left'), ('gh_adept_3', 'engineer', 5, 5, 'right')],
-              "Hey hey! Iskra's Morphs are Static type — but half of them are armoured in Iron too. Stone Morphs shrug off lightning. Bring one!")
-    for (x, y) in [(1, 10), (12, 10), (1, 14), (12, 14), (0, 4), (13, 4)]:
-        m.obj(f'furn {x} {y} machine')
-    return m
+    return trials.gearhollow_trial()
 
 
 @reg
@@ -712,13 +713,7 @@ def hollowmere_haven():
 
 @reg
 def hollowmere_trial():
-    m = trial('hollowmere_trial', 'Hollowmere', 'Umbra', 'morrow', 'morrow',
-              [('hm_adept_1', 'mystic', 5, 12, 'right'), ('hm_adept_2', 'scholar', 8, 8, 'left'), ('hm_adept_3', 'mystic', 5, 5, 'right')],
-              "...Can you see me? Warden Morrow keeps the hall dark. Umbra Morphs fear Brawl fists and bright Swarm wings.",
-              light='dark')
-    for (x, y) in [(1, 10), (12, 10), (1, 14), (12, 14)]:
-        m.obj(f'furn {x} {y} pot')
-    return m
+    return trials.hollowmere_trial()
 
 
 @reg
@@ -820,10 +815,7 @@ def frostspire_haven():
 
 @reg
 def frostspire_trial():
-    m = trial('frostspire_trial', 'Frostspire', 'Frost', 'hale', 'hale',
-              [('fs_adept_1', 'skier', 5, 12, 'right'), ('fs_adept_2', 'hiker', 8, 8, 'left'), ('fs_adept_3', 'skier', 5, 5, 'right')],
-              "Brr! Warden Hale's Frost Morphs will freeze you solid. Ember, Brawl, Stone and Iron all do the job. Stay warm!")
-    return m
+    return trials.frostspire_trial()
 
 
 @reg
@@ -948,10 +940,7 @@ def riftgate_haven():
 
 @reg
 def riftgate_trial():
-    m = trial('riftgate_trial', 'Riftgate', 'Drake', 'seren', 'seren',
-              [('rg_adept_1', 'ace', 5, 12, 'right'), ('rg_adept_2', 'ace_b', 8, 8, 'left'), ('rg_adept_3', 'guard', 5, 5, 'right')],
-              "This is it — the Wyrm Trial. Drake Morphs shrug off almost everything. Frost is your best weapon. Drake beats Drake, too, if you dare.")
-    return m
+    return trials.riftgate_trial()
 
 
 @reg
@@ -1054,6 +1043,62 @@ def spire_crown():
                                            ('morrow', 14, 5, 'left'), ('hale', 14, 8, 'left'), ('seren', 14, 11, 'left')]):
         m.npc(x, y, f'crown_{wid}', wid, face=f, script='crown.warden', show='cradle_done')
     m.npc(8, 4, 'crown_wren', 'wren', face='down', script='crown.wren', show='cradle_done')
+    return m
+
+
+@reg
+def ancient_tunnel():
+    """Under Rootmere, behind the Old Door (opened with the Crown Gem after the Crown Challenge): a winding
+    Covenant-built tunnel down to the Deep Cradle. Keeper Enna waits at the carved door at the far end."""
+    m = M('ancient_tunnel', 32, 40, name='Ancient Tunnel', kind='cave', base='cave', music='cave', battle='cave',
+          light='dark', enc_floor='1', escape='rootmere:18,32', fill='R')
+    def c(x0, y0, x1, y1, ch='.'):
+        m.rect(x0, y0, x1, y1, ch)
+    c(11, 31, 20, 37); c(15, 38, 16, 38)                      # the stair hall under the Old Door
+    m.obj('warp 15 38 to=rootmere:18,32 face=down'); m.obj('warp 16 38 to=rootmere:18,32 face=down')
+    c(21, 33, 27, 36)                                          # a side vault
+    c(4, 32, 10, 34); c(4, 20, 7, 34)                          # west gallery, climbing north
+    c(4, 16, 26, 21); m.rect(9, 18, 13, 20, '~')               # the pillared cavern, with a still pool
+    c(23, 6, 26, 21)                                           # east stair
+    c(8, 6, 26, 10); c(12, 2, 18, 5)                           # north gallery and the door
+    c(28, 12, 30, 16); c(27, 14, 27, 14)                       # a hidden nook off the east stair
+    c(8, 25, 9, 29); c(2, 23, 3, 26); c(21, 22, 22, 23)        # alcoves, so it isn't all straight lines
+    m.put(9, 29, 'o'); m.put(2, 23, 'o')
+    for (x, y) in [(13, 33), (18, 33), (13, 35), (18, 35), (16, 16), (20, 16), (9, 16), (14, 8), (18, 8)]:
+        m.obj(f'furn {x} {y} pillar')
+    m.obj('ancient_door 13 2 to=deep_cradle cond=keeper_met locked="The carved slab will not move."')
+    m.obj('plate 15 5 on=keeper_met frame=ancient_slab onframe=ancient_open')
+    for (x, y) in [(12, 31), (19, 31), (12, 36), (19, 36), (4, 16), (26, 16), (8, 6), (20, 6), (11, 6)]:
+        m.obj(f'prop {x} {y} stone')
+    for (x, y) in [(21, 33), (27, 36), (4, 34), (26, 21), (4, 21), (30, 12), (26, 6)]:
+        m.obj(f'prop {x} {y} crystal')
+    m.npc(15, 6, 'keeper_enna', 'elder_b', face='down', script='tunnel.keeper', name='Enna', hide='keeper_met')
+    m.npc(13, 6, 'keeper_enna_side', 'elder_b', face='right', script='tunnel.keeper', name='Enna', show='keeper_met')
+    m.trigger(21, 6, 'tunnel.keeper', h=5, cond='!keeper_met')
+    m.trainer(6, 27, 'at_ace', 'ace', face='down', sight=4)
+    m.trainer(18, 21, 'at_mystic', 'mystic', face='up', sight=3)
+    m.trainer(23, 11, 'at_ace_b', 'ace_b', face='right', sight=3)
+    m.item(26, 34, 'apex_capsule', 3)
+    m.item(5, 17, 'full_tonic', 2)
+    m.item(29, 15, 'growth_fruit')
+    m.item(24, 7, 'bloom_seed', hidden=True)
+    m.item(6, 33, 'panacea')
+    return m
+
+
+@reg
+def deep_cradle():
+    m = M('deep_cradle', 16, 14, kind='interior', name='The Deep Cradle', floor='ancient', wall='ancient', music='cradle',
+          light='dark', battle='cave')
+    m.rect(0, 0, 15, 1, 'W')
+    m.rect(0, 2, 1, 13, '#'); m.rect(14, 2, 15, 13, '#')
+    m.put(7, 13, 'm'); m.put(8, 13, 'm')
+    m.obj('furn 6 3 incubator script=cradle.incubator')
+    for (x, y) in [(3, 3), (12, 3), (3, 8), (12, 8)]:
+        m.obj(f'furn {x} {y} pillar')
+    for (x, y) in [(2, 5), (13, 5), (4, 11), (11, 11)]:
+        m.obj(f'furn {x} {y} crystal')
+    m.obj('light 7 4 r=70 color=#ffb040')
     return m
 
 

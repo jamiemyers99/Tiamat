@@ -133,6 +133,7 @@ m('brine_fang', 'Brine Fang', 'Tide', 'phys', 65, 95, 15, { flinch: 0.2 }, 'Salt
 m('undertow', 'Undertow', 'Tide', 'phys', 85, 90, 10, { stat: { spe: -1 }, target: 'foe', chance: 1 }, 'Drags the foe under, lowering its Speed.');
 m('hydro_burst', 'Hydro Burst', 'Tide', 'spec', 100, 85, 5, {}, 'A thunderous blast of water.');
 m('tidal_guard', 'Tidal Guard', 'Tide', 'status', 0, null, 20, { stat: { def: 1, spd: 1 }, target: 'self' }, 'Wraps itself in water, raising Defense and Sp. Def.');
+m('primordial_anvil', 'Primordial Anvil', 'Iron', 'phys', 120, 90, 5, { stat: { def: -1 }, target: 'foe', chance: 0.3 }, 'Brings down the weight of the world\'s first stone. May lower the foe\'s Defense. Abzurath\'s signature move.');
 m('primordial_tide', 'Primordial Tide', 'Tide', 'spec', 120, 90, 5, { stat: { spd: -1 }, target: 'foe', chance: 0.3 }, 'The first sea rises at its call. Tiamat\'s signature move.');
 
 // ── Static ─────────────────────────────────────────────────────────────────

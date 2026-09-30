@@ -5,7 +5,7 @@ import { input } from '../core/input.js';
 import { audio } from '../core/audio.js';
 import { G } from '../core/state.js';
 import { txt } from '../ui/text.js';
-import { SPECIES_LIST } from '../data/species.js';
+import { INDEX_TOTAL, indexCount } from '../data/indexRewards.js';
 
 const LINES = [
   ['TIAMAT', 'gold'], [''], ['Tales of the Riven Reach', 'blue'], [''],
@@ -27,7 +27,7 @@ export class CreditsScene extends Phaser.Scene {
     audio.playMusic(audio.has('bgm_crown') ? 'bgm_crown' : 'bgm_title', { restart: true });
     const c = this.add.container(0, GAME_H + 10);
     LINES.forEach(([t, col], i) => {
-      c.add(txt(this, GAME_W / 2, i * 18, t.replace('{CAUGHT}', G.state.index.caught.length).replace('{TOTAL}', SPECIES_LIST.length), { align: 'center', color: col || 'white', scale: i === 0 ? 3 : 1 }));
+      c.add(txt(this, GAME_W / 2, i * 18, t.replace('{CAUGHT}', indexCount(G.state.index.caught)).replace('{TOTAL}', INDEX_TOTAL), { align: 'center', color: col || 'white', scale: i === 0 ? 3 : 1 }));
     });
     const pics = ['spriglet', 'cindlet', 'puddlet', 'tiamat'];
     pics.forEach((p, i) => c.add(this.add.image(i % 2 ? GAME_W - 70 : 70, 120 + i * 110, 'mons', `${p}_f`).setOrigin(0.5)));

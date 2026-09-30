@@ -29,6 +29,35 @@ const RIVAL = {
   puddlet: ['spriglet', 'spriggrove', 'mosswarden'],
 };
 export const RIVAL_PICK = { spriglet: 'cindlet', cindlet: 'puddlet', puddlet: 'spriglet' };
+
+// ── The Crown Challenge (after the story): the six Wardens at full strength, one after another, then Wren ──
+export const CROWN_ORDER = ['mossa', 'brann', 'iskra', 'morrow', 'hale', 'seren'];
+function elite(id, o) { t(`elite_${id}`, { title: 'Warden', skill: 3, reward: 160, music: 'battle_trial', bg: 'arena', ...o }); }
+elite('mossa', { name: 'Mossa', sprite: 'mossa', items: ['full_tonic', 'full_tonic'], party: [['thornbur', 52], ['mycelord', 52], ['mothlume', 53], ['cairnite', 53], ['montolith', 54], ['mosswarden', 55]],
+  intro: "My garden has had years to grow, dear. So have I. Let's see how deep your roots go.", lose: 'Deep roots indeed. Go on — Brann is waiting.' });
+elite('brann', { title: 'Captain', name: 'Brann', sprite: 'brann', items: ['full_tonic', 'full_tonic'], party: [['stormgull', 53], ['pincerock', 53], ['medusheen', 54], ['blightoad', 54], ['thundeel', 55], ['maelstrand', 56]],
+  intro: "No pier to clear this time, {PLAYER}. Just the whole sea. Swim!", lose: "Ha! Still floating! Iskra's next — mind the sparks." });
+elite('iskra', { name: 'Iskra', sprite: 'iskra', items: ['full_tonic', 'full_tonic'], party: [['coilossus', 54], ['ferroclad', 54], ['juggernox', 55], ['thundeel', 55], ['gauntlord', 56], ['arcfowl', 57]],
+  intro: "Version two of everyone. Faster, tougher, fewer bugs. Let's test them on you!", lose: 'Brilliant. Back to the workbench. Morrow is waiting in the dark.' });
+elite('morrow', { name: 'Morrow', sprite: 'morrow', items: ['full_tonic', 'full_tonic'], party: [['pookavar', 55], ['alloyena', 55], ['grimshroud', 56], ['oraclynx', 56], ['rimewraith', 57], ['noctheart', 58]],
+  intro: "Every legend needs a second chapter, {PLAYER}. This is yours.", lose: '...And the chapter ends with you standing. Hale is next.' });
+elite('hale', { name: 'Hale', sprite: 'hale', items: ['full_tonic', 'full_tonic'], party: [['flurrit', 56], ['rammoth', 56], ['glaciursa', 57], ['rimewraith', 57], ['aurovulpa', 58], ['maelstrand', 59]],
+  intro: 'The highest peak in the Reach is standing right here. Climb it!', lose: 'Summited again! Seren is the last Warden. Good luck.' });
+elite('seren', { name: 'Seren', sprite: 'seren', items: ['full_tonic', 'full_tonic', 'full_tonic'], party: [['strixage', 57], ['magmaw', 58], ['arcfowl', 58], ['aurovulpa', 58], ['skyrannox', 59], ['riftwyrm', 60]],
+  intro: 'The last Warden. The last Seal I ever kept was you, {PLAYER}. Show me what the Covenant can do.', lose: 'The Crown is yours to keep. But there is one more who wants to face you.' });
+for (const [yours, line] of Object.entries(RIVAL)) {
+  t(`elite_wren_${yours}`, { title: 'Rival', name: 'Wren', sprite: 'wren', skill: 3, reward: 220, music: 'battle_rival', bg: 'arena', items: ['full_tonic', 'full_tonic', 'full_tonic'],
+    party: [['tempestral', 59], ['gauntlord', 59], ['oraclynx', 59], ['riftwyrm', 60], ['scorvex', 59], [line[2], 62]],
+    intro: "I told you I'd be training. Every day, {PLAYER}. For this. Crown Challenge, final round — let's go!", lose: "...Still you. Of course it's still you. Congratulations, Champion.", win: "YES! ...Okay, okay. Go heal up and try again. I'll be here." });
+}
+// ── The Ancient Tunnel under Rootmere (after the Crown Challenge) ──
+t('at_ace', { title: 'Ace Tamer', name: 'Corvin', sprite: 'ace', skill: 3, reward: 80, items: ['full_tonic'], party: [['montolith', 56], ['ferroclad', 56], ['wyverant', 57]],
+  intro: "A Champion, down here? I followed the old stories all the way to that door. Let's see if you're the real thing!", lose: 'The real thing. Definitely.', after: 'The walls down here are carved with two dragons. One is Tiamat. The other... I have never seen before.' });
+t('at_mystic', { title: 'Mystic', name: 'Ysolde', sprite: 'mystic', skill: 3, reward: 80, items: ['full_tonic'], party: [['oculith', 57], ['grimshroud', 57], ['augurine', 58]],
+  intro: 'The stone here is dreaming. Something very large is dreaming it. Hush — and battle me quietly.', lose: 'Even the dream noticed that.', after: 'Listen at the pool. The water trembles in time with a heartbeat, slow as the seasons.' });
+t('at_ace_b', { title: 'Ace Tamer', name: 'Petra', sprite: 'ace_b', skill: 3, reward: 80, items: ['full_tonic'], party: [['juggernox', 57], ['alloyena', 57], ['wyrmguard', 58], ['coilossus', 58]],
+  intro: "There's a woman at the end of this tunnel who won't let anyone past. Maybe she'll let YOU. Beat me first!", lose: "Alright, alright. Go and talk to the Keeper.", after: 'The Keeper has been down here longer than anyone can remember. She says she is waiting for an egg.' });
+
 for (const [yours, line] of Object.entries(RIVAL)) {
   const W = line;
   t(`rival1_${yours}`, { title: 'Rival', name: 'Wren', sprite: 'wren', skill: 1, reward: 20, music: 'battle_rival', party: [[W[0], 5, ['bump']]], intro: "Grandma says we're both Tamers now. So let's find out who's better!", lose: "What?! I picked the one with the type advantage!", win: 'Ha! Knew it.' });

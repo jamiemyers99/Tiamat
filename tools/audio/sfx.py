@@ -555,6 +555,7 @@ SIG = {
     'tunnel_quake': ([('quake', 0, 1, .9), ('rock', .3, .7, 1)], 'A1 E2', 'deep'),
     'dusk_hunt': ([('shadow', 0, .6, 1.5), ('claw', .25, .9, 1)], 'D#5 G5', 'square'),
     'primordial_tide': ([('wave', 0, 1, .6), ('dragon', .2, .6, .8)], 'D3 A3 D4 F4', 'choir'),
+    'primordial_anvil': ([('heavy', .45, 1, .6), ('metal', .45, .8, .6), ('dragon', 0, .5, .6)], 'A1 E2 A2 C3', 'horn'),
     # other one-line moves
     'clamor': ([('sound', 0, 1, 1.1)], 'G4 G#4', 'square'),
     'pummel': ([('punch', 0, 1, 1.3)], 'C5', 'pluck'),

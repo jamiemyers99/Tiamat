@@ -150,7 +150,11 @@ for (const m of Object.values(maps)) {
   }
 }
 const DIRS = [[0, -1, 'up'], [0, 1, 'down'], [-1, 0, 'left'], [1, 0, 'right']];
+// Trial halls are puzzles (ice, currents, warp pads, switch gates): plain walking can't reach their Wardens, so
+// they're checked by tools/puzzle_check.py instead, which plays by the game's movement rules.
+const PUZZLE = (m) => /_trial$/.test(m.id);
 for (const m of Object.values(maps)) {
+  if (PUZZLE(m)) { continue; }
   const seen = new Set();
   const q = [...entries[m.id]];
   const brambles = new Set(m.objs.filter((o) => o.type === 'bramble').map((o) => `${o.x},${o.y}`));
@@ -211,10 +215,10 @@ for (const m of Object.values(maps)) {
   const watched = new Set();
   for (const o of npcs.filter((n) => n.props.trainer)) {
     const seen = sightTiles(m, o, occupied);
-    if (seen.length < 2) { err(`${m.id}: trainer ${o.props.trainer} can only see ${seen.length} tile(s) ahead`); }
+    if (seen.length < (PUZZLE(m) ? 1 : 2)) { err(`${m.id}: trainer ${o.props.trainer} can only see ${seen.length} tile(s) ahead`); }
     if (/_adept_/.test(o.props.trainer)) { seen.forEach((k) => watched.add(k)); }
   }
-  if (!/_trial$/.test(m.id)) { continue; }
+  if (!/_trial$/.test(m.id) || PUZZLE(m)) { continue; }   // (every Trial is a puzzle now: see puzzle_check.py)
   const warden = npcs.find((o) => String(o.props.script || '').endsWith('.warden'));
   const seen = new Set();
   const q = entries[m.id].filter(([x, y]) => !watched.has(`${x},${y}`));

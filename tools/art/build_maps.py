@@ -24,9 +24,11 @@ from spr import Spr
 import decor as D
 import buildings as B
 import interiors as I
+import ancient as AN
 
 T = 16
-META = ['none', 'solid', 'water', 'grass', 'ledge_down', 'ledge_left', 'ledge_right', 'counter', 'door', 'bridge', 'noenc']
+META = ['none', 'solid', 'water', 'grass', 'ledge_down', 'ledge_left', 'ledge_right', 'counter', 'door', 'bridge', 'noenc',
+        'ice', 'push_up', 'push_down', 'push_left', 'push_right']   # (append only: saved maps index into this)
 MI = {n: i for i, n in enumerate(META)}
 
 TERRAIN_CH = {'.': None, ',': 'grass', ':': 'path', ';': 'cobble', '~': 'water', 's': 'sand', 'd': 'forest',
@@ -186,6 +188,32 @@ def build_map(src, all_src, tileset, links):
                 if c in '.m_=':
                     v = (x * 7 + y * 3) % 3
                     ground.blit(I.floor_tile('carpet' if c == '_' else floor, v), x * T, y * T)
+                # Trial puzzle tiles: i ice / j rift glass (slide), 8/2/4/6 currents (numpad directions), h hedge,
+                # r ice rock, p deep pool, x barrier block, # a drop into the dark
+                if c == 'i':
+                    ground.blit(I.puzzle_tile('ice', (x * 5 + y * 3) % 4), x * T, y * T)
+                    lay.meta[y][x] = MI['ice']
+                elif c in '8246':
+                    d = {'8': 'up', '2': 'down', '4': 'left', '6': 'right'}[c]
+                    ground.blit(I.puzzle_tile('current_' + d, (x + y) % 2), x * T, y * T)
+                    lay.meta[y][x] = MI['push_' + d]
+                elif c == 'h':
+                    ground.blit(I.floor_tile(floor, 0), x * T, y * T)
+                    ground.blit(I.hedge_tile(ch(x, y - 1) == 'h', ch(x, y + 1) == 'h', ch(x - 1, y) == 'h', ch(x + 1, y) == 'h'), x * T, y * T)
+                    lay.meta[y][x] = MI['solid']
+                elif c == 'j':
+                    ground.blit(I.puzzle_tile('rift_glass', (x * 5 + y * 3) % 4), x * T, y * T)
+                    lay.meta[y][x] = MI['ice']
+                elif c == 'p':
+                    ground.blit(I.puzzle_tile('pool', (x + 2 * y) % 3), x * T, y * T)
+                    lay.meta[y][x] = MI['solid']
+                elif c == 'x':
+                    ground.blit(I.block_tile(floor, ch(x, y - 1) == 'x', ch(x, y + 1) == 'x'), x * T, y * T)
+                    lay.meta[y][x] = MI['solid']
+                elif c == 'r':
+                    ground.blit(I.puzzle_tile('ice', 1), x * T, y * T)
+                    ground.blit(I.puzzle_tile('ice_rock', (x + y) % 2), x * T, y * T)
+                    lay.meta[y][x] = MI['solid']
                 if c in 'Ww':
                     # count wall rows in this column
                     top = y
@@ -366,6 +394,20 @@ def build_map(src, all_src, tileset, links):
             dx, dy = x + 1, y + 1
             lay.meta[dy][dx] = MI['door']
             objects.append({'type': 'warp', 'x': dx, 'y': dy, 'kv': dict(kv, door='1')})
+        elif t == 'ancient_door':
+            # Rootmere's Old Door: carved Covenant stonework, 5x4, entered through the middle of its bottom row.
+            # The slab in the doorway is a separate `plate` object (it opens when the Crown Gem is set in it).
+            b = AN.gate_structure()
+            lay.draws.append(((y + b['fh']) * T, x, lambda b=b, x=x, y=y: lay.put_obj(b['spr'], b['ox'], b['oy'], x, y)))
+            lay.solid(x, y, b['fw'], b['fh'])
+            dx, dy = x + b['door'][0], y + b['door'][1]
+            lay.meta[dy][dx] = MI['door']
+            lights.append({'x': dx * T + 8, 'y': dy * T - 8, 'r': 26, 'color': '#6fe0c8'})
+            if 'to' in kv:
+                w = {'type': 'warp', 'x': dx, 'y': dy, 'kv': dict(kv, door='1')}
+                if ':' not in kv['to']:
+                    w['link_interior'] = kv['to']      # into an interior: its exit mats lead back here
+                objects.append(w)
         elif t == 'prop':
             name = args[0]
             spr, ox, oy, fw, fh = D.prop(name)
@@ -389,15 +431,17 @@ def build_map(src, all_src, tileset, links):
                 pass
             spr, ox, oy, fw, fh = I.furniture(name, v)
             lay.draws.append(((y + fh) * T, x, lambda s=spr, ox=ox, oy=oy, x=x, y=y: lay.put_obj(s, ox, oy, x, y)))
-            if name not in ('rug', 'mat', 'stairs_up', 'stairs_down'):
+            if name not in ('rug', 'mat', 'stairs_up', 'stairs_down', 'pad'):
                 lay.solid(x, y, fw, fh, 'counter' if name == 'counter' else 'solid')
             if 'script' in kv or 'text' in kv:
                 objects.append({'type': 'sign', 'x': x, 'y': y, 'kv': kv, 'w': fw, 'h': fh})
             if name in ('crystal',):
                 lights.append({'x': x * T + 8, 'y': y * T, 'r': 20, 'color': '#b89aff'})
+            if name == 'pad':
+                lights.append({'x': x * T + 8, 'y': y * T + 8, 'r': 22, 'color': ['#b89aff', '#8affe8', '#ffe08a', '#ff8a9a'][v % 4 if isinstance(v, int) else 0]})
         elif t == 'mat':
             objects.append({'type': 'warp', 'x': x, 'y': y, 'kv': dict(kv, mat='1'), 'is_mat': True})
-        elif t in ('warp', 'npc', 'item', 'trigger', 'sign', 'spawn', 'bramble', 'light', 'boulder'):
+        elif t in ('warp', 'npc', 'item', 'trigger', 'sign', 'spawn', 'bramble', 'light', 'boulder', 'gate', 'plate'):
             if t == 'bramble':
                 lay.meta[y][x] = MI['solid']
             if t == 'light':
@@ -487,7 +531,8 @@ def write_all(built, tileset, out_maps, out_tiles):
     Image.fromarray(img, 'RGBA').save(os.path.join(out_tiles, 'world.png'), optimize=True)
     # meta marker tileset (for Tiled display)
     colors = [(0, 0, 0, 0), (230, 60, 60, 120), (60, 120, 230, 120), (60, 200, 80, 120), (240, 200, 60, 140),
-              (240, 160, 60, 140), (240, 120, 60, 140), (200, 60, 200, 120), (255, 255, 255, 140), (160, 110, 60, 120), (120, 120, 120, 120)]
+              (240, 160, 60, 140), (240, 120, 60, 140), (200, 60, 200, 120), (255, 255, 255, 140), (160, 110, 60, 120), (120, 120, 120, 120),
+              (170, 230, 255, 140), (60, 200, 220, 140), (60, 170, 220, 140), (60, 140, 220, 140), (60, 110, 220, 140)]
     meta_img = np.zeros((T, T * len(META), 4), dtype=np.uint8)
     for i, c in enumerate(colors):
         meta_img[1:T - 1, i * T + 1:(i + 1) * T - 1] = c

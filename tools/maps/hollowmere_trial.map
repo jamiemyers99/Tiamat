@@ -8,78 +8,71 @@ battle: arena
 light: dark
 
 layout:
-WWWWWWWWWWWWWW
-WWWwWWWWWWwWWW
-..............
-..............
-......__......
-......__......
-......__......
-......__......
-......__......
-......__......
-......__......
-......__......
-......__......
-......__......
-......__......
-......__......
-......__......
-......mm......
+WWWWWWWWWWWWWWWWWWWW
+WWWWWWWWWWWWWWWWWWWW
+#######......#######
+#####.#......###.###
+###...#......##...##
+#################.##
+####################
+####################
+#####.##############
+##....#########...##
+####.###############
+#########...########
+####################
+##.##############.##
+##...##########...##
+################.###
+#######......#######
+#######......#######
+#######......#######
+#########mm#########
 end
 
 objects:
-furn 1 2 banner
-furn 12 2 banner
-furn 5 2 statue
-furn 8 2 statue
-furn 3 6 crystal
-furn 10 6 crystal
-furn 3 10 crystal
-furn 10 10 crystal
-furn 3 14 crystal
-furn 10 14 crystal
-furn 0 16 plant
-furn 13 16 plant
-furn 0 12 rail v=14
-furn 1 12 rail v=15
-furn 2 12 rail v=15
-furn 3 12 rail v=15
-furn 4 12 rail v=13
-furn 8 12 rail v=14
-furn 9 12 rail v=15
-furn 10 12 rail v=15
-furn 11 12 rail v=15
-furn 12 12 rail v=15
-furn 13 12 rail v=13
-npc 5 12 id=hm_adept_1 sprite=mystic face=right move=still trainer=hm_adept_1 sight=3
-furn 0 8 rail v=14
-furn 1 8 rail v=15
-furn 2 8 rail v=15
-furn 3 8 rail v=15
-furn 4 8 rail v=15
-furn 5 8 rail v=13
-furn 9 8 rail v=14
-furn 10 8 rail v=15
-furn 11 8 rail v=15
-furn 12 8 rail v=15
-furn 13 8 rail v=13
-npc 8 8 id=hm_adept_2 sprite=scholar face=left move=still trainer=hm_adept_2 sight=3
-furn 0 5 rail v=14
-furn 1 5 rail v=15
-furn 2 5 rail v=15
-furn 3 5 rail v=15
-furn 4 5 rail v=13
-furn 8 5 rail v=14
-furn 9 5 rail v=15
-furn 10 5 rail v=15
-furn 11 5 rail v=15
-furn 12 5 rail v=15
-furn 13 5 rail v=13
-npc 5 5 id=hm_adept_3 sprite=mystic face=right move=still trainer=hm_adept_3 sight=3
-npc 6 3 id=morrow sprite=morrow face=down move=still script=hollowmere_trial.warden
-npc 9 15 id=hollowmere_trial_guide sprite=ace face=down move=still text="...Can you see me? Warden Morrow keeps the hall dark. Umbra Morphs fear Brawl fists and bright Swarm wings."
-furn 1 10 pot
-furn 12 10 pot
-furn 1 14 pot
-furn 12 14 pot
+npc 10 2 id=morrow sprite=morrow face=down move=still script=hollowmere_trial.warden
+npc 16 15 id=hm_adept_1 sprite=mystic face=up move=still trainer=hm_adept_1 sight=3 post=1
+npc 4 10 id=hm_adept_2 sprite=scholar face=up move=still trainer=hm_adept_2 sight=3 post=1
+npc 16 3 id=hm_adept_3 sprite=mystic face=down move=still trainer=hm_adept_3 sight=3 post=1
+npc 12 17 id=hollowmere_trial_guide sprite=ace face=down move=still text="...Can you see me? Morrow keeps the hall dark. Only the warp pads glow — each one sends you to another island. Remember where they go! Umbra Morphs fear Brawl fists and bright Swarm wings."
+furn 8 16 pad v=0
+warp 8 16 to=hollowmere_trial:4,14 face=down
+furn 4 14 pad v=0
+warp 4 14 to=hollowmere_trial:8,16 face=down
+furn 11 16 pad v=1
+warp 11 16 to=hollowmere_trial:15,14 face=down
+furn 15 14 pad v=1
+warp 15 14 to=hollowmere_trial:11,16 face=down
+furn 2 13 pad v=2
+warp 2 13 to=hollowmere_trial:9,11 face=down
+furn 9 11 pad v=2
+warp 9 11 to=hollowmere_trial:2,13 face=down
+furn 11 11 pad v=3
+warp 11 11 to=hollowmere_trial:15,9 face=down
+furn 15 9 pad v=3
+warp 15 9 to=hollowmere_trial:11,11 face=down
+furn 17 9 pad v=0
+warp 17 9 to=hollowmere_trial:10,17 face=down
+furn 17 13 pad v=2
+warp 17 13 to=hollowmere_trial:3,9 face=down
+furn 3 9 pad v=2
+warp 3 9 to=hollowmere_trial:17,13 face=down
+furn 2 9 pad v=1
+warp 2 9 to=hollowmere_trial:10,11 face=down
+furn 5 8 pad v=3
+warp 5 8 to=hollowmere_trial:3,4 face=down
+furn 3 4 pad v=3
+warp 3 4 to=hollowmere_trial:5,8 face=down
+furn 5 3 pad v=1
+warp 5 3 to=hollowmere_trial:15,4 face=down
+furn 15 4 pad v=1
+warp 15 4 to=hollowmere_trial:5,3 face=down
+furn 17 5 pad v=2
+warp 17 5 to=hollowmere_trial:8,4 face=down
+furn 8 4 pad v=2
+warp 8 4 to=hollowmere_trial:17,5 face=down
+furn 7 2 crystal
+furn 12 2 crystal
+furn 7 18 pot
+furn 12 18 pot

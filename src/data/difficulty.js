@@ -7,6 +7,7 @@ import { STAT_KEYS } from '../battle/mon.js';
 export const MAX_TIER = 7;
 
 export function tierOf(mapId) {
+  if (REGION.mapTiers && REGION.mapTiers[mapId] !== undefined) { return REGION.mapTiers[mapId]; }
   const id = REGION.locate(mapId || '');
   const p = REGION.points.find((q) => q.id === id);
   return p ? p.tier : 3;

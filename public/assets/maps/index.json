@@ -5,6 +5,12 @@
   "w": 40,
   "h": 46
  },
+ "ancient_tunnel": {
+  "name": "Ancient Tunnel",
+  "kind": "cave",
+  "w": 32,
+  "h": 40
+ },
  "brindlewood": {
   "name": "Brindlewood",
   "kind": "town",
@@ -32,8 +38,8 @@
  "brindlewood_trial": {
   "name": "Brindlewood Trial Hall",
   "kind": "interior",
-  "w": 14,
-  "h": 18
+  "w": 17,
+  "h": 17
  },
  "coldforge_mines": {
   "name": "Coldforge Mines",
@@ -46,6 +52,12 @@
   "kind": "interior",
   "w": 20,
   "h": 16
+ },
+ "deep_cradle": {
+  "name": "The Deep Cradle",
+  "kind": "interior",
+  "w": 16,
+  "h": 14
  },
  "frostspire": {
   "name": "Frostspire",
@@ -74,8 +86,8 @@
  "frostspire_trial": {
   "name": "Frostspire Trial Hall",
   "kind": "interior",
-  "w": 14,
-  "h": 18
+  "w": 19,
+  "h": 24
  },
  "gearhollow": {
   "name": "Gearhollow",
@@ -110,8 +122,8 @@
  "gearhollow_trial": {
   "name": "Gearhollow Trial Hall",
   "kind": "interior",
-  "w": 14,
-  "h": 18
+  "w": 18,
+  "h": 20
  },
  "hollowmere": {
   "name": "Hollowmere",
@@ -140,8 +152,8 @@
  "hollowmere_trial": {
   "name": "Hollowmere Trial Hall",
   "kind": "interior",
-  "w": 14,
-  "h": 18
+  "w": 20,
+  "h": 20
  },
  "home_1f": {
   "name": "Your Home",
@@ -182,14 +194,14 @@
  "riftgate_trial": {
   "name": "Riftgate Trial Hall",
   "kind": "interior",
-  "w": 14,
-  "h": 18
+  "w": 21,
+  "h": 20
  },
  "rootmere": {
   "name": "Rootmere",
   "kind": "town",
   "w": 34,
-  "h": 26
+  "h": 38
  },
  "rootmere_cottage": {
   "name": "Rootmere Cottage",
@@ -266,8 +278,8 @@
  "saltreach_trial": {
   "name": "Saltreach Trial Hall",
   "kind": "interior",
-  "w": 14,
-  "h": 18
+  "w": 18,
+  "h": 20
  },
  "spire_crown": {
   "name": "The Warden's Crown",

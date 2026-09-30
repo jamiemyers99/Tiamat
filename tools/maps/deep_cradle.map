@@ -1,0 +1,37 @@
+id: deep_cradle
+kind: interior
+name: The Deep Cradle
+floor: ancient
+wall: ancient
+music: cradle
+light: dark
+battle: cave
+
+layout:
+WWWWWWWWWWWWWWWW
+WWWWWWWWWWWWWWWW
+##............##
+##............##
+##............##
+##............##
+##............##
+##............##
+##............##
+##............##
+##............##
+##............##
+##............##
+##.....mm.....##
+end
+
+objects:
+furn 6 3 incubator script=cradle.incubator
+furn 3 3 pillar
+furn 12 3 pillar
+furn 3 8 pillar
+furn 12 8 pillar
+furn 2 5 crystal
+furn 13 5 crystal
+furn 4 11 crystal
+furn 11 11 crystal
+light 7 4 r=70 color=#ffb040

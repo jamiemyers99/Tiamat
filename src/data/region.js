@@ -3,7 +3,7 @@
 // `fly`: towns you can Wing Whistle to once visited (arrival read from the map's `fly` property).
 export const REGION = {
   points: [
-    { id: 'rootmere', tier: 0, name: 'Rootmere', x: 60, y: 204, town: true, fly: 'rootmere', desc: 'A quiet farming village. Home.', maps: ['rootmere', 'home_1f', 'home_2f', 'marsh_lab', 'wren_house', 'rootmere_cottage'] },
+    { id: 'rootmere', tier: 0, name: 'Rootmere', x: 60, y: 204, town: true, fly: 'rootmere', desc: 'A quiet farming village. Home.', maps: ['rootmere', 'home_1f', 'home_2f', 'marsh_lab', 'wren_house', 'rootmere_cottage', 'ancient_tunnel', 'deep_cradle'] },
     { id: 'route1', tier: 0, name: 'Route 1 · Mossway', x: 60, y: 170, desc: 'Meadows and gentle ledges.', maps: ['route1'] },
     { id: 'brindlewood', tier: 0, name: 'Brindlewood', x: 60, y: 132, town: true, fly: 'brindlewood', desc: 'A woodland town. Moss Trial.', maps: ['brindlewood', 'brindlewood_haven', 'brindlewood_trial', 'brindlewood_house', 'brindlewood_posy'] },
     { id: 'route2', tier: 1, name: 'Route 2 · Bramble Bridge', x: 102, y: 132, desc: 'A river crossing east of Brindlewood.', maps: ['route2'] },
@@ -20,6 +20,8 @@ export const REGION = {
     { id: 'riftgate', tier: 6, name: 'Riftgate', x: 336, y: 44, town: true, fly: 'riftgate', desc: 'The city on the lip of the Riven. Wyrm Trial.', maps: ['riftgate', 'riftgate_haven', 'riftgate_trial', 'riftgate_house', 'sunken_chapel', 'spire_crown'] },
     { id: 'riven', tier: 7, name: 'The Riven', x: 364, y: 104, desc: 'The wound that never closed.', maps: ['abyssal_rift', 'cradle'] },
   ],
+  // Places that are much tougher than the area they sit in: the post-game tunnel under Rootmere and the Crown.
+  mapTiers: { ancient_tunnel: 7, deep_cradle: 7, spire_crown: 7 },
   locate(mapId) {
     for (const p of this.points) { if (p.maps.includes(mapId)) { return p.id; } }
     const base = mapId.split('_')[0];

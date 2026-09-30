@@ -68,7 +68,9 @@ export class WorldScene extends Phaser.Scene {
       this.mapView.destroy();
       this.npcs.forEach((n) => n.actor.destroy());
       this.itemsOnMap.forEach((i) => i.sprite && i.sprite.destroy());
+      (this.dyn || []).forEach((d) => d.img.destroy());
     }
+    this.dyn = [];
     const prevMap = G.state.player.map;
     this.mapView = new MapView(this, id);
     const mv = this.mapView;
@@ -99,6 +101,7 @@ export class WorldScene extends Phaser.Scene {
       if (o.type === 'npc') { this._spawnNpc(o); }
       if (o.type === 'item') { this._spawnItem(o); }
       if (o.type === 'bramble') { this._spawnBramble(o); }
+      if (o.type === 'gate' || o.type === 'plate') { this._spawnDyn(o); }
     }
     // A save made on a tile that has since become furniture, a barrier or a person (maps change between
     // versions) puts the player on the nearest free tile instead of trapping them.
@@ -171,6 +174,7 @@ export class WorldScene extends Phaser.Scene {
   }
 
   refreshNpcs() {
+    this.refreshDyn();
     for (const n of this.npcs) {
       if (n.forced) { continue; }
       const vis = this._npcVisible(n.def, n.id);
@@ -199,6 +203,39 @@ export class WorldScene extends Phaser.Scene {
     const sprite = this.add.image(o.x * TILE + 8, o.y * TILE + 16, 'ui', 'bramble').setOrigin(0.5, 1).setDepth(DEPTH.actors + (o.y * TILE + 16) / 100);
     this.mapView.setBehavior(o.x, o.y, 'solid');
     this.itemsOnMap.push({ o, flag: f, bramble: true, sprite });
+  }
+
+  // Trial puzzle pieces that change with flags: gates (solid while closed) and floor plates (switches).
+  //   gate  props: open=<cond>, frame=<closed ui frame>, openframe=<ui frame, optional>
+  //   plate props: on=<cond>, frame=<off ui frame>, onframe=<on ui frame>
+  _spawnDyn(o) {
+    const pr = o.props;
+    const base = this.mapView.behavior(o.x, o.y);
+    const img = this.add.image(o.x * TILE + 8, o.y * TILE + 16, 'ui', pr.frame).setOrigin(0.5, 1);
+    const d = { o, base, img, isGate: o.type === 'gate' };
+    (this.dyn || (this.dyn = [])).push(d);
+    this._applyDyn(d);
+  }
+
+  _applyDyn(d) {
+    const pr = d.o.props;
+    if (d.isGate) {
+      const open = evalCond(pr.open, false);
+      this.mapView.setBehavior(d.o.x, d.o.y, open ? d.base : 'solid');
+      if (open && !pr.openframe) { d.img.setVisible(false); } else { d.img.setVisible(true).setFrame(open ? pr.openframe : pr.frame); }
+      d.img.setDepth(open ? DEPTH.decor + 0.5 : DEPTH.actors + (d.o.y * TILE + 16) / 100);
+    } else {
+      const on = evalCond(pr.on, false);
+      d.img.setFrame(on && pr.onframe ? pr.onframe : pr.frame).setDepth(DEPTH.decor + 0.5);
+    }
+  }
+
+  refreshDyn() {
+    for (const d of this.dyn || []) {
+      const was = d.img.frame.name;
+      this._applyDyn(d);
+      if (d.isGate && was !== d.img.frame.name && d.img.visible) { d.img.setAlpha(0.3); this.tweens.add({ targets: d.img, alpha: 1, duration: 220 }); }
+    }
   }
 
   npcAt(x, y) {
@@ -411,12 +448,33 @@ export class WorldScene extends Phaser.Scene {
       if (pr.once) { setFlag(pr.once); }
       this._triggerRunning = t;
       try { await this.run(pr.script, { trigger: t }); } finally { this._triggerRunning = null; }
-      return;
+      if (pr.script !== 'trial.flip') { return; }   // a floor switch doesn't stop you (you can slide right over one)
     }
+    // ice and water currents keep you moving
+    if (await this.forcedMove()) { return; }
     // trainers
     if (this.checkTrainers()) { return; }
     // encounters
     await this.checkEncounter();
+  }
+
+  // Ice: keep sliding the way you're going until something stops you. A current: carried the way it flows.
+  // Returns true if the player was moved (the next tile's afterStep carries on from there).
+  async forcedMove() {
+    const p = this.player;
+    const b = this.mapView.behavior(p.tx, p.ty);
+    let dir = null;
+    if (b === 'ice') { dir = p.face; }
+    else if (b.startsWith('push_')) { dir = b.slice(5); }
+    if (!dir) { return false; }
+    const [dx, dy] = DIRS[dir];
+    if (!this.isWalkable(p.tx + dx, p.ty + dy, dir)) { return false; }
+    this.busy++;
+    try {
+      await p.slide(dir, b === 'ice' ? 95 : 120);
+    } finally { this.busy--; }
+    await this.afterStep();
+    return true;
   }
 
   async followConnection(side, conn, nx, ny, dir) {
@@ -592,15 +650,23 @@ export class WorldScene extends Phaser.Scene {
       // the classic "!" whether they spotted you or you walked up and spoke to them
       audio.sfx('spotted');
       await n.actor.emote('!', 650);
+      let walked = 0;
+      const post = n.def.post === '1' || n.def.post === true;   // Trial adepts go back to their post afterwards
+      const dir = n.actor.face;
       if (spotted) {
         // walk up to the player
-        const dir = n.actor.face;
         const [dx, dy] = DIRS[dir];
         while (n.actor.tx + dx !== p.tx || n.actor.ty + dy !== p.ty) {
           await n.actor.walk(dir, WALK_MS);
+          walked++;
         }
         p.setFace(OPP[dir]);
       }
+      const back = async () => {
+        if (!post || !walked) { return; }
+        for (let i = 0; i < walked; i++) { await n.actor.walk(OPP[dir], WALK_MS); }
+        n.actor.setFace(dir);
+      };
       const tr = TRAINERS[n.def.trainer];
       if (n.def.script) {
         await this.run(n.def.script, { npc: n, trainer: tr });
@@ -608,6 +674,7 @@ export class WorldScene extends Phaser.Scene {
         await UI.say(tr.name, tr.intro || 'Let\'s battle!');
         const result = await this.S.battle(n.def.trainer);
         if (result === 'win' && (n.def.leave === '1' || n.def.leave === true)) { await this.npcLeave(n); }
+        else if (result === 'win') { await back(); }
       }
     } finally {
       this.busy--;

@@ -367,11 +367,23 @@ s(105, 'seraphelis', 'Seraphelis', ['Mind', 'Fae'], [92, 68, 88, 130, 112, 110],
     [38, 'dreamshatter'], [42, 'lullaby_siphon'], [45, 'aurora_benediction'], [53, 'cosmic_insight']],
   'Celestial Morph', 'Its halo is said to hold every wish ever made to it. Only one has ever been recorded in the Reach — and it never left its Tamer\'s side.');
 
+// ── Legendary: Tiamat's counterpart ────────────────────────────────────────────
+// When the first sea took a shape as Tiamat, the deep stone beneath it took a shape too. The Covenant sealed him
+// in an egg under Rootmere. Only hatched (Dr. Marsh gives the egg for a complete Index; it hatches in the
+// incubator behind Rootmere's ancient door). Always male.
+s(106, 'abzurath', 'Abzurath', ['Iron', 'Drake'], [100, 130, 120, 110, 100, 75], 'slow', 306, 3, null,
+  [[1, 'primordial_anvil'], [1, 'scale_rake'], [1, 'steel_ram'], [1, 'rift_nova'], [60, 'anvil_drop'], [65, 'quake_stomp'], [70, 'draconic_surge']],
+  'Draco King Morph', 'The deep stone beneath the first sea, given a shape. Where Tiamat is the restless tide, he is the anchor that holds the world still.');
+
 export const SPECIES_LIST = LIST;
 
 // Chance a Morph is female (0–1). Every Morph has male and female forms; Tiamat, the Draco Queen, is always female.
 for (const sp of LIST) { sp.female = 0.5; }
 SPECIES.tiamat.female = 1;
+SPECIES.abzurath.female = 0;          // the Draco King is always male
+// Legendary Morphs: one of a kind (the Index marks them). Abzurath is left out of 'catch them all' (he's the reward).
+for (const id of ['tiamat', 'abzurath']) { SPECIES[id].legendary = true; }
+SPECIES.abzurath.hatchOnly = true;
 // Mythical Morphs: one of a kind, never found in the wild (the Index marks them).
 for (const id of ['twinklit', 'lumelynx', 'seraphelis']) { SPECIES[id].mythical = true; }
 

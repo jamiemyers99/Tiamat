@@ -7,74 +7,39 @@ music: trial
 battle: arena
 
 layout:
-WWWWWWWWWWWWWW
-WWWwWWWWWWwWWW
-..............
-..............
-......__......
-......__......
-......__......
-......__......
-......__......
-......__......
-......__......
-......__......
-......__......
-......__......
-......__......
-......__......
-......__......
-......mm......
+WWWWWWWWWWWWWWWWWWW
+WWWWWWWWWWWWWWWWWWW
+...................
+...................
+xxxxxxxxxxxxxxx.xxx
+xiiirrririiiiiiiirx
+xiiririiiiiiiriiiix
+xiriiiiiiriiriiiiix
+xriiiiiiiiiiiiiirix
+xiriiiiiririiiiriix
+xiiiirrriiiiiiiirix
+xxxx.xxxxxxxxx.xxxx
+x.................x
+x.................x
+xxx.xxxxxxxxxxxxxxx
+xiiiiiriiriiiiiirix
+xiiiriiiiiiiiiriiix
+xririiiiiriiiiiiiix
+xiiirriiiiriirriiix
+xiiiiiiiiiiiiiriiix
+xiiriiiiiiiiririiix
+xxxxxxxx...xxxxxxxx
+xxxxxxxx...xxxxxxxx
+xxxxxxxxmmxxxxxxxxx
 end
 
 objects:
-furn 1 2 banner
-furn 12 2 banner
+npc 9 2 id=hale sprite=hale face=down move=still script=frostspire_trial.warden
+npc 7 12 id=fs_adept_1 sprite=skier face=down move=still trainer=fs_adept_1 sight=3 post=1
+npc 11 12 id=fs_adept_2 sprite=hiker face=down move=still trainer=fs_adept_2 sight=3 post=1
+npc 16 3 id=fs_adept_3 sprite=skier face=left move=still trainer=fs_adept_3 sight=3 post=1
+npc 10 22 id=frostspire_trial_guide sprite=ace face=down move=still text="Brr! Hale's hall is solid ice. Once you start sliding, you don't stop till you hit something! Her Frost Morphs hate Ember, Brawl, Stone and Iron."
+furn 1 2 statue
+furn 17 2 statue
 furn 5 2 statue
-furn 8 2 statue
-furn 3 6 statue
-furn 10 6 statue
-furn 3 10 statue
-furn 10 10 statue
-furn 3 14 statue
-furn 10 14 statue
-furn 0 16 plant
-furn 13 16 plant
-furn 0 12 rail v=18
-furn 1 12 rail v=19
-furn 2 12 rail v=19
-furn 3 12 rail v=19
-furn 4 12 rail v=17
-furn 8 12 rail v=18
-furn 9 12 rail v=19
-furn 10 12 rail v=19
-furn 11 12 rail v=19
-furn 12 12 rail v=19
-furn 13 12 rail v=17
-npc 5 12 id=fs_adept_1 sprite=skier face=right move=still trainer=fs_adept_1 sight=3
-furn 0 8 rail v=18
-furn 1 8 rail v=19
-furn 2 8 rail v=19
-furn 3 8 rail v=19
-furn 4 8 rail v=19
-furn 5 8 rail v=17
-furn 9 8 rail v=18
-furn 10 8 rail v=19
-furn 11 8 rail v=19
-furn 12 8 rail v=19
-furn 13 8 rail v=17
-npc 8 8 id=fs_adept_2 sprite=hiker face=left move=still trainer=fs_adept_2 sight=3
-furn 0 5 rail v=18
-furn 1 5 rail v=19
-furn 2 5 rail v=19
-furn 3 5 rail v=19
-furn 4 5 rail v=17
-furn 8 5 rail v=18
-furn 9 5 rail v=19
-furn 10 5 rail v=19
-furn 11 5 rail v=19
-furn 12 5 rail v=19
-furn 13 5 rail v=17
-npc 5 5 id=fs_adept_3 sprite=skier face=right move=still trainer=fs_adept_3 sight=3
-npc 6 3 id=hale sprite=hale face=down move=still script=frostspire_trial.warden
-npc 9 15 id=frostspire_trial_guide sprite=ace face=down move=still text="Brr! Warden Hale's Frost Morphs will freeze you solid. Ember, Brawl, Stone and Iron all do the job. Stay warm!"
+furn 13 2 statue

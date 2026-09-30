@@ -7,78 +7,35 @@ music: trial
 battle: arena
 
 layout:
-WWWWWWWWWWWWWW
-WWWwWWWWWWwWWW
-..............
-..............
-......__......
-......__......
-......__......
-......__......
-......__......
-......__......
-......__......
-......__......
-......__......
-......__......
-......__......
-......__......
-......__......
-......mm......
+WWWWWWWWWWWWWWWWWW
+WWWWWWWWWWWWWWWWWW
+pppppp......pppppp
+pppppp......pppppp
+ppppppppppp844pppp
+p...ppppppppp8...p
+p...6666666666...p
+p...44444ppppp...p
+pp2ppppp8pppppp2pp
+pp2pppp....pppp2pp
+pp2ppp2....662p2pp
+pp2ppp2....pp2p2pp
+pp2ppp28ppppp2p2pp
+p...pp28ppppp6...p
+p...6668ppp244...p
+p...ppppppp2pp...p
+ppp8ppppppp2pp8ppp
+ppp8..........8ppp
+pppp..........pppp
+pppp....mm....pppp
 end
 
 objects:
-furn 1 2 banner
-furn 12 2 banner
-furn 5 2 statue
-furn 8 2 statue
-furn 3 6 barrel
-furn 10 6 barrel
-furn 3 10 barrel
-furn 10 10 barrel
-furn 3 14 barrel
-furn 10 14 barrel
-furn 0 16 plant
-furn 13 16 plant
-furn 0 12 rail v=6
-furn 1 12 rail v=7
-furn 2 12 rail v=7
-furn 3 12 rail v=7
-furn 4 12 rail v=5
-furn 8 12 rail v=6
-furn 9 12 rail v=7
-furn 10 12 rail v=7
-furn 11 12 rail v=7
-furn 12 12 rail v=7
-furn 13 12 rail v=5
-npc 5 12 id=st_adept_1 sprite=sailor face=right move=still trainer=st_adept_1 sight=3
-furn 0 8 rail v=6
-furn 1 8 rail v=7
-furn 2 8 rail v=7
-furn 3 8 rail v=7
-furn 4 8 rail v=7
-furn 5 8 rail v=5
-furn 9 8 rail v=6
-furn 10 8 rail v=7
-furn 11 8 rail v=7
-furn 12 8 rail v=7
-furn 13 8 rail v=5
-npc 8 8 id=st_adept_2 sprite=fisher face=left move=still trainer=st_adept_2 sight=3
-furn 0 5 rail v=6
-furn 1 5 rail v=7
-furn 2 5 rail v=7
-furn 3 5 rail v=7
-furn 4 5 rail v=5
-furn 8 5 rail v=6
-furn 9 5 rail v=7
-furn 10 5 rail v=7
-furn 11 5 rail v=7
-furn 12 5 rail v=7
-furn 13 5 rail v=5
-npc 5 5 id=st_adept_3 sprite=sailor face=right move=still trainer=st_adept_3 sight=3
-npc 6 3 id=brann sprite=brann face=down move=still script=saltreach_trial.warden
-npc 9 15 id=saltreach_trial_guide sprite=ace face=down move=still text="Ahoy! Captain Brann's crew are all Tide type. Nature and Static Morphs make short work of them. Try not to get soaked!"
-furn 1 10 crate
-furn 12 10 crate
-furn 1 14 crate
-furn 12 14 crate
+npc 8 2 id=brann sprite=brann face=down move=still script=saltreach_trial.warden
+npc 1 14 id=st_adept_1 sprite=sailor face=right move=still trainer=st_adept_1 sight=3 post=1
+npc 10 9 id=st_adept_2 sprite=fisher face=left move=still trainer=st_adept_2 sight=3 post=1
+npc 16 5 id=st_adept_3 sprite=sailor face=left move=still trainer=st_adept_3 sight=3 post=1
+npc 12 17 id=saltreach_trial_guide sprite=ace face=down move=still text="Ahoy! The Captain's pool runs on tides — step onto a current and it carries you. Pick your currents well! His crew are Tide type: Nature and Static Morphs make short work of them."
+furn 6 2 barrel
+furn 11 2 barrel
+furn 4 18 crate
+furn 13 18 crate

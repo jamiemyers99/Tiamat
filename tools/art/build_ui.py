@@ -85,6 +85,53 @@ def disc(col):
     return s
 
 
+def puzzle_frames():
+    import math
+    F = []
+    post = ramp('#6a7288', 4, 0.14)
+
+    def posts(s):
+        for x0 in (1, 12):
+            s.rect(x0, 2, 3, 18, post[1]); s.rect(x0, 2, 1, 18, post[3]); s.rect(x0, 1, 3, 2, post[2])
+            s.px(x0 + 1, 1, '#f0f4ff')
+    for name, glow, core in (('gate_y', '#f5c542', '#fff6c0'), ('gate_b', '#4ac8ff', '#dff6ff')):
+        s = Spr(16, 20)
+        posts(s)
+        for k, y0 in enumerate((5, 10, 15)):
+            pts = [(4, y0), (6, y0 - 2), (8, y0 + 1), (10, y0 - 2), (11, y0)]
+            for (ax, ay), (bx, by) in zip(pts, pts[1:]):
+                s.line(ax, ay, bx, by, glow)
+                s.line(ax, ay + 1, bx, by + 1, core)
+        s.outline('#1c1a28')
+        F.append((name, s))
+    s = Spr(16, 20); posts(s); s.outline('#1c1a28'); F.append(('gate_open', s))
+    cr = ramp('#8a5ae0', 5, 0.16)
+    s = Spr(16, 20)
+    s.poly([(2, 20), (3, 7), (6, 2), (8, 6), (10, 1), (13, 6), (14, 20)], cr[2])
+    s.poly([(3, 20), (4, 8), (6, 4), (7, 20)], cr[3]); s.poly([(9, 20), (10, 4), (12, 8), (13, 20)], cr[1])
+    s.line(6, 5, 6, 17, cr[4]); s.px(10, 3, '#f0e0ff'); s.px(5, 8, '#f0e0ff')
+    s.outline('#1c1a28')
+    F.append(('gate_crystal', s))
+    s = Spr(16, 20)
+    s.poly([(2, 20), (3, 15), (5, 13), (6, 20)], cr[2]); s.poly([(10, 20), (11, 14), (13, 16), (14, 20)], cr[1])
+    s.outline('#1c1a28')
+    F.append(('gate_crystal_open', s))
+    for name, lit in (('plate_y', '#f5c542'), ('plate_b', '#4ac8ff')):
+        s = Spr(16, 16)
+        s.rect(1, 1, 14, 14, post[1]); s.rect(2, 2, 12, 12, post[2]); s.hline(2, 13, 2, post[3])
+        s.poly([(8, 3.5), (12.5, 8), (8, 12.5), (3.5, 8)], lit)
+        s.poly([(8, 5.5), (10.5, 8), (8, 10.5), (5.5, 8)], '#ffffff')
+        F.append((name, s))
+    for name, col in (('plate_rift_off', '#4a3a6a'), ('plate_rift_a', '#b07aff'), ('plate_rift_b', '#ffd24a')):
+        s = Spr(16, 16)
+        s.ellipse(8, 8, 7, 7, '#1c1a28'); s.ellipse(8, 8, 6, 6, col); s.ellipse(8, 8, 4.4, 4.4, '#1c1a28')
+        for a in range(0, 360, 60):
+            s.px(round(8 + 5 * math.cos(math.radians(a)) - 0.5), round(8 + 5 * math.sin(math.radians(a)) - 0.5), '#ffffff' if name != 'plate_rift_off' else '#6a5a8a')
+        s.poly([(8, 5), (10.5, 8), (8, 11), (5.5, 8)], col)
+        F.append((name, s))
+    return F
+
+
 def ui_frames():
     F = []
     # overworld bits
@@ -124,6 +171,13 @@ def ui_frames():
     # capsules for battle throws
     for name, draw in CAP.DESIGNS.items():
         F.append((f'throw_{name}', draw()))
+    # Trial puzzle pieces: electric gates (yellow / blue), crystal gates, floor switches and rift seals
+    F.extend(puzzle_frames())
+    # the Old Door's slab under Rootmere (closed / Crown Gem set / open) and Abzurath's egg for the hatching
+    import ancient as AN
+    F.extend(AN.slab_frames())
+    F.append(('drake_egg', AN.drake_egg()))
+    F.append(('drake_egg_glow', AN.drake_egg(True)))
     # type badges
     for t, col in TYPES.items():
         tw = text_width(t)
@@ -364,6 +418,18 @@ def icon_frames():
     simple('marsh_parcel', lambda s: (s.rect(2, 4, 12, 9, '#c8a878'), s.hline(2, 13, 8, '#8a5a3a'), s.vline(8, 4, 12, '#8a5a3a')))
     simple('pips_bell', lambda s: (s.shaded_ellipse(8, 9, 4, 4, ramp('#f5c542', 5, 0.15)), s.px(8, 12, '#3a2a1a'), s.line(5, 4, 11, 4, '#e2555f')))
     simple('forge_pass', lambda s: (s.rect(2, 4, 12, 8, '#8e9aaf'), s.rect(3, 5, 4, 4, '#f5c542'), s.hline(8, 12, 6, '#ffffff'), s.hline(8, 12, 9, '#ffffff')))
+    # Radiant Charm: a sparkling star-shaped charm on a ribbon
+    simple('radiant_charm', lambda s: (s.line(8, 1, 8, 4, '#e2555f'), s.poly([(8, 3), (10, 7), (14, 8), (10.5, 10.5), (11.5, 15), (8, 12.5), (4.5, 15), (5.5, 10.5), (2, 8), (6, 7)], '#ffe27a'),
+                                       s.poly([(8, 6), (9, 8.5), (8, 11), (7, 8.5)], '#ffffff')))
+    # Mysterious Egg: dark iron shell with amber cracks of light
+    def egg(s):
+        s.shaded_ellipse(8, 9, 5.2, 6.4, ramp('#5a6478', 5, 0.14))
+        s.line(5, 8, 7, 10, '#ffb040'); s.line(7, 10, 9, 8, '#ffb040'); s.line(9, 8, 11, 11, '#ffb040')
+        s.px(6, 5, '#c8d0e0'); s.px(7, 4, '#c8d0e0')
+    simple('mystery_egg', egg)
+    # Crown Gem: a faceted amber-and-violet gem in a bronze setting
+    simple('crown_gem', lambda s: (s.poly([(8, 1), (14, 6), (8, 15), (2, 6)], '#d09a3c'), s.poly([(8, 3), (12, 6.5), (8, 13), (4, 6.5)], '#ffb040'),
+                                   s.poly([(8, 3), (10, 6.5), (8, 9), (6, 6.5)], '#b07aff'), s.px(7, 5, '#ffffff')))
     simple('rift_key', lambda s: (s.ellipse(5, 8, 3.5, 3.5, '#6fe0c8'), s.ellipse(5, 8, 1.5, 1.5, '#1c1a28'), s.hline(8, 14, 8, '#6fe0c8'), s.vline(12, 8, 11, '#6fe0c8'), s.vline(14, 8, 10, '#6fe0c8')))
     # XP Share: a gold medallion on a chain, a glowing teal gem with a star glint
     def xp_share(s):
@@ -387,7 +453,9 @@ def icon_frames():
     import re
     td_types = {'td01': 'Plain', 'td02': 'Plain', 'td03': 'Stone', 'td04': 'Static', 'td05': 'Frost', 'td06': 'Ember', 'td07': 'Nature',
                 'td08': 'Tide', 'td09': 'Umbra', 'td10': 'Mind', 'td11': 'Brawl', 'td12': 'Wing', 'td13': 'Iron', 'td14': 'Toxin',
-                'td15': 'Swarm', 'td16': 'Drake', 'td17': 'Plain', 'td18': 'Static'}
+                'td15': 'Swarm', 'td16': 'Drake', 'td17': 'Plain', 'td18': 'Static',
+                'td19': 'Plain', 'td20': 'Tide', 'td21': 'Static', 'td22': 'Wing', 'td23': 'Mind', 'td24': 'Brawl',
+                'td25': 'Stone', 'td26': 'Frost'}
     for k, t in td_types.items():
         F.append((k, disc(TYPES[t])))
     return F

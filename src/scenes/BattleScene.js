@@ -5,7 +5,7 @@ import { input } from '../core/input.js';
 import { audio } from '../core/audio.js';
 import { G, itemCount, takeItem, addMoney, markSeen, markCaught, hasCaughtForm, receiveMorph, flag } from '../core/state.js';
 import { Battle } from '../battle/engine.js';
-import { createMon, balancedSex, calcStats, maxHp, monName, monFrame, sexSymbol, xpProgress, replaceMove, evolutionTarget, STAT_KEYS } from '../battle/mon.js';
+import { createMon, SHINY_ODDS, balancedSex, calcStats, maxHp, monName, monFrame, sexSymbol, xpProgress, replaceMove, evolutionTarget, STAT_KEYS } from '../battle/mon.js';
 import { SPECIES } from '../data/species.js';
 import { MOVES } from '../data/moves.js';
 import { ITEMS } from '../data/items.js';
@@ -83,7 +83,9 @@ export class BattleScene extends Phaser.Scene {
       enemyParty = trainer.party.map(([sp, lv, moves]) => createMon(sp, lv, { moves, shiny: false, ivs }));
     } else {
       if (!G.state.sexTally) { G.state.sexTally = { m: 0, f: 0 }; }
-      enemyParty = [createMon(cfg.species, cfg.level, { metMap: G.state.player.map, ivs: wildIvs(tier), sex: cfg.sex || balancedSex(cfg.species, G.state.sexTally) })];
+      // the Radiant Charm (Dr. Marsh's prize for a complete Index) makes Radiant Morphs three times as common
+      const shinyOdds = SHINY_ODDS * (itemCount('radiant_charm') ? 3 : 1);
+      enemyParty = [createMon(cfg.species, cfg.level, { metMap: G.state.player.map, ivs: wildIvs(tier), shiny: Math.random() < shinyOdds, sex: cfg.sex || balancedSex(cfg.species, G.state.sexTally) })];
     }
     enemyParty.forEach((m) => markSeen(m.species, m.sex));
     this.trainer = trainer;

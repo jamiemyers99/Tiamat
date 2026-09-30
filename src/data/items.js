@@ -58,6 +58,9 @@ it('forge_pass', 'Forge Pass', 'key', 0, { kind: 'key' }, 'A pass for the Coldfo
 it('rift_key', 'Chapel Key', 'key', 0, { kind: 'key' }, 'A heavy key stamped with a wave. Opens the Sunken Chapel.', { key: true });
 it('wing_whistle', 'Wing Whistle', 'key', 0, { kind: 'map' }, 'Calls a friendly Skyveer. Open the Reach Map outdoors to fly to any town you have visited.', { key: true });
 it('seal_shard', 'Seal Shard', 'key', 0, { kind: 'key' }, 'A glowing chip of Seal-stone, still warm.', { key: true });
+it('radiant_charm', 'Radiant Charm', 'key', 0, { kind: 'key' }, "Dr. Marsh's gift for a complete Index. While you carry it, Radiant Morphs turn up three times as often.", { key: true });
+it('mystery_egg', 'Mysterious Egg', 'key', 0, { kind: 'key' }, 'A heavy egg of dark, iron-grey shell, warm to the touch. Something inside is waiting to hatch.', { key: true });
+it('crown_gem', 'Crown Gem', 'key', 0, { kind: 'key' }, "The Wardens' gift to the Crown Champion. Its carvings match the old stone door at the south of Rootmere.", { key: true });
 
 // ── Tech Discs (reusable) ─────────────────────────────────────────────────
 const TDS = [
@@ -66,6 +69,9 @@ const TDS = [
   ['td09', 'shadow_creep', 0], ['td10', 'mind_spike', 0], ['td11', 'power_kick', 3000], ['td12', 'wing_strike', 2500],
   ['td13', 'alloy_lash', 0], ['td14', 'mire_blast', 0], ['td15', 'swarm_strike', 0], ['td16', 'scale_rake', 0],
   ['td17', 'rally_cry', 2000], ['td18', 'numb_pulse', 2500],
+  // Dr. Marsh's Index rewards
+  ['td19', 'grand_slam', 0], ['td20', 'hydro_burst', 0], ['td21', 'skybolt', 0], ['td22', 'tempest_wing', 0],
+  ['td23', 'astral_ray', 0], ['td24', 'all_out_slam', 0], ['td25', 'boulder_drop', 0], ['td26', 'whiteout_gale', 0],
 ];
 for (const [id, move, price] of TDS) {
   const mv = MOVES[move];
@@ -91,6 +97,14 @@ export function canLearnDisc(species, moveId) {
     numb_pulse: ['Wing', 'Iron', 'Mind'],
     tide_pulse: ['Frost', 'Drake'],
     bloom_blast: ['Toxin', 'Swarm'],
+    grand_slam: ['Brawl', 'Stone', 'Drake', 'Iron'],
+    hydro_burst: ['Frost', 'Drake'],
+    skybolt: ['Wing', 'Tide', 'Iron'],
+    tempest_wing: ['Drake', 'Swarm'],
+    astral_ray: ['Fae', 'Umbra'],
+    all_out_slam: ['Plain', 'Stone', 'Drake'],
+    boulder_drop: ['Brawl', 'Iron', 'Drake', 'Ember'],
+    whiteout_gale: ['Tide', 'Drake'],
   };
   return (extras[moveId] || []).some((t) => species.types.includes(t));
 }

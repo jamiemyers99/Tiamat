@@ -21,12 +21,13 @@ FLOORS = {
     'arena':  ('#b8a88a', 'stones'),
     'chapel': ('#4a4660', 'stones'),
     'ice':    ('#cfe4f4', 'tiles'),
+    'ancient': ('#86806c', 'stones'),
 }
 WALLS = {
     'cream': ('#efe0c0', 'stripe'), 'blue': ('#b8c8e8', 'stripe'), 'green': ('#c8dcb8', 'stripe'),
     'pink': ('#ecc8c8', 'stripe'), 'white': ('#eceff2', 'panel'), 'wood': ('#b88a5a', 'planks'),
     'stone': ('#a8a298', 'blocks'), 'dark': ('#4e4a62', 'blocks'), 'teal': ('#bfe4de', 'panel'),
-    'ice': ('#d8ecf8', 'blocks'), 'red': ('#d8a098', 'stripe'),
+    'ice': ('#d8ecf8', 'blocks'), 'red': ('#d8a098', 'stripe'), 'ancient': ('#56524a', 'blocks'),
 }
 
 
@@ -63,6 +64,96 @@ def floor_tile(kind, variant=0):
             for x in range(T):
                 if (x + y) % 4 == 0:
                     s.px(x, y, r[3])
+    return s
+
+
+@lru_cache(None)
+def puzzle_tile(kind, variant=0):
+    """Trial puzzle floor tiles: slippery ice, water currents (with an arrow) and ice rocks."""
+    s = Spr(T, T)
+    if kind == 'ice':
+        r = ramp('#a8dcf4', 5, 0.08)
+        s.rect(0, 0, T, T, r[3])
+        for k in range(3):                         # glossy diagonal streaks
+            x0 = (variant * 5 + k * 6) % 16
+            for j in range(4):
+                s.px((x0 + j) % 16, (12 - k * 5 + j) % 16, r[4])
+                s.px((x0 + j) % 16, (13 - k * 5 + j) % 16, '#ffffff')
+        s.hline(0, 15, 15, r[1]); s.vline(15, 0, 15, r[2])
+        s.px(3 + variant, 4, '#ffffff')
+    elif kind.startswith('current_'):
+        d = kind[8:]
+        r = ramp('#2f7fc8', 5, 0.1)
+        s.rect(0, 0, T, T, r[2])
+        for k in range(4):
+            s.px((variant * 7 + k * 4) % 16, (k * 5 + variant * 3) % 16, r[3])
+        # a white chevron pointing downstream
+        pts = [(4, 10), (5, 9), (6, 8), (7, 7), (8, 6), (9, 7), (10, 8), (11, 9), (12, 10)]
+        pts += [(x, y + 1) for (x, y) in pts]
+        rot = {'up': lambda x, y: (x, y), 'down': lambda x, y: (x, 15 - y),
+               'left': lambda x, y: (y, x), 'right': lambda x, y: (15 - y, x)}[d]
+        for (x, y) in pts:
+            xx, yy = rot(x, y - 1)
+            s.px(xx, yy, '#e8f6ff')
+        s.hline(0, 15, 0, r[1]) if d in ('left', 'right') else s.vline(0, 0, 15, r[1])
+    elif kind == 'rift_glass':
+        r = ramp('#7a5ad0', 5, 0.1)
+        s.rect(0, 0, T, T, r[2])
+        for k in range(3):
+            x0 = (variant * 5 + k * 6) % 16
+            for j in range(4):
+                s.px((x0 + j) % 16, (12 - k * 5 + j) % 16, r[4])
+        s.px(3 + variant, 4, '#e8d8ff'); s.px(11, 10 - variant, '#e8d8ff')
+        s.hline(0, 15, 15, r[0]); s.vline(15, 0, 15, r[1])
+    elif kind == 'pool':
+        r = ramp('#1f4f8a', 5, 0.1)
+        s.rect(0, 0, T, T, r[1])
+        for k in range(3):
+            s.hline((variant * 5 + k * 5) % 12, (variant * 5 + k * 5) % 12 + 3, (k * 5 + 3) % 16, r[2])
+    elif kind == 'ice_rock':
+        r = ramp('#8fb8d8', 5, 0.14)
+        s.shaded_ellipse(8, 9, 6.5, 5.5, r)
+        s.px(5, 6, '#ffffff'); s.px(6, 5, '#ffffff')
+        s.outline(None, darken=0.35)
+    return s
+
+
+@lru_cache(None)
+def block_tile(floor, up, down):
+    """A solid barrier block for Trial rooms, styled to the room (metal in the lab, stone elsewhere)."""
+    base = {'lab': '#9aa4b8', 'arena': '#6a5a4a', 'chapel': '#3a3650', 'ice': '#9cc0dc', 'tile': '#8a9aa8'}.get(floor, '#8a8478')
+    r = ramp(base, 5, 0.12)
+    s = Spr(T, T)
+    s.rect(0, 0, T, T, r[2])
+    if floor == 'lab':
+        s.rect(2, 2, 12, 12, r[3]); s.rect(3, 3, 10, 10, r[2])
+        for (x, y) in [(3, 3), (12, 3), (3, 12), (12, 12)]:
+            s.px(x, y, r[4])
+    else:
+        s.hline(0, 15, 7, r[1]); s.vline(7, 0, 7, r[1]); s.vline(3, 8, 15, r[1]); s.vline(12, 8, 15, r[1])
+    if not up:
+        s.hline(0, 15, 0, r[4]); s.hline(0, 15, 1, r[3])
+    if not down:
+        s.hline(0, 15, 15, r[0]); s.hline(0, 15, 14, r[0])
+    return s
+
+
+@lru_cache(None)
+def hedge_tile(up, down, left, right):
+    """A clipped garden hedge block (Moss Trial maze)."""
+    r = ramp('#3f8a3a', 5, 0.14)
+    s = Spr(T, T)
+    s.rect(0, 0, T, T, r[2])
+    for (x, y, k) in [(2, 3, 3), (7, 2, 4), (12, 4, 3), (4, 8, 1), (10, 9, 3), (6, 12, 1), (13, 12, 4), (1, 13, 3)]:
+        s.px(x, y, r[k]); s.px(x + 1, y, r[k]); s.px(x, y + 1, r[max(0, k - 1)])
+    if not up:
+        s.hline(0, 15, 0, r[4]); s.hline(0, 15, 1, r[3])
+    if not down:
+        s.hline(0, 15, 15, r[0]); s.hline(0, 15, 14, r[1])
+    if not left:
+        s.vline(0, 0, 15, r[1])
+    if not right:
+        s.vline(15, 0, 15, r[0])
     return s
 
 
@@ -282,6 +373,14 @@ def furniture(name, variant=0):
             s.blit(starter_ball(c), cx - 5, oy - 7)
         s.outline(None, darken=0.3)
         return s, 0, oy, 3, 1
+    if name == 'pad':  # Veil Trial warp pad
+        s = Spr(16, 16)
+        col = ['#8a6ad8', '#6fe0c8', '#f0c43a', '#e2555f'][variant % 4]
+        s.ellipse(8, 8, 7, 5, '#2a2440')
+        s.ellipse(8, 8, 6, 4, col)
+        s.ellipse(8, 8, 4, 2.4, '#1a1628')
+        s.ellipse(8, 8, 2.2, 1.2, '#ffffff')
+        return s, 0, 0, 1, 1
     if name == 'statue':
         from decor import prop
         return prop('statue')
@@ -310,6 +409,9 @@ def furniture(name, variant=0):
     if name == 'crystal':
         from decor import prop
         return prop('crystal')
+    if name == 'incubator':
+        from ancient import incubator
+        return incubator()
     if name == 'altar':
         s = Spr(48, 40); oy = 8
         st = ramp('#5a5078', 5, 0.14)

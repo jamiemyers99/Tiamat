@@ -92,7 +92,7 @@ async def story(t, port):
     await t.shot('rootmere_after_mum')
     print('boots:', await t.js("window.__tiamat.G.state.bag.trail_boots"))
     await t.js("""(() => { const T = window.__tiamat; T.G.state.party = [T.createMon('pyromane', 74), T.createMon('glaciursa', 75, { moves: ['icicle_jab', 'hail_volley', 'power_kick', 'all_out_slam'] }), T.createMon('maelstrand', 74, { moves: ['rime_ray', 'hydro_burst', 'icicle_jab', 'undertow'] }), T.createMon('mosswarden', 72, { moves: ['quake_stomp', 'timber_crash', 'bloom_blast', 'heal_bud'] })]; })()""")
-    await goto(t, 'brindlewood_trial', 6, 16, 'up')
+    await goto(t, 'brindlewood_trial', 8, 3, 'up')
     await run_script(t, 'brindlewood_trial.warden')
     await goto(t, 'brindlewood_house', 5, 7, 'up')
     await run_script(t, 'brindlewood.aldous')
@@ -104,7 +104,7 @@ async def story(t, port):
     await goto(t, 'saltreach', 20, 26, 'down')
     await t.js("(() => { const d = window.__tiamat.G.state.defeated; d.st_acolyte_1 = d.st_acolyte_2 = true; })()")
     await run_script(t, 'saltreach.brann_docks')
-    await goto(t, 'saltreach_trial', 6, 16, 'up')
+    await goto(t, 'saltreach_trial', 8, 3, 'up')
     await run_script(t, 'saltreach_trial.warden')
     await goto(t, 'coldforge_mines', 39, 21, 'up')
     await t.shot('mines')
@@ -112,20 +112,20 @@ async def story(t, port):
     await t.js("(() => { const d = window.__tiamat.G.state.defeated; d.iw_acolyte_1 = d.iw_acolyte_2 = d.iw_acolyte_3 = true; })()")
     await goto(t, 'gearhollow_ironworks', 10, 4, 'up')
     await run_script(t, 'ironworks.iskra')
-    await goto(t, 'gearhollow_trial', 6, 16, 'up')
+    await goto(t, 'gearhollow_trial', 8, 3, 'up')
     await run_script(t, 'gearhollow_trial.warden')
     await goto(t, 'gearhollow', 27, 25, 'down')
     await run_script(t, 'gearhollow.wren')
     # Act III
-    await goto(t, 'hollowmere_trial', 6, 16, 'up')
+    await goto(t, 'hollowmere_trial', 10, 3, 'up')
     await run_script(t, 'hollowmere_trial.warden')
     await goto(t, 'hollowmere', 14, 16, 'left')
     await run_script(t, 'hollowmere.shore')
     await t.shot('hollowmere')
     # Act IV
-    await goto(t, 'frostspire_trial', 6, 16, 'up')
+    await goto(t, 'frostspire_trial', 9, 3, 'up')
     await run_script(t, 'frostspire_trial.warden')
-    await goto(t, 'riftgate_trial', 6, 16, 'up')
+    await goto(t, 'riftgate_trial', 10, 3, 'up')
     await run_script(t, 'riftgate_trial.warden')
     await goto(t, 'riftgate', 23, 10, 'down')
     await t.js("window.__tiamat.G.state.party.forEach(window.__tiamat.healMon)")
@@ -615,57 +615,8 @@ async def loadmenu(t, port):
 
 # ── Trial halls: adepts guard the gates, the Warden waits for all of them; beaten grunts walk away ──
 async def trialgate(t, port):
-    await t.p.goto(f'http://localhost:{port}/?map=gearhollow_trial&x=6&y=16&debug')
-    await wait_for(t, f"window.__tiamat && {W}.player", 40000, 'world')
-    await t.wait(800)
-    await t.js("""(() => { const T = window.__tiamat, G = T.G; G.settings.textSpeed = 'instant'; G.settings.battleAnims = false;
-      G.state.vars.starter = 'cindlet'; G.state.flags.got_starter = true; G.state.flags.ironworks_done = true;
-      G.state.party = [T.createMon('cindreaver', 60, { moves: ['umbral_flare', 'blaze_mane', 'ember_fang', 'shadow_spark'] })]; })()""")
-    await t.shot('hall')
-    # the Warden turns you away while adepts are left
-    await t.js(f"void {W}.run('gearhollow_trial.warden')")
-    await t.wait(700)
-    await t.shot('warden_refuses')
-    await t.key('z', 60, 300); await t.key('z', 60, 300)
-    await idle(t, 20000, 'refused')
-    print('battle after refusal:', await t.js("!!window.__tiamat.game.scene.isActive('Battle')"), 'sigil:', await t.js("!!window.__tiamat.G.state.flags.sigil_spark"))
-    await t.js(AUTO)
-    await t.js(f"(() => {{ const w = {W}; const orig = w.checkTrainers.bind(w); window.__log = []; w.checkTrainers = () => {{ const r = orig(); window.__log.push(w.player.tx + ',' + w.player.ty + (w.player.moving ? 'm' : '') + (w.busy ? 'B' : '') + '=' + r); return r; }}; }})()")
-    spotted = []
-    for step in range(16):
-        await t.key('ArrowUp', 200, 60)
-        await t.wait(150)
-        if not await t.js(f"{W}.busy === 0 && window.__tiamat.input.top() === 'world'"):
-            await t.wait(250)
-            if len(spotted) < 3: await t.shot(f'spotted_{len(spotted)}')
-            await idle(t, 60000, 'adept battle')
-            spotted.append(await t.js(f"{W}.player.tx + ',' + {W}.player.ty"))
-        if await t.js(f"{W}.player.ty") <= 4: break
-    print('stopped at:', spotted, await t.js("window.__log.join(' ')"))
-    print('adepts beaten:', await t.js("['gh_adept_1','gh_adept_2','gh_adept_3'].map(id => !!window.__tiamat.G.state.defeated[id]).join(',')"))
-    print('player at', await t.js(f"{W}.player.tx + ',' + {W}.player.ty"))
-    await t.js(f"(() => {{ const w = {W}; w.player.setFace('up'); void w.talkTo(w.npcById('iskra')); }})()")
-    await t.wait(600)
-    await idle(t, 90000, 'warden')
-    print('sigil after all adepts:', await t.js("!!window.__tiamat.G.state.flags.sigil_spark"))
-    await t.shot('after_warden')
-    # Saltreach pier: beaten acolytes walk off, then Brann heads off to his Trial
-    await t.js("window.__tiamat.G.state.party.forEach((m) => window.__tiamat.healMon(m))")
-    await t.js(f"{W}.S.warp('saltreach', 20, 25, 'down')")
-    await t.wait(1200)
-    await idle(t, 20000, 'saltreach')
-    for tid in ['st_acolyte_1', 'st_acolyte_2']:
-        before = await t.js(f"(() => {{ const n = {W}.npcById('{tid}'); return n.actor.tx + ',' + n.actor.ty; }})()")
-        await t.js(f"(() => {{ const w = {W}; void w.trainerEncounter(w.npcById('{tid}'), false); }})()")
-        await t.wait(500)
-        await idle(t, 60000, tid)
-        after = await t.js(f"(() => {{ const n = {W}.npcById('{tid}'); return n.actor.tx + ',' + n.actor.ty + ' active=' + n.active; }})()")
-        print(tid, before, '->', after)
-    await t.js(f"void {W}.run('saltreach.brann_docks', {{ npc: {W}.npcById('st_brann') }})")
-    await t.wait(1500)
-    await t.shot('brann_leaving')
-    await idle(t, 30000, 'brann')
-    print('brann:', await t.js(f"(() => {{ const n = {W}.npcById('st_brann'); return n.actor.tx + ',' + n.actor.ty + ' active=' + n.active; }})()"), 'docks_done:', await t.js("!!window.__tiamat.G.state.flags.docks_done"))
+    # (the halls are puzzles now: see `trials`, which walks every one in the real game)
+    await solve_trial(t, port, 'gearhollow_trial', 'sigil_spark')
 
 
 async def trialdbg(t, port):
@@ -1047,3 +998,186 @@ async def capsulelook(t, port):
         await t.p.goto(f'http://localhost:{port}/?map=route1&x=22&y=32&debug')
         await wait_for(t, f"window.__tiamat && {W}.player", 40000, 'world')
         await t.wait(900)
+
+
+# ── every Trial hall: walk the puzzle in the real game (solver plans each step), battle the adepts, win the Sigil ──
+TRIALS = [('brindlewood_trial', 'sigil_moss'), ('saltreach_trial', 'sigil_tide'), ('gearhollow_trial', 'sigil_spark'),
+          ('hollowmere_trial', 'sigil_veil'), ('frostspire_trial', 'sigil_rime'), ('riftgate_trial', 'sigil_wyrm')]
+
+
+async def solve_trial(t, port, mid, sigil, shots=True):
+    import puzzle_check as pc
+    await t.p.goto(f'http://localhost:{port}/?map={mid}&x=1&y=1&debug')
+    await wait_for(t, f"window.__tiamat && {W}.player", 40000, 'world')
+    await t.wait(700)
+    await t.js("""(() => { const T = window.__tiamat, G = T.G; G.settings.textSpeed = 'instant'; G.settings.battleAnims = false;
+      G.state.flags.got_starter = true; G.state.vars.starter = 'cindlet'; G.state.flags.ironworks_done = true;
+      G.state.party = [T.createMon('cindreaver', 100, { moves: ['hydro_burst', 'grand_slam', 'riftbreaker', 'umbral_flare'] })];
+      G.state.party[0].moves.forEach((mv) => { mv.pp = 999; mv.max = 999; }); })()""")
+    L, objs = pc.load(mid)
+    start = next((x, y - 1) for y, row in enumerate(L) for x, c in enumerate(row) if c == 'm')
+    await t.js(f"{W}.transition('{mid}', {start[0]}, {start[1]}, 'up')")
+    await t.wait(900)
+    await t.js(AUTO)
+    keymap = {'up': 'ArrowUp', 'down': 'ArrowDown', 'left': 'ArrowLeft', 'right': 'ArrowRight'}
+    fights, n = [], 0
+    for _ in range(300):
+        st = await t.js(f"[{W}.player.tx, {W}.player.ty, Object.keys(window.__tiamat.G.state.flags).filter(f => /^(gh_flip|rg_a|rg_b)$/.test(f))]")
+        plan = pc.analyse(mid, plan=((st[0], st[1]), set(st[2])))
+        if plan is None: print(mid, 'NO PLAN from', st); break
+        if not plan: break
+        before = await t.js("Object.keys(window.__tiamat.G.state.defeated).length")
+        await t.key(keymap[plan[0]], 150, 30)
+        n += 1
+        for _ in range(80):
+            if await t.js(f"!{W}.player.moving && {W}.busy === 0 && window.__tiamat.input.top() === 'world'"): break
+            await t.wait(60)
+        if not await t.js(f"{W}.busy === 0 && window.__tiamat.input.top() === 'world'"):
+            await idle(t, 90000, 'adept')
+        after = await t.js("Object.keys(window.__tiamat.G.state.defeated).filter(k => /_adept_/.test(k)).join(',')")
+        if await t.js("Object.keys(window.__tiamat.G.state.defeated).length") > before:
+            fights.append(after.split(',')[-1])
+            if shots and len(fights) == 1: await t.shot(f'{mid}_adept')
+    pos = await t.js(f"[{W}.player.tx, {W}.player.ty]")
+    if shots: await t.shot(f'{mid}_at_warden')
+    await t.js(f"{W}.player.setFace('up')")
+    await t.key('z', 60, 300)
+    await idle(t, 120000, 'warden')
+    beaten = await t.js("Object.keys(window.__tiamat.G.state.defeated).filter(k => /_adept_/.test(k)).length")
+    got = await t.js(f'!!window.__tiamat.G.state.flags.{sigil}')
+    print(f'{mid}: {n} presses, reached {pos}, adepts beaten: {beaten}, sigil: {got}')
+
+
+async def trials(t, port):
+    for mid, sigil in TRIALS:
+        await solve_trial(t, port, mid, sigil)
+
+
+# ── post-game: Index rewards, the Crown Challenge, the Old Door, Keeper Enna and hatching Abzurath ──
+async def postgame(t, port):
+    await t.p.goto(f'http://localhost:{port}/?map=marsh_lab&x=8&y=4&debug')
+    await wait_for(t, f"window.__tiamat && {W}.player", 40000, 'world')
+    await t.wait(800)
+    G = 'window.__tiamat.G'
+    await t.js(f"""(() => {{ const T = window.__tiamat, G = T.G; G.settings.textSpeed = 'instant'; G.settings.battleAnims = false;
+      for (const f of ['got_starter', 'mum_boots', 'cradle_done', 'crown_scene', 'game_clear', 'woke_up']) G.state.flags[f] = true;
+      G.state.money = 1000;
+      G.state.party = [T.createMon('pyromane', 76), T.createMon('glaciursa', 76, {{ moves: ['icicle_jab', 'hail_volley', 'power_kick', 'all_out_slam'] }}),
+        T.createMon('maelstrand', 76, {{ moves: ['rime_ray', 'hydro_burst', 'icicle_jab', 'undertow'] }}), T.createMon('mosswarden', 75, {{ moves: ['quake_stomp', 'timber_crash', 'bloom_blast', 'heal_bud'] }})];
+      const ids = T.SPECIES_LIST ? T.SPECIES_LIST.map(s => s.id) : Object.keys(T.SPECIES);
+      G.state.index.caught = ids.filter(id => !['abzurath'].includes(id)).slice(0, 60); }})()""")
+    await t.js(AUTO)
+    # 1) 60 caught: the 25 and 50 rewards
+    await run_script(t, 'lab.marsh')
+    print('after 60:', await t.js(f"[{G}.state.money, Object.keys({G}.state.flags).filter(f => f.startsWith('index_reward')).join(','), {G}.state.bag.td19, {G}.state.bag.td20, {G}.state.bag.td21, {G}.state.bag.apex_capsule]"))
+    # 2) the whole Index: 75, 100 and the complete-Index prize
+    await t.js(f"(() => {{ const T = window.__tiamat; const ids = Object.keys(T.SPECIES).filter(id => id !== 'abzurath'); T.G.state.index.caught = ids; }})()")
+    await t.js("clearInterval(window.__auto)")
+    await t.js(f"void {W}.run('lab.marsh')")
+    for i in range(40):
+        await t.key('z', 60, 180)
+        if await t.js(f"!!{G}.state.bag.mystery_egg"): break
+    await t.shot('marsh_egg')
+    await t.js(AUTO)
+    await idle(t, 60000, 'marsh done')
+    print('after all:', await t.js(f"[{G}.state.money, Object.keys({G}.state.flags).filter(f => f.startsWith('index_reward')).join(','), {G}.state.bag.radiant_charm, {G}.state.bag.mystery_egg, {G}.state.bag.td26]"))
+    # 3) the Crown Challenge, all seven rounds back to back
+    await goto(t, 'spire_crown', 4, 5, 'left')
+    print('round on entry:', await t.js(f"{G}.state.vars.crown_round"))
+    await t.shot('crown')
+    await t.js("window.__tiamat.G.state.party.forEach(m => { window.__tiamat.healMon(m); m.moves.forEach(mv => { mv.pp = 999; mv.max = 999; }); })")
+    await t.js(f"void {W}.run('crown.warden', {{ npc: {W}.npcById('crown_mossa') }})")
+    for r in range(8):
+        ok = await wait_for(t, f"{G}.state.flags.crown_champion || !window.__tiamat.game.scene.isActive('Battle') && {W}.busy === 0", 400000, f'crown round {r}')
+        await t.js("window.__tiamat.G.state.party.forEach(m => { m.moves.forEach(mv => { mv.pp = 999; }); })")
+        if await t.js(f"!!{G}.state.flags.crown_champion"): break
+        await t.wait(1500)
+    await idle(t, 60000, 'crown done')
+    print('crown:', await t.js(f"[{G}.state.flags.crown_champion, {G}.state.bag.crown_gem, {G}.state.vars.crown_round, {G}.state.vars.crown_wins, Object.keys({G}.state.defeated).filter(k => k.startsWith('elite')).join(',')]"))
+    # 4) the Old Door in Rootmere
+    await goto(t, 'rootmere', 18, 33, 'up')
+    await t.shot('old_door_closed')
+    await t.js("clearInterval(window.__auto)")
+    await t.key('ArrowUp', 200, 400)
+    for i in range(12):
+        await t.key('z', 60, 300)
+        if i == 3: await t.shot('door_gem')
+        if await t.js(f"!!{G}.state.flags.ancient_door_open"): break
+    await t.js(AUTO)
+    await idle(t, 30000, 'door open')
+    await t.shot('old_door_open')
+    await t.key('ArrowUp', 200, 1200)
+    await idle(t, 30000, 'tunnel')
+    print('went through the door to:', await t.js(f"[{G}.state.player.map, {G}.state.player.x, {G}.state.player.y]"))
+    await t.shot('tunnel_arrive')
+    # 5) Keeper Enna at the carved door
+    await goto(t, 'ancient_tunnel', 22, 8, 'left')
+    await t.key('ArrowLeft', 200, 600)
+    await wait_for(t, f"{G}.state.flags.keeper_met", 60000, 'keeper met')
+    await t.wait(300)
+    await t.shot('enna')
+    await idle(t, 30000, 'enna done')
+    await t.shot('enna_after')
+    await t.js(f"{W}.player.warp(15, 6, 'up'); {G}.state.player.x = 15; {G}.state.player.y = 6")
+    await t.key('ArrowUp', 200, 1200)
+    await idle(t, 30000, 'cradle')
+    print('inner door to:', await t.js(f"[{G}.state.player.map, {G}.state.player.x, {G}.state.player.y]"))
+    await t.shot('deep_cradle')
+    # 6) hatch Abzurath
+    await t.js(f"{W}.player.warp(7, 5, 'up'); {G}.state.player.x = 7; {G}.state.player.y = 5")
+    await t.js("clearInterval(window.__auto)")
+    await t.js(f"void {W}.run('cradle.incubator')")
+    for i in range(30):
+        await t.key('z', 60, 350)
+        if i in (3, 8): await t.shot(f'hatch_{i}')
+        if await t.js(f"{G}.state.party.some(m => m.species === 'abzurath')"): break
+    await t.shot('hatched')
+    await t.js(AUTO)
+    await idle(t, 30000, 'hatch done')
+    print('abzurath:', await t.js(f"(() => {{ const m = {G}.state.party.find(m => m.species === 'abzurath') || {G}.state.boxes?.flat().find(m => m && m.species === 'abzurath'); return m ? [m.level, m.sex, m.moves.map(x => x.id).join('/'), m.ot] : null; }})()"))
+    print('egg gone:', await t.js(f"!{G}.state.bag.mystery_egg"), 'flags:', await t.js(f"[{G}.state.flags.abzurath_hatched, {G}.state.index.caught.includes('abzurath')]"))
+
+
+async def crownrun(t, port):
+    await t.p.goto(f'http://localhost:{port}/?map=riftgate&x=33&y=11&debug')
+    await wait_for(t, f"window.__tiamat && {W}.player", 40000, 'world')
+    await t.wait(800)
+    G = 'window.__tiamat.G'
+    await t.js(f"""(() => {{ const T = window.__tiamat, G = T.G; G.settings.textSpeed = 'instant'; G.settings.battleAnims = false;
+      for (const f of ['got_starter', 'mum_boots', 'cradle_done', 'crown_scene', 'game_clear', 'woke_up']) G.state.flags[f] = true;
+      G.state.vars.starter = 'cindlet';
+      G.state.party = ['pyromane', 'glaciursa', 'maelstrand', 'mosswarden', 'riftwyrm', 'juggernox'].map(s => T.createMon(s, 95)); }})()""")
+    await t.js(AUTO)
+    await goto(t, 'spire_crown', 4, 5, 'left')
+    await t.js(f"{G}.state.vars.crown_round = 3")
+    await goto(t, 'spire_crown', 4, 5, 'left')
+    print('round reset on entry:', await t.js(f"{G}.state.vars.crown_round"))
+    # talking to the wrong Warden first
+    await run_script(t, 'crown.warden')
+    await t.js(f"void {W}.run('crown.warden', {{ npc: {W}.npcById('crown_mossa') }})")
+    seen = []
+    for r in range(400):
+        await t.wait(1000)
+        inb = await t.js("window.__tiamat.game.scene.isActive('Battle')")
+        tid = await t.js("(() => { const b = window.__tiamat.game.scene.getScene('Battle'); return b && b.trainer ? b.trainer.id : null; })()") if inb else None
+        if tid and tid not in seen:
+            seen.append(tid)
+            await t.shot(f'crown_{tid}')
+        if not inb:
+            await t.js("window.__tiamat.G.state.party.forEach(m => window.__tiamat.healMon(m))")
+        if await t.js(f"!!{G}.state.flags.crown_champion && {W}.busy === 0"): break
+    print('battled:', seen)
+    print('crown:', await t.js(f"[{G}.state.flags.crown_champion, {G}.state.bag.crown_gem, {G}.state.vars.crown_round, {G}.state.vars.crown_wins]"))
+    await goto(t, 'rootmere', 18, 33, 'up')
+    await t.key('ArrowUp', 200, 400)
+    await wait_for(t, f"{G}.state.flags.ancient_door_open", 60000, 'door open')
+    await idle(t, 30000, 'door scene')
+    await t.shot('old_door_open')
+    print('gem kept?', await t.js(f"{G}.state.bag.crown_gem || 0"))
+    await t.key('ArrowUp', 200, 1500)
+    await idle(t, 30000, 'tunnel')
+    print('went through the door to:', await t.js(f"[{G}.state.player.map, {G}.state.player.x, {G}.state.player.y]"))
+    await t.shot('tunnel_arrive')
+    await t.key('ArrowDown', 200, 1500)
+    await idle(t, 30000, 'back up')
+    print('back out to:', await t.js(f"[{G}.state.player.map, {G}.state.player.x, {G}.state.player.y]"))

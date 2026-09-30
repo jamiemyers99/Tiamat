@@ -581,7 +581,7 @@ export class MenuScene extends Phaser.Scene {
     c.add(panel(this, 214, 8, 258, 254, 'dark'));
     c.add(txt(this, 16, 14, `Seen ${seen.size}   Caught ${caught.size}`, { color: 'gold', face: 'main' }));
     const rows = [];
-    for (let k = 0; k < 15; k++) { const t = txt(this, 30, 32 + k * 15, ''); const b = this.add.image(18, 36 + k * 15, 'ui', 'menu_party').setScale(0.5); c.add([t, b]); rows.push([t, b]); }
+    for (let k = 0; k < 15; k++) { const t = txt(this, 30, 32 + k * 15, ''); const b = this.add.image(18, 36 + k * 15, 'ui', 'party_pip'); c.add([t, b]); rows.push([t, b]); }
     const bar = selBar(this, 11, 194, 14); c.addAt(bar, 3);
     const cur = this.add.image(10, 0, 'cursor').setOrigin(0, 0); c.add(cur);
     const pic = this.add.image(343, 116, 'mons', 'nibbit_f').setOrigin(0.5, 1).setScale(1.1); c.add(pic);
@@ -632,7 +632,7 @@ export class MenuScene extends Phaser.Scene {
       if (!both) { fm.setX(458); } else { fm.setX(446); }
       formHint.setVisible(s && both);
       nm.setText(s ? sp.name : '???');
-      cls.setText(cg ? (sp.mythical ? `${sp.cls}  -  MYTHICAL` : sp.cls) : '');
+      cls.setText(cg ? (sp.mythical ? `${sp.cls}  -  MYTHICAL` : sp.legendary ? `${sp.cls}  -  LEGENDARY` : sp.cls) : '');
       t1.setVisible(cg).setFrame(`type_${sp.types[0]}`);
       t2.setVisible(cg && sp.types.length > 1).setFrame(`type_${sp.types[1] || sp.types[0]}`);
       t1.setX(343 - (sp.types.length > 1 ? 40 : 18));
