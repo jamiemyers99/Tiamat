@@ -23,16 +23,18 @@ WWWwWWwWWWWwWWwWWW
 end
 
 objects:
+mat 8 13 to=spire_haven:8,11 face=down
+mat 9 13 to=spire_haven:8,11 face=down
 furn 1 2 banner
 furn 16 2 banner
 furn 8 2 statue
 furn 9 2 statue
 furn 0 12 plant
 furn 17 12 plant
-npc 3 5 id=crown_mossa sprite=mossa face=right move=still script=crown.warden show=cradle_done
-npc 3 8 id=crown_brann sprite=brann face=right move=still script=crown.warden show=cradle_done
-npc 3 11 id=crown_iskra sprite=iskra face=right move=still script=crown.warden show=cradle_done
-npc 14 5 id=crown_morrow sprite=morrow face=left move=still script=crown.warden show=cradle_done
-npc 14 8 id=crown_hale sprite=hale face=left move=still script=crown.warden show=cradle_done
-npc 14 11 id=crown_seren sprite=seren face=left move=still script=crown.warden show=cradle_done
+npc 3 5 id=crown_mossa sprite=mossa face=right move=still script=crown.warden show=cradle_done&!game_clear
+npc 3 8 id=crown_brann sprite=brann face=right move=still script=crown.warden show=cradle_done&!game_clear
+npc 3 11 id=crown_iskra sprite=iskra face=right move=still script=crown.warden show=cradle_done&!game_clear
+npc 14 5 id=crown_morrow sprite=morrow face=left move=still script=crown.warden show=cradle_done&!game_clear
+npc 14 8 id=crown_hale sprite=hale face=left move=still script=crown.warden show=cradle_done&!game_clear
+npc 14 11 id=crown_seren sprite=seren face=left move=still script=crown.warden show=cradle_done&!game_clear
 npc 8 4 id=crown_wren sprite=wren face=down move=still script=crown.wren show=cradle_done

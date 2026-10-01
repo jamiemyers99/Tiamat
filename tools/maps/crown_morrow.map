@@ -1,0 +1,35 @@
+id: crown_morrow
+kind: interior
+name: The Veil Room
+floor: chapel
+wall: dark
+music: crown
+light: dark
+
+layout:
+WWWWWWWWWWWWW
+WWWWWWWWWWWWW
+.............
+.............
+.............
+##...._....##
+##...._....##
+##...._....##
+##...._....##
+##...._....##
+##...._....##
+#############
+end
+
+objects:
+warp 6 1 to=crown_hale:6,10 face=up door=1 cond=crown_won_morrow locked="The door is sealed. Beat Warden Morrow to open it."
+plate 6 1 on=crown_won_morrow frame=spire_door onframe=spire_door_open
+npc 6 4 id=cw_morrow sprite=morrow face=down move=still script=crown.warden name=Morrow
+furn 0 2 bookshelf v=1
+furn 1 2 bookshelf v=3
+furn 11 2 bookshelf v=4
+furn 12 2 bookshelf v=2
+furn 3 3 crystal
+furn 9 3 crystal
+furn 3 8 crystal
+furn 9 8 crystal

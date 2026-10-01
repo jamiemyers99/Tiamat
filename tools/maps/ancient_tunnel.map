@@ -92,3 +92,4 @@ item 5 17 item=full_tonic qty=2 flag=item_ancient_tunnel_5_17
 item 29 15 item=growth_fruit qty=1 flag=item_ancient_tunnel_29_15
 item 24 7 item=bloom_seed qty=1 flag=item_ancient_tunnel_24_7 hidden=1
 item 6 33 item=panacea qty=1 flag=item_ancient_tunnel_6_33
+item 2 26 item=pyre_ash qty=1 flag=item_ancient_tunnel_2_26

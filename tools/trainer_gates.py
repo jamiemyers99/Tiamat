@@ -5,6 +5,11 @@ trainer checks whether you can still get from one way in to every other one with
 trainer's line of sight. A trainer that can be avoided like that is "optional"; everything else is "blocking".
 
     python3 tools/trainer_gates.py route6 riftgate      (or no names for every outdoor map)
+    python3 tools/trainer_gates.py --skiff abyssal_rift  (also count crossing water on the Skiff as a way round)
+
+Interiors and caves (named explicitly) use their warps as the ways in and out, grouped by where they lead.
+Story NPCs that leave once beaten (they have a `hide` flag) don't block the way, but walking through their
+tile counts as meeting them.
 """
 import json, os, sys
 from collections import deque
@@ -34,6 +39,9 @@ def load(mid):
     return W, H, meta, objs, props
 
 
+SKIFF = False
+
+
 def analyse(mid):
     W, H, meta, objs, props = load(mid)
     beh = lambda x, y: meta[y * W + x] if 0 <= x < W and 0 <= y < H else 'solid'
@@ -46,21 +54,21 @@ def analyse(mid):
         if t == 'item' and p.get('hidden') == '1':
             continue
         if t == 'warp':
-            doors.append((x, y)); continue
+            doors.append((x, y, str(p.get('to', '')).split(':')[0])); continue
         if t == 'trigger' and ('block' in p.get('script', '') or 'gate' in p.get('script', '')) and p.get('cond'):
             # a story gate ("nobody passes until ...") — treat it as closed
             for k in range(int(p.get('w', 1))):
                 for j in range(int(p.get('h', 1))):
                     blocked.add((x + k, y + j))
             continue
-        if t in SOLID_PROPS and not p.get('walk'):
+        if t in SOLID_PROPS and not p.get('walk') and not (t == 'npc' and p.get('hide')):
             blocked.add((x, y))
         if t == 'npc' and p.get('trainer'):
-            trainers.append((p['trainer'], x, y, p.get('face', 'down'), int(p.get('sight', 4)), p.get('move', 'still')))
+            trainers.append((p['trainer'], x, y, p.get('face', 'down'), int(p.get('sight', 4)), p.get('move', 'still'), bool(p.get('hide'))))
 
     def sight(tr):
-        _, x, y, face, rng, move = tr
-        seen = set()
+        _, x, y, face, rng, move, leaves = tr
+        seen = {(x, y)} if leaves else set()
         for f in (DIRS if move == 'look' else [face]):
             dx, dy = DIRS[f]
             for i in range(1, rng + 1):
@@ -71,7 +79,7 @@ def analyse(mid):
         return seen
 
     def free(x, y):
-        return 0 <= x < W and 0 <= y < H and (x, y) not in blocked and beh(x, y) in ('none', 'grass', 'bridge', 'noenc', 'door')
+        return 0 <= x < W and 0 <= y < H and (x, y) not in blocked and (beh(x, y) in ('none', 'grass', 'bridge', 'noenc', 'door') or (SKIFF and beh(x, y) == 'water'))
 
     def steps(x, y):
         for dx, dy in DIRS.values():
@@ -88,8 +96,12 @@ def analyse(mid):
              'north': [(x, 0) for x in range(W)], 'south': [(x, H - 1) for x in range(W)]}
     exits = {k: [p for p in v if free(*p)] for k, v in sides.items()}
     exits = {k: v for k, v in exits.items() if v and props.get(k)}
-    for i, d in enumerate(doors):
-        exits[f'door{d}'] = [d]
+    if len(exits) < 2:
+        for (x, y, to) in doors:      # interiors and caves: the warps are the ways in and out
+            exits.setdefault(f'to {to}', []).append((x, y))
+    else:
+        for (x, y, to) in doors:
+            exits[f'door{(x, y)}'] = [(x, y)]
 
     def reach(start, avoid):
         seen = set(p for p in start if p not in avoid)
@@ -113,7 +125,7 @@ def analyse(mid):
                 if b != a and any(p in got for p in exits[b]):
                     dodge.append(f'{a}->{b}')
         blocks = [f'{a}->{b}' for a in main for b in main if a != b and f'{a}->{b}' not in dodge]
-        report.append((tr[0], tr[1:3], tr[3], tr[5], len(s), dodge, blocks))
+        report.append((tr[0], tr[1:3], tr[3], tr[5], len(s - {tr[1:3]}), dodge, blocks))
     allsight = set().union(*[sight(t) for t in trainers]) if trainers else set()
     clean = []
     for a in main:
@@ -128,7 +140,8 @@ def route(mid, start, goal):
     """Shortest walk (list of 'up'/'down'/'left'/'right' presses) from start to goal, honouring ledges."""
     W, H, meta, objs, props = load(mid)
     beh = lambda x, y: meta[y * W + x] if 0 <= x < W and 0 <= y < H else 'solid'
-    blocked = {(x, y) for t, x, y, p in objs if t in SOLID_PROPS and not p.get('walk') and p.get('show') != 'never' and not (t == 'item' and p.get('hidden') == '1')}
+    blocked = {(x, y) for t, x, y, p in objs if t in SOLID_PROPS and not p.get('walk') and p.get('show') != 'never'
+               and not (t == 'item' and p.get('hidden') == '1') and not (t == 'npc' and p.get('hide'))}   # story NPCs step aside
     free = lambda x, y: 0 <= x < W and 0 <= y < H and (x, y) not in blocked and beh(x, y) in ('none', 'grass', 'bridge', 'noenc', 'door')
     prev = {tuple(start): None}
     q = deque([tuple(start)])
@@ -157,10 +170,12 @@ def route(mid, start, goal):
 
 
 if __name__ == '__main__':
-    ids = sys.argv[1:] or sorted(f[:-4] for f in os.listdir(MAPS) if f.endswith('.tmj'))
+    SKIFF = '--skiff' in sys.argv
+    named = [a for a in sys.argv[1:] if not a.startswith('--')]
+    ids = named or sorted(f[:-4] for f in os.listdir(MAPS) if f.endswith('.tmj'))
     for mid in ids:
         W, H, meta, objs, props = load(mid)
-        if props.get('kind') == 'interior':
+        if props.get('kind') == 'interior' and not named:
             continue
         report, clean, main = analyse(mid)
         if not report:

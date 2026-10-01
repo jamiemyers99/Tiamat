@@ -1,0 +1,34 @@
+id: crown_mossa
+kind: interior
+name: The Verdant Room
+floor: wood
+wall: green
+music: crown
+
+layout:
+WWWWWWWWWWWWW
+WWWWWWWWWWWWW
+h...........h
+h...........h
+h...........h
+h....._.....h
+h....._.....h
+h....._.....h
+h.hh.._..hh.h
+h.hh.._..hh.h
+h....._.....h
+#############
+end
+
+objects:
+warp 6 1 to=crown_brann:6,10 face=up door=1 cond=crown_won_mossa locked="The door is sealed. Beat Warden Mossa to open it."
+plate 6 1 on=crown_won_mossa frame=spire_door onframe=spire_door_open
+npc 6 4 id=cw_mossa sprite=mossa face=down move=still script=crown.warden name=Mossa
+furn 1 2 plant
+furn 11 2 plant
+furn 2 6 pot
+furn 10 6 pot
+furn 1 9 plant
+furn 11 9 plant
+furn 4 2 pot
+furn 8 2 pot

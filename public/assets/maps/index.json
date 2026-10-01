@@ -53,6 +53,42 @@
   "w": 20,
   "h": 16
  },
+ "crown_brann": {
+  "name": "The Tide Room",
+  "kind": "interior",
+  "w": 13,
+  "h": 12
+ },
+ "crown_hale": {
+  "name": "The Rime Room",
+  "kind": "interior",
+  "w": 13,
+  "h": 12
+ },
+ "crown_iskra": {
+  "name": "The Spark Room",
+  "kind": "interior",
+  "w": 13,
+  "h": 12
+ },
+ "crown_morrow": {
+  "name": "The Veil Room",
+  "kind": "interior",
+  "w": 13,
+  "h": 12
+ },
+ "crown_mossa": {
+  "name": "The Verdant Room",
+  "kind": "interior",
+  "w": 13,
+  "h": 12
+ },
+ "crown_seren": {
+  "name": "The Wyrm Room",
+  "kind": "interior",
+  "w": 13,
+  "h": 12
+ },
  "deep_cradle": {
   "name": "The Deep Cradle",
   "kind": "interior",
@@ -286,6 +322,12 @@
   "kind": "interior",
   "w": 18,
   "h": 14
+ },
+ "spire_haven": {
+  "name": "Spire Haven",
+  "kind": "interior",
+  "w": 17,
+  "h": 13
  },
  "sunken_chapel": {
   "name": "Sunken Chapel",

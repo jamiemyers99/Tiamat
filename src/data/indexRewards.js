@@ -9,7 +9,7 @@ export const INDEX_REWARDS = [
   { at: 25, money: 2500, items: [['prime_capsule', 5], ['strong_tonic', 3], ['td19', 1]] },
   { at: 50, money: 5000, items: [['apex_capsule', 5], ['full_tonic', 3], ['rekindle_seed', 2], ['td20', 1], ['td21', 1]] },
   { at: 75, money: 7500, items: [['dusk_capsule', 5], ['swift_capsule', 5], ['panacea', 3], ['growth_fruit', 2], ['td22', 1], ['td23', 1]] },
-  { at: 100, money: 10000, items: [['apex_capsule', 10], ['bloom_seed', 3], ['growth_fruit', 3], ['focus_drop', 5], ['td24', 1], ['td25', 1], ['td26', 1]] },
+  { at: 100, money: 10000, items: [['apex_capsule', 10], ['bloom_seed', 3], ['pyre_ash', 1], ['growth_fruit', 3], ['focus_drop', 5], ['td24', 1], ['td25', 1], ['td26', 1]] },
   { at: 'all', money: 20000, items: [['radiant_charm', 1], ['mystery_egg', 1]] },
 ];
 

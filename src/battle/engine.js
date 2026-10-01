@@ -192,7 +192,8 @@ export class Battle {
     } else if (u.kind === 'revive') {
       mon.hp = Math.max(1, Math.floor(mx * u.frac));
       mon.status = null;
-      await this.ui.message(`${monName(mon)} was revived!`);
+      if (u.bitter) { mon.friendship = Math.max(0, (mon.friendship ?? 70) - u.bitter); }
+      await this.ui.message(`${monName(mon)} was revived!${u.bitter ? ` It pulled a face at the bitter taste.` : ''}`);
     } else if (u.kind === 'pp') {
       mon.moves.forEach((m) => { m.pp = Math.min(m.max, m.pp + u.pp); });
       await this.ui.message(`${monName(mon)}'s PP was restored.`);

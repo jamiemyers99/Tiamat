@@ -51,7 +51,7 @@ end
 objects:
 building 8 6 haven w=6 h=4 roof=red wall=white to=riftgate_haven
 building 20 4 arena w=7 h=5 roof=red wall=stone emblem=claw type=Drake label="WYRM TRIAL" to=riftgate_trial
-building 30 3 hall w=6 h=7 roof=black wall=stone label=SPIRE door=3 to=spire_crown cond=cradle_done locked="The Spire door is barred. Only Wardens may climb to the Crown."
+building 30 3 hall w=6 h=7 roof=black wall=stone label=SPIRE door=3 to=spire_haven cond=cradle_done locked="The Spire door is barred. Only Wardens may climb to the Crown."
 building 7 24 house w=5 h=4 roof=slate wall=dark variant=2 to=riftgate_house
 building 25 24 chapel w=8 h=5 roof=black wall=dark label=CHAPEL door=4 to=sunken_chapel cond=has:rift_key locked="The chapel doors are locked with a heavy iron lock shaped like a wave."
 prop 21 14 stone script=riftgate.seal

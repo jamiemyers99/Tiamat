@@ -15,42 +15,42 @@ RRRRRRRRRRRRRRRRRR.....RRRRRRRRRRRRRRRRR
 RRRRRRRRRRRRRRRRRR.....RRRRRRRRRRRRRRRRR
 RRRRRRRRRRRRRRRRRR.....RRRRRRRRRRRRRRRRR
 RRRRRRRRRRRRRRRRRR.....RRRRRRRRRRRRRRRRR
-RRRRRRRR.........................RRRRRRR
-RRRRRRRR.........................RRRRRRR
-RRRRRRRR.........................RRRRRRR
-RRRRRRRR.........................RRRRRRR
-RRRRRRRR.........................RRRRRRR
-RRRRRRRR.........................RRRRRRR
-RRRRRRRR.....vvvvvvvvvvvvvvv.....RRRRRRR
-RRRRRRRR.....RRRRRRRRRRRRRRR.....RRRRRRR
-RRRRRRRR.....RRRRRRRRRRRRRRR.....RRRRRRR
-RRRRRRRR.....RRRRRRRRRRRRRRR.....RRRRRRR
-RRRR..........~~~~~~~~~~~~~..........RRR
-RRRR..........~~~~~~~~~~~~~..........RRR
-RRRR..........~~~~~~~~~~~~~..........RRR
-RRRR..........~~~~~~~~~~~~~..........RRR
-RRRR.........RRRRRRRRRRRRRRR.........RRR
-RRRR.........RRRRRRRRRRRRRRR.........RRR
-RRRR.....RRRRRRRRRRRRRRRRRRRRRRR.....RRR
-RRRR.....RRRRRRRRRRRRRRRRRRRRRRR.....RRR
-RRRR.....RRRRRRRRRRRRRRRRRRRRRRR.....RRR
-RRRR.....RRRRRRRRRRRRRRRRRRRRRRR.....RRR
-RRRR.................................RRR
-RRRR........vvvvvvvvvvvvvvvvv........RRR
-RRRR.................................RRR
-RRRR.................................RRR
-RRRR.................................RRR
-RRRR.................................RRR
-RRRRRRRRRRRRRR.............RRRRRRRRRRRRR
-RRRRRRRRRRRRRR...~~~~~~~...RRRRRRRRRRRRR
-RRRRRRRRRRRRRR...~~~~~~~...RRRRRRRRRRRRR
-RRRRRRRRRRRRRR...~~~~~~~...RRRRRRRRRRRRR
-RRRRRRRRRRRRRR.............RRRRRRRRRRRRR
-RRRRRRRRRR.....................RRRRRRRRR
-RRRRRRRRRR.....................RRRRRRRRR
-RRRRRRRRRR.....................RRRRRRRRR
-RRRRRRRRRR.....................RRRRRRRRR
-RRRRRRRRRR.....................RRRRRRRRR
+RRRRRRRRRRRRRRRRRR.....RRRRRRRRRRRRRRRRR
+RRRRRRRR...............RRRRRRRRRRRRRRRRR
+RRRRRRRR...............RRRRRRRRRRRRRRRRR
+RRRRRRRR...............RRRRRRRRRRRRRRRRR
+RRRRRRRR....RRRRRRRRRRRRRRRRRRRRRRRRRRRR
+RRRRRRRR....RRRRRRRRRRRRRRRRRRRRRRRRRRRR
+RRRRRRRR....RRRRRRRRRRR.~~~~~~.RRRRRRRRR
+RRRRRRRR....RRRRRRRRRRR.~~~~~~.RRRRRRRRR
+RRRRRRRR....RRRRRRRRRRR.~~~~~~.RRRRRRRRR
+RRRRRRRR....RRRRRRRRRRR........RRRRRRRRR
+RRRRRRRR...........................RRRRR
+RRRRRRRR....o......................RRRRR
+RRRRRRRR...................o.......RRRRR
+RRRRRRRR...........................RRRRR
+RRRRRRRRRRRRRRRRRRRRRRRRRRRR....RRRRRRRR
+RRRRRRRRRRRRRRRRRRRRRRRRRRRR....RRRRRRRR
+RRRRRRRRRRRRRRRRRRRRRRRRRRRR....RRRRRRRR
+RRRRRRRRRRRRRRRRRRRRRRRRRRRR....RRRRRRRR
+RRRRRRRRRRRRRRRRRRRRRRRRRRRR....RRRRRRRR
+RRRRRRRRRRRRRRRRRRRRRRRRRRRR....RRRRRRRR
+RRRRRRRRRRRRRRRRRRRRRRRRRRRR.......RRRRR
+RRRRRRRRRRRRRRRRRRRRRRRRRRRR.......RRRRR
+RRRRRRRRRRRRRRRRRRRRRRRRRRRR.......RRRRR
+RRRRRRRRRRRR....................RRRRRRRR
+RRRRRRRRRRRR...o................RRRRRRRR
+RRRRRRRRRRRR....................RRRRRRRR
+RRRRRRRRRRRRRRRRRR....RRRRRRRRRRRRRRRRRR
+RRRRRRRRRRRRRRRRRR....~~~~RRRRRRRRRRRRRR
+RRRRRRRRRRRRRRRRRR....~~~~RRRRRRRRRRRRRR
+RRRRRRRRRRRRRRRRRR....~~~~RRRRRRRRRRRRRR
+RRRRRRRRRRRRRRRRRR....~~~~RRRRRRRRRRRRRR
+RRRRRRRRRRRRRRRRRR....RRRRRRRRRRRRRRRRRR
+RRRRRRRRRRRRRRRRRR....RRRRRRRRRRRRRRRRRR
+RRRRRRRRRRRRRRRRRR....RRRRRRRRRRRRRRRRRR
+RRRRRRRRRRRRRRRRRR....RRRRRRRRRRRRRRRRRR
+RRRRRRRRRRRRRRRRRR....RRRRRRRRRRRRRRRRRR
 RRRRRRRRRRRRRRRRRR....RRRRRRRRRRRRRRRRRR
 RRRRRRRRRRRRRRRRRR....RRRRRRRRRRRRRRRRRR
 RRRRRRRRRRRRRRRRRR....RRRRRRRRRRRRRRRRRR
@@ -61,24 +61,22 @@ objects:
 warp 20 1 to=sunken_chapel:17,4 face=down
 warp 19 45 to=cradle:9,13 face=up
 warp 20 45 to=cradle:10,13 face=up
-prop 9 7 crystal
-prop 31 7 crystal
-prop 5 17 crystal
-prop 35 17 crystal
-prop 13 29 crystal
-prop 27 29 crystal
-prop 11 38 crystal
-prop 29 38 crystal
-prop 16 32 crystal
-prop 24 32 crystal
-prop 6 30 crystal
-prop 34 30 crystal
-npc 20 9 id=ar_acolyte_1 sprite=acolyte face=down move=still trainer=ar_acolyte_1 sight=4
-npc 6 24 id=ar_acolyte_2 sprite=acolyte_b face=down move=still trainer=ar_acolyte_2 sight=4
-npc 34 24 id=ar_acolyte_3 sprite=acolyte face=down move=still trainer=ar_acolyte_3 sight=4
-npc 20 38 id=ar_ace sprite=ace_b face=down move=still trainer=ar_ace sight=4
-item 9 20 item=full_tonic qty=1 flag=item_abyssal_rift_9_20
-item 31 13 item=apex_capsule qty=2 flag=item_abyssal_rift_31_13
-item 5 31 item=panacea qty=1 flag=item_abyssal_rift_5_31
-item 35 31 item=bloom_seed qty=1 flag=item_abyssal_rift_35_31
+prop 8 7 crystal
+prop 22 9 crystal
+prop 31 16 crystal
+prop 8 19 crystal
+prop 23 12 crystal
+prop 30 12 crystal
+prop 12 29 crystal
+prop 31 31 crystal
+prop 18 32 crystal
+prop 34 28 crystal
+npc 14 7 id=ar_acolyte_1 sprite=acolyte face=down move=still trainer=ar_acolyte_1 sight=4
+npc 8 12 id=ar_acolyte_2 sprite=acolyte_b face=right move=still trainer=ar_acolyte_2 sight=4
+npc 28 24 id=ar_acolyte_3 sprite=acolyte face=right move=still trainer=ar_acolyte_3 sight=4
+npc 18 38 id=ar_ace sprite=ace_b face=right move=still trainer=ar_ace sight=4
+item 9 19 item=full_tonic qty=1 flag=item_abyssal_rift_9_19
+item 34 17 item=apex_capsule qty=2 flag=item_abyssal_rift_34_17
+item 13 30 item=panacea qty=1 flag=item_abyssal_rift_13_30
+item 34 27 item=bloom_seed qty=1 flag=item_abyssal_rift_34_27
 item 20 8 item=growth_fruit qty=1 flag=item_abyssal_rift_20_8 hidden=1

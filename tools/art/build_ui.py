@@ -138,6 +138,25 @@ def puzzle_frames():
     s.poly([(8, 3.5), (9.3, 6.7), (12.5, 8), (9.3, 9.3), (8, 12.5), (6.7, 9.3), (3.5, 8), (6.7, 6.7)], '#ffffff')
     s.poly([(8, 5.5), (8.8, 7.2), (10.5, 8), (8.8, 8.8), (8, 10.5), (7.2, 8.8), (5.5, 8), (7.2, 7.2)], '#ffe070')
     F.append(('warden_pad', s))
+    # the Spire's great doors between the Crown Challenge rooms (sealed / open), set into the top wall
+    st = ramp('#6a6478', 5, 0.12)
+    for name, open_ in (('spire_door', False), ('spire_door_open', True)):
+        s = Spr(16, 32)
+        s.rect(0, 2, 16, 30, '#d09a3c'); s.rect(1, 3, 14, 29, '#8a6424')          # bronze frame
+        s.poly([(0, 4), (8, 0), (16, 4)], '#d09a3c'); s.px(8, 1, '#ffe070')
+        if open_:
+            s.rect(2, 5, 12, 27, '#0e0c16')
+            for i, y in enumerate(range(30, 8, -4)):                          # steps rising into the light
+                c = tuple(min(255, 40 + i * 22) for _ in range(3))
+                s.rect(3 + i // 2, y, 10 - i, 2, c)
+            s.rect(5, 6, 6, 3, '#fff0b0')
+        else:
+            s.rect(2, 5, 12, 27, st[2]); s.vline(7, 5, 31, st[0]); s.vline(8, 5, 31, st[4])
+            for y in (9, 17, 25):
+                s.hline(3, 12, y, st[1])
+            s.ellipse(8, 15, 3, 3, '#d09a3c'); s.ellipse(8, 15, 1.6, 1.6, '#ffe070')
+        s.outline('#1c1a28')
+        F.append((name, s))
     return F
 
 
@@ -411,6 +430,19 @@ def icon_frames():
         F.append((k, herb(c)))
     F.append(('rekindle_seed', seed('#e8823a')))
     F.append(('bloom_seed', seed('#ff6ab0')))
+    sp = Spr(16, 16)                                   # Sprout Seed: a small seed with its first green shoot
+    sp.shaded_ellipse(8, 11, 3.5, 4, ramp('#c8a060', 5, 0.15))
+    sp.line(8, 7, 8, 3, '#4a9a3a'); sp.poly([(8, 4), (12, 1.5), (11, 5)], '#7ad05a'); sp.poly([(8, 5), (4, 3), (5, 6.5)], '#5aba4a')
+    sp.outline('#1c1a28'); F.append(('sprout_seed', sp))
+    rr = Spr(16, 16)                                   # Revival Root: a gnarled purple root with whiskers
+    rr.poly([(6, 2), (10, 2), (11, 8), (9, 14), (7, 14), (5, 8)], '#8a4a9a'); rr.poly([(7, 3), (9, 3), (9.5, 8), (8, 12), (6.5, 8)], '#b06ac0')
+    rr.line(5, 9, 2, 11, '#c8a8d0'); rr.line(11, 9, 14, 12, '#c8a8d0'); rr.line(9, 13, 11, 15, '#c8a8d0')
+    rr.line(7, 2, 6, 0, '#5aba4a'); rr.line(9, 2, 10, 0, '#5aba4a')
+    rr.outline('#1c1a28'); F.append(('revival_root', rr))
+    pa = Spr(16, 16)                                   # Pyre Ash: a little urn of glowing ash
+    pa.poly([(4, 6), (12, 6), (11, 14), (5, 14)], '#7a5a4a'); pa.rect(3, 5, 10, 2, '#a07a5a'); pa.hline(5, 10, 10, '#d09a3c')
+    pa.ellipse(8, 4.5, 3.5, 1.6, '#c8c0b8'); pa.px(7, 3, '#ffb040'); pa.px(9, 4, '#ff7a30'); pa.px(8, 2, '#ffe070'); pa.px(6, 1, '#ffb040')
+    pa.outline('#1c1a28'); F.append(('pyre_ash', pa))
     F.append(('growth_fruit', seed('#e2555f')))
     def simple(name, fn):
         s = Spr(16, 16); fn(s); s.outline('#1c1a28'); F.append((name, s))

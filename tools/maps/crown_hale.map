@@ -1,0 +1,30 @@
+id: crown_hale
+kind: interior
+name: The Rime Room
+floor: ice
+wall: ice
+music: crown
+
+layout:
+WWWWWWWWWWWWW
+WWWWWWWWWWWWW
+.............
+.r.........r.
+.............
+......_......
+......_......
+..r..._...r..
+......_......
+.r..r._.r..r.
+......_......
+#############
+end
+
+objects:
+warp 6 1 to=crown_seren:6,10 face=up door=1 cond=crown_won_hale locked="The door is sealed. Beat Warden Hale to open it."
+plate 6 1 on=crown_won_hale frame=spire_door onframe=spire_door_open
+npc 6 4 id=cw_hale sprite=hale face=down move=still script=crown.warden name=Hale
+furn 2 2 statue
+furn 10 2 statue
+furn 0 5 statue
+furn 12 5 statue

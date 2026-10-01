@@ -6,9 +6,9 @@ import { ITEMS } from '../data/items.js';
 export function havenStock() {
   const n = G.state.sigils.length;
   const s = ['capsule', 'tonic', 'purge_herb', 'nerve_balm', 'wake_chime', 'cool_salve', 'ward_incense'];
-  if (n >= 1) { s.push('prime_capsule', 'strong_tonic', 'thaw_draught', 'homing_thread'); }
+  if (n >= 1) { s.push('prime_capsule', 'strong_tonic', 'thaw_draught', 'homing_thread', 'sprout_seed'); }
   if (n >= 2) { s.push('rekindle_seed', 'strong_incense'); }
-  if (n >= 3) { s.push('grand_tonic', 'dusk_capsule', 'swift_capsule', 'clarity_leaf'); }
+  if (n >= 3) { s.push('grand_tonic', 'dusk_capsule', 'swift_capsule', 'clarity_leaf', 'revival_root'); }
   if (n >= 4) { s.push('apex_capsule', 'full_tonic'); }
   if (n >= 5) { s.push('panacea', 'focus_drop'); }
   const order = { capsules: 0, items: 1 };

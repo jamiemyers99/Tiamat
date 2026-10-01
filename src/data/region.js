@@ -17,11 +17,11 @@ export const REGION = {
     { id: 'route5', tier: 5, name: 'Route 5 · Glasslake Crossing', x: 202, y: 64, desc: 'A wide, clear lake. Boat needed.', maps: ['route5'] },
     { id: 'frostspire', tier: 5, name: 'Frostspire', x: 150, y: 40, town: true, fly: 'frostspire', desc: 'A mountain town in the snow. Rime Trial.', maps: ['frostspire', 'frostspire_haven', 'frostspire_trial', 'frostspire_lodge', 'frostspire_house'] },
     { id: 'route6', tier: 6, name: 'Route 6 · Rimepass', x: 246, y: 30, desc: 'A snowy pass down to the Riven.', maps: ['route6'] },
-    { id: 'riftgate', tier: 6, name: 'Riftgate', x: 336, y: 44, town: true, fly: 'riftgate', desc: 'The city on the lip of the Riven. Wyrm Trial.', maps: ['riftgate', 'riftgate_haven', 'riftgate_trial', 'riftgate_house', 'sunken_chapel', 'spire_crown'] },
+    { id: 'riftgate', tier: 6, name: 'Riftgate', x: 336, y: 44, town: true, fly: 'riftgate', desc: 'The city on the lip of the Riven. Wyrm Trial.', maps: ['riftgate', 'riftgate_haven', 'riftgate_trial', 'riftgate_house', 'sunken_chapel', 'spire_crown', 'spire_haven', 'crown_mossa', 'crown_brann', 'crown_iskra', 'crown_morrow', 'crown_hale', 'crown_seren'] },
     { id: 'riven', tier: 7, name: 'The Riven', x: 364, y: 104, desc: 'The wound that never closed.', maps: ['abyssal_rift', 'cradle'] },
   ],
   // Places that are much tougher than the area they sit in: the post-game tunnel under Rootmere and the Crown.
-  mapTiers: { ancient_tunnel: 7, deep_cradle: 7, spire_crown: 7 },
+  mapTiers: { ancient_tunnel: 7, deep_cradle: 7, spire_crown: 7, spire_haven: 7, crown_mossa: 7, crown_brann: 7, crown_iskra: 7, crown_morrow: 7, crown_hale: 7, crown_seren: 7 },
   locate(mapId) {
     for (const p of this.points) { if (p.maps.includes(mapId)) { return p.id; } }
     const base = mapId.split('_')[0];

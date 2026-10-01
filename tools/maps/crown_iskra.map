@@ -1,0 +1,32 @@
+id: crown_iskra
+kind: interior
+name: The Spark Room
+floor: lab
+wall: white
+music: crown
+
+layout:
+WWWWWWWWWWWWW
+WWWWWWWWWWWWW
+.............
+.............
+.............
+......_......
+.xxx.._..xxx.
+......_......
+......_......
+.xx..._...xx.
+......_......
+#############
+end
+
+objects:
+warp 6 1 to=crown_morrow:6,10 face=up door=1 cond=crown_won_iskra locked="The door is sealed. Beat Warden Iskra to open it."
+plate 6 1 on=crown_won_iskra frame=spire_door onframe=spire_door_open
+npc 6 4 id=cw_iskra sprite=iskra face=down move=still script=crown.warden name=Iskra
+furn 0 2 machine
+furn 1 2 machine
+furn 11 2 machine
+furn 12 2 machine
+furn 3 2 pc
+furn 9 2 globe

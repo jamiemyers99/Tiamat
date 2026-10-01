@@ -1,0 +1,38 @@
+id: spire_haven
+kind: interior
+name: Spire Haven
+floor: arena
+wall: stone
+music: haven
+
+layout:
+WWWWWWWWWWWWWWWWW
+WWWwWWWWWWWWWwWWW
+........_........
+........_........
+.=====.._..=====.
+........_........
+........_........
+........_........
+........_........
+........_........
+........_........
+........_........
+........mm.......
+end
+
+objects:
+furn 2 2 healer
+furn 13 2 shelf v=1
+furn 5 2 pc script=haven.pc
+furn 6 2 banner
+furn 10 2 banner
+furn 0 11 plant
+furn 16 11 plant
+furn 0 6 statue
+furn 16 6 statue
+npc 3 3 id=spire_haven_keeper sprite=nurse face=down move=still script=haven.heal noturn=1 name="Haven Keeper"
+npc 14 3 id=spire_haven_clerk sprite=clerk face=down move=still script=haven.shop noturn=1 name=Clerk
+npc 10 7 id=spire_guard sprite=guard face=left move=still script=spire.guard
+warp 8 1 to=crown_mossa:6,10 face=up door=1 cond=game_clear locked="The great door is sealed."
+plate 8 1 on=game_clear frame=spire_door onframe=spire_door_open

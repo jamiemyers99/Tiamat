@@ -469,7 +469,7 @@ export class MenuScene extends Phaser.Scene {
     const u = it.use;
     const party = G.state.party;
     const opts = [];
-    const usable = ['heal', 'cure', 'revive', 'pp', 'level', 'teach', 'repel', 'escape', 'map'].includes(u.kind);
+    const usable = ['heal', 'cure', 'revive', 'revive_all', 'pp', 'level', 'teach', 'repel', 'escape', 'map'].includes(u.kind);
     if (usable) { opts.push({ label: 'Use', value: 'use' }); }
     if (u.kind === 'attach') { opts.push({ label: G.state.xpShareOn ? 'Detach' : 'Attach', value: 'attach' }); }
     if (!it.key && !it.disc) { opts.push({ label: 'Toss', value: 'toss' }); }
@@ -503,6 +503,14 @@ export class MenuScene extends Phaser.Scene {
       this.exitThen(() => w.transition(map, x, y, 'down'));
     }
     if (u.kind === 'map') { await this.reachMap(); return; }
+    if (u.kind === 'revive_all') {
+      const down = party.filter((m) => m.hp <= 0);
+      if (!down.length) { await this.toast("It won't have any effect."); return; }
+      down.forEach((m) => { m.hp = maxHp(m); m.status = null; });
+      takeItem(id); audio.sfx('heal');
+      await this.toast(down.length === 1 ? `${monName(down[0])} is revived!` : `All ${down.length} fainted Morphs are revived!`);
+      return;
+    }
     const t = target !== null && target !== undefined ? target : await this.party({ pick: true, title: `Use ${it.name} on which Morph?` });
     if (t === null || t === undefined) { return; }
     const m = party[t];
@@ -519,8 +527,9 @@ export class MenuScene extends Phaser.Scene {
       await this.toast(`${nm} is cured!`);
     } else if (u.kind === 'revive') {
       if (m.hp > 0) { await this.toast("It won't have any effect."); return; }
-      m.hp = Math.max(1, Math.floor(mx * u.frac)); takeItem(id); audio.sfx('heal');
-      await this.toast(`${nm} is revived!`);
+      m.hp = Math.max(1, Math.floor(mx * u.frac)); m.status = null; takeItem(id); audio.sfx('heal');
+      if (u.bitter) { m.friendship = Math.max(0, (m.friendship ?? 70) - u.bitter); }
+      await this.toast(u.bitter ? `${nm} is revived! It pulled a face at the bitter taste.` : `${nm} is revived!`);
     } else if (u.kind === 'pp') {
       const mi = await choose(this, m.moves.map((mv, k) => ({ label: MOVES[mv.id].name, right: `${mv.pp}/${mv.max}`, value: k })), { x: GAME_W - 12, y: GAME_H - 12, anchor: 'bottom-right', depth: 30 });
       if (mi === null) { return; }

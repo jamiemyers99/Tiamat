@@ -34,8 +34,12 @@ it('wake_chime', 'Wake Chime', 'items', 250, { kind: 'cure', status: ['sleep'] }
 it('thaw_draught', 'Thaw Draught', 'items', 250, { kind: 'cure', status: ['freeze'] }, 'A warming drink that thaws a frozen Morph.');
 it('nerve_balm', 'Nerve Balm', 'items', 200, { kind: 'cure', status: ['paralyze'] }, 'Rubbed on stiff limbs, it cures paralysis.');
 it('clarity_leaf', 'Clarity Leaf', 'items', 600, { kind: 'cure', status: 'all' }, 'Cures any status problem, including confusion.');
+// Revives, weakest to strongest (like Revive / Max Revive / Revival Herb / Sacred Ash in the classics)
+it('sprout_seed', 'Sprout Seed', 'items', 600, { kind: 'revive', frac: 0.25 }, 'A tiny seed with a spark of life. Revives a fainted Morph with a quarter of its HP.');
 it('rekindle_seed', 'Rekindle Seed', 'items', 1500, { kind: 'revive', frac: 0.5 }, 'Revives a fainted Morph with half its HP.');
+it('revival_root', 'Revival Root', 'items', 2800, { kind: 'revive', frac: 1, bitter: 10 }, 'A very bitter root. Revives a fainted Morph with full HP, but it hates the taste.');
 it('bloom_seed', 'Bloom Seed', 'items', 0, { kind: 'revive', frac: 1 }, 'Revives a fainted Morph with full HP.');
+it('pyre_ash', 'Pyre Ash', 'items', 0, { kind: 'revive_all' }, 'Sacred ash from an ancient pyre. Revives every fainted Morph in your team with full HP. Use it from the Bag.');
 it('focus_drop', 'Focus Drop', 'items', 1200, { kind: 'pp', pp: 10 }, 'Restores 10 PP to one move.');
 it('growth_fruit', 'Growth Fruit', 'items', 0, { kind: 'level' }, 'A rare fruit that raises a Morph\'s level by 1.');
 it('ward_incense', 'Ward Incense', 'items', 400, { kind: 'repel', steps: 100 }, 'Keeps weaker wild Morphs away for 100 steps.');

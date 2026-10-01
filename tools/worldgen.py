@@ -9,6 +9,7 @@ Coordinates are tiles; (0,0) is the top-left.
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import trials
+CROWN_ORDER = ['mossa', 'brann', 'iskra', 'morrow', 'hale', 'seren']
 from mapkit import M, haven, house, trial
 
 MAPS = []
@@ -903,7 +904,7 @@ def riftgate():
     m.rect(29, 29, 29, 29, ';')
     m.obj('building 8 6 haven w=6 h=4 roof=red wall=white to=riftgate_haven')
     m.obj('building 20 4 arena w=7 h=5 roof=red wall=stone emblem=claw type=Drake label="WYRM TRIAL" to=riftgate_trial')
-    m.obj('building 30 3 hall w=6 h=7 roof=black wall=stone label=SPIRE door=3 to=spire_crown cond=cradle_done locked="The Spire door is barred. Only Wardens may climb to the Crown."')
+    m.obj('building 30 3 hall w=6 h=7 roof=black wall=stone label=SPIRE door=3 to=spire_haven cond=cradle_done locked="The Spire door is barred. Only Wardens may climb to the Crown."')
     m.obj('building 7 24 house w=5 h=4 roof=slate wall=dark variant=2 to=riftgate_house')
     m.obj('building 25 24 chapel w=8 h=5 roof=black wall=dark label=CHAPEL door=4 to=sunken_chapel cond=has:rift_key locked="The chapel doors are locked with a heavy iron lock shaped like a wave."')
     m.obj('prop 21 14 stone script=riftgate.seal')
@@ -952,61 +953,74 @@ def riftgate_house():
 
 @reg
 def sunken_chapel():
+    """A flooded chapel: one winding way up through the pools to the altar. Every acolyte stands where the way is
+    narrow and faces across it, and Vesk and Maren each stand in a gap you can't get round."""
     m = M('sunken_chapel', 22, 26, kind='interior', name='Sunken Chapel', floor='chapel', wall='dark', music='deepcall',
-          light='dark', battle='chapel')
+          light='dark', battle='chapel', fill='p')
     m.rect(0, 0, 21, 1, 'W')
-    m.rect(10, 4, 11, 25, '_')
+    m.rect(0, 2, 0, 25, '#'); m.rect(21, 2, 21, 25, '#')
+    c = lambda x0, y0, x1, y1: m.rect(x0, y0, x1, y1, '.')
+    c(2, 2, 19, 4)                       # the sanctuary, with the altar
+    c(9, 5, 11, 5); c(10, 6, 10, 6)      # Maren's doorway
+    c(10, 7, 19, 8)                      # top gallery
+    c(17, 9, 19, 10)                     # east aisle
+    c(2, 11, 19, 13)                     # middle gallery (Vesk holds the gap in the middle)
+    m.put(11, 11, 'p'); m.put(11, 13, 'p')
+    c(2, 14, 4, 17)                      # west aisle
+    c(2, 18, 12, 20)                     # lower gallery
+    c(9, 21, 12, 24)                     # the entrance
     m.put(10, 25, 'm'); m.put(11, 25, 'm')
     m.obj('furn 9 2 altar')
     m.obj('furn 17 3 stairs_down')
     m.obj('warp 17 3 to=abyssal_rift:20,3 face=down cond=wren_freed locked="A cold draught rises from the stairs. The Deepcall are waiting below — free Wren first."')
-    for y in (6, 10, 14, 18, 22):
-        m.obj(f'furn 6 {y} pillar'); m.obj(f'furn 15 {y} pillar')
-    for y in (8, 12, 16, 20):
-        for x in (2, 17):
-            m.obj(f'furn {x} {y} table v=2')
-    m.obj('furn 0 2 banner'); m.obj('furn 21 2 banner'); m.obj('furn 4 2 crystal'); m.obj('furn 13 2 crystal')
-    m.rect(0, 12, 1, 12, '#')
-    m.trainer(9, 20, 'sc_acolyte_1', 'acolyte', face='right', sight=4)
-    m.trainer(12, 17, 'sc_acolyte_2', 'acolyte_b', face='left', sight=4)
-    m.trainer(7, 14, 'sc_acolyte_3', 'acolyte', face='right', sight=4)
-    m.trainer(18, 10, 'sc_acolyte_4', 'acolyte_b', face='left', sight=4)
-    m.npc(10, 12, 'sc_vesk', 'vesk', face='down', script='chapel.vesk', trainer='vesk2', sight=4, hide='vesk2_done')
-    m.npc(11, 7, 'sc_maren', 'maren', face='down', script='chapel.maren', trainer='maren2', sight=4, hide='maren2_done')
+    for (x, y, f) in [(2, 2, 'banner'), (19, 2, 'banner'), (4, 2, 'crystal'), (14, 2, 'crystal'), (5, 4, 'pillar'), (14, 4, 'pillar'),
+                      (12, 24, 'pillar'), (9, 24, 'pillar')]:
+        m.obj(f'furn {x} {y} {f}')
+    m.trainer(7, 18, 'sc_acolyte_1', 'acolyte', face='down', sight=4)
+    m.trainer(2, 15, 'sc_acolyte_3', 'acolyte', face='right', sight=4)
+    m.npc(11, 12, 'sc_vesk', 'vesk', face='left', script='chapel.vesk', trainer='vesk2', sight=4, hide='vesk2_done')
+    m.trainer(15, 11, 'sc_acolyte_2', 'acolyte_b', face='down', sight=4)
+    m.trainer(19, 9, 'sc_acolyte_4', 'acolyte_b', face='left', sight=4)
+    m.npc(10, 6, 'sc_maren', 'maren', face='down', script='chapel.maren', trainer='maren2', sight=4, hide='maren2_done')
     m.npc(10, 4, 'sc_wren', 'wren_dark', face='down', script='chapel.wren', hide='wren_freed')
-    m.item(1, 23, 'full_tonic')
-    m.item(20, 23, 'rekindle_seed')
+    m.item(2, 20, 'full_tonic')
+    m.item(19, 13, 'rekindle_seed')
     return m
 
 
 @reg
 def abyssal_rift():
+    """Down through the Rift to the Cradle: one winding way, 3–4 tiles wide, with each Deepcall Tamer facing across
+    it. The two pools are dead ends, so the Skiff is no way round."""
     m = M('abyssal_rift', 40, 46, name='The Abyssal Rift', kind='cave', base='cave', music='rift', battle='rift',
           light='dark', enc_floor='1', escape='riftgate:29,29', fill='R')
     def c(x0, y0, x1, y1, ch='.'):
         m.rect(x0, y0, x1, y1, ch)
-    c(18, 1, 22, 6)
+    c(18, 1, 22, 6)                                  # the stair shaft from the chapel
     m.obj('warp 20 1 to=sunken_chapel:17,4 face=down')
-    c(8, 6, 32, 11)
-    m.hline(12, 10, 30, 'v')
-    c(8, 12, 12, 21); c(28, 12, 32, 21)
-    c(4, 16, 36, 19); m.rect(14, 16, 26, 19, '~')
-    c(4, 20, 8, 31); c(32, 20, 36, 31)
-    c(8, 26, 32, 31); m.hline(27, 12, 28, 'v')
-    c(14, 32, 26, 36); m.rect(17, 33, 23, 35, '~')
-    c(10, 37, 30, 41); c(18, 42, 21, 45)
+    c(8, 7, 22, 9)                                   # gallery, heading west
+    c(8, 10, 11, 15)                                 # the west descent
+    c(8, 16, 31, 19)                                 # the great cavern, heading east
+    c(23, 12, 30, 15); c(24, 12, 29, 14, '~')        # a still black pool off the cavern (a dead end)
+    c(32, 16, 34, 19)                                # a nook
+    c(28, 20, 31, 28)                                # the east descent
+    c(32, 26, 34, 28)                                # a nook
+    c(12, 29, 31, 31)                                # lower gallery, heading west
+    c(18, 32, 21, 45)                                # the last way down to the Cradle
+    c(22, 33, 25, 36, '~')                           # a pool beside it (a dead end)
     m.obj('warp 19 45 to=cradle:9,13 face=up')
     m.obj('warp 20 45 to=cradle:10,13 face=up')
-    for (x, y) in [(9, 7), (31, 7), (5, 17), (35, 17), (13, 29), (27, 29), (11, 38), (29, 38), (16, 32), (24, 32), (6, 30), (34, 30)]:
+    for (x, y) in [(8, 7), (22, 9), (31, 16), (8, 19), (23, 12), (30, 12), (12, 29), (31, 31), (18, 32), (34, 28)]:
         m.obj(f'prop {x} {y} crystal')
-    m.trainer(20, 9, 'ar_acolyte_1', 'acolyte', face='down', sight=4)
-    m.trainer(6, 24, 'ar_acolyte_2', 'acolyte_b', face='down', sight=4)
-    m.trainer(34, 24, 'ar_acolyte_3', 'acolyte', face='down', sight=4)
-    m.trainer(20, 38, 'ar_ace', 'ace_b', face='down', sight=4)
-    m.item(9, 20, 'full_tonic')
-    m.item(31, 13, 'apex_capsule', 2)
-    m.item(5, 31, 'panacea')
-    m.item(35, 31, 'bloom_seed')
+    m.put(12, 17, 'o'); m.put(27, 18, 'o'); m.put(15, 30, 'o')
+    m.trainer(14, 7, 'ar_acolyte_1', 'acolyte', face='down', sight=4)
+    m.trainer(8, 12, 'ar_acolyte_2', 'acolyte_b', face='right', sight=4)
+    m.trainer(28, 24, 'ar_acolyte_3', 'acolyte', face='right', sight=4)
+    m.trainer(18, 38, 'ar_ace', 'ace_b', face='right', sight=4)
+    m.item(9, 19, 'full_tonic')
+    m.item(34, 17, 'apex_capsule', 2)
+    m.item(13, 30, 'panacea')
+    m.item(34, 27, 'bloom_seed')
     m.item(20, 8, 'growth_fruit', hidden=True)
     return m
 
@@ -1037,13 +1051,98 @@ def spire_crown():
         m.put(x, 1, 'w')
     m.rect(8, 3, 9, 13, '_')
     m.put(8, 13, 'm'); m.put(9, 13, 'm')
+    # the Crown is the last of the Spire's rooms now: its way out leads down to the Spire Haven
+    m.obj('mat 8 13 to=spire_haven:8,11 face=down'); m.obj('mat 9 13 to=spire_haven:8,11 face=down')
     m.obj('furn 1 2 banner'); m.obj('furn 16 2 banner'); m.obj('furn 8 2 statue'); m.obj('furn 9 2 statue')
     m.obj('furn 0 12 plant'); m.obj('furn 17 12 plant')
+    # all six Wardens are here for the end of the story; afterwards each waits in their own room of the Spire
     for (i, (wid, x, y, f)) in enumerate([('mossa', 3, 5, 'right'), ('brann', 3, 8, 'right'), ('iskra', 3, 11, 'right'),
                                            ('morrow', 14, 5, 'left'), ('hale', 14, 8, 'left'), ('seren', 14, 11, 'left')]):
-        m.npc(x, y, f'crown_{wid}', wid, face=f, script='crown.warden', show='cradle_done')
+        m.npc(x, y, f'crown_{wid}', wid, face=f, script='crown.warden', show='cradle_done&!game_clear')
     m.npc(8, 4, 'crown_wren', 'wren', face='down', script='crown.wren', show='cradle_done')
     return m
+
+
+# ── The Crown Challenge (after the story): the Spire Haven, then one room per Warden, then the Crown ───────────
+# Like a Pokémon League: each room's door only opens once you've beaten its Warden, and there's no way back down.
+# Lose and you're sent to the Spire Haven to start again from the first room.
+CROWN_ROOMS = [   # (warden, room name, floor, wall, light)
+    ('mossa', 'The Verdant Room', 'wood', 'green', None),
+    ('brann', 'The Tide Room', 'tile', 'blue', None),
+    ('iskra', 'The Spark Room', 'lab', 'white', None),
+    ('morrow', 'The Veil Room', 'chapel', 'dark', 'dark'),
+    ('hale', 'The Rime Room', 'ice', 'ice', None),
+    ('seren', 'The Wyrm Room', 'arena', 'stone', None),
+]
+
+
+@reg
+def spire_haven():
+    m = M('spire_haven', 17, 13, kind='interior', name='Spire Haven', floor='arena', wall='stone', music='haven')
+    m.rect(0, 0, 16, 1, 'W')
+    m.put(3, 1, 'w'); m.put(13, 1, 'w')
+    m.rect(8, 2, 8, 11, '_')
+    m.put(8, 12, 'm'); m.put(9, 12, 'm')
+    m.rect(1, 4, 5, 4, '=')
+    m.rect(11, 4, 15, 4, '=')
+    m.obj('furn 2 2 healer'); m.obj('furn 13 2 shelf v=1'); m.obj('furn 5 2 pc script=haven.pc')
+    m.obj('furn 6 2 banner'); m.obj('furn 10 2 banner'); m.obj('furn 0 11 plant'); m.obj('furn 16 11 plant')
+    m.obj('furn 0 6 statue'); m.obj('furn 16 6 statue')
+    m.npc(3, 3, 'spire_haven_keeper', 'nurse', script='haven.heal', noturn='1', name='Haven Keeper')
+    m.npc(14, 3, 'spire_haven_clerk', 'clerk', script='haven.shop', noturn='1', name='Clerk')
+    m.npc(10, 7, 'spire_guard', 'guard', face='left', script='spire.guard')
+    m.obj('warp 8 1 to=crown_mossa:6,10 face=up door=1 cond=game_clear locked="The great door is sealed."')
+    m.obj('plate 8 1 on=game_clear frame=spire_door onframe=spire_door_open')
+    return m
+
+
+def crown_room(i):
+    wid, name, floor, wall, light = CROWN_ROOMS[i]
+    rid = f'crown_{wid}'
+    props = dict(name=name, floor=floor, wall=wall, music='crown')
+    if light:
+        props['light'] = light
+    m = M(rid, 13, 12, kind='interior', **props)
+    m.rect(0, 0, 12, 1, 'W')
+    m.rect(0, 11, 12, 11, '#')
+    m.rect(6, 5, 6, 10, '_')
+    nxt = f'crown_{CROWN_ORDER[i + 1]}:6,10' if i + 1 < len(CROWN_ORDER) else 'spire_crown:8,12'
+    won = f'crown_won_{wid}'
+    m.obj(f'warp 6 1 to={nxt} face=up door=1 cond={won} locked="The door is sealed. Beat Warden {wid.capitalize()} to open it."')
+    m.obj(f'plate 6 1 on={won} frame=spire_door onframe=spire_door_open')
+    m.npc(6, 4, f'cw_{wid}', wid, face='down', script='crown.warden', name=wid.capitalize())
+    # each room suits its Warden's Morphs
+    if wid == 'mossa':      # a greenhouse with hedge borders
+        m.rect(0, 2, 0, 10, 'h'); m.rect(12, 2, 12, 10, 'h')
+        for o in ['furn 1 2 plant', 'furn 11 2 plant', 'furn 2 6 pot', 'furn 10 6 pot', 'furn 1 9 plant', 'furn 11 9 plant', 'furn 4 2 pot', 'furn 8 2 pot']:
+            m.obj(o)
+        m.rect(2, 8, 3, 9, 'h'); m.rect(9, 8, 10, 9, 'h')
+    elif wid == 'brann':    # a dock between two deep channels
+        m.rect(1, 3, 2, 10, 'p'); m.rect(10, 3, 11, 10, 'p')
+        for o in ['furn 3 2 barrel', 'furn 9 2 barrel', 'furn 3 9 crate', 'furn 9 9 crate', 'furn 4 2 crate', 'furn 8 2 barrel']:
+            m.obj(o)
+    elif wid == 'iskra':    # a workshop full of machines
+        for o in ['furn 0 2 machine', 'furn 1 2 machine', 'furn 11 2 machine', 'furn 12 2 machine', 'furn 3 2 pc', 'furn 9 2 globe']:
+            m.obj(o)
+        m.rect(1, 6, 3, 6, 'x'); m.rect(9, 6, 11, 6, 'x'); m.rect(1, 9, 2, 9, 'x'); m.rect(10, 9, 11, 9, 'x')
+    elif wid == 'morrow':   # a dark archive at the edge of the void
+        m.rect(0, 5, 1, 10, '#'); m.rect(11, 5, 12, 10, '#')
+        for o in ['furn 0 2 bookshelf v=1', 'furn 1 2 bookshelf v=3', 'furn 11 2 bookshelf v=4', 'furn 12 2 bookshelf v=2',
+                  'furn 3 3 crystal', 'furn 9 3 crystal', 'furn 3 8 crystal', 'furn 9 8 crystal']:
+            m.obj(o)
+    elif wid == 'hale':     # a frozen hall with ice rocks
+        m.scatter([(1, 3), (2, 7), (1, 9), (11, 3), (10, 7), (11, 9), (4, 9), (8, 9)], 'r')
+        for o in ['furn 2 2 statue', 'furn 10 2 statue', 'furn 0 5 statue', 'furn 12 5 statue']:
+            m.obj(o)
+    elif wid == 'seren':    # a high tower room open to the sky over the Riven
+        m.rect(0, 3, 1, 10, '#'); m.rect(11, 3, 12, 10, '#')
+        for o in ['furn 2 2 banner', 'furn 10 2 banner', 'furn 2 5 pillar', 'furn 10 5 pillar', 'furn 2 8 pillar', 'furn 10 8 pillar', 'furn 4 2 crystal', 'furn 8 2 crystal']:
+            m.obj(o)
+    return m
+
+
+for _i in range(len(CROWN_ROOMS)):
+    reg((lambda i: (lambda: crown_room(i)))(_i))
 
 
 @reg
@@ -1083,6 +1182,7 @@ def ancient_tunnel():
     m.item(29, 15, 'growth_fruit')
     m.item(24, 7, 'bloom_seed', hidden=True)
     m.item(6, 33, 'panacea')
+    m.item(2, 26, 'pyre_ash')
     return m
 
 

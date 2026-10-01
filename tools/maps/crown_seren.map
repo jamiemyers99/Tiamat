@@ -1,0 +1,34 @@
+id: crown_seren
+kind: interior
+name: The Wyrm Room
+floor: arena
+wall: stone
+music: crown
+
+layout:
+WWWWWWWWWWWWW
+WWWWWWWWWWWWW
+.............
+##.........##
+##.........##
+##...._....##
+##...._....##
+##...._....##
+##...._....##
+##...._....##
+##...._....##
+#############
+end
+
+objects:
+warp 6 1 to=spire_crown:8,12 face=up door=1 cond=crown_won_seren locked="The door is sealed. Beat Warden Seren to open it."
+plate 6 1 on=crown_won_seren frame=spire_door onframe=spire_door_open
+npc 6 4 id=cw_seren sprite=seren face=down move=still script=crown.warden name=Seren
+furn 2 2 banner
+furn 10 2 banner
+furn 2 5 pillar
+furn 10 5 pillar
+furn 2 8 pillar
+furn 10 8 pillar
+furn 4 2 crystal
+furn 8 2 crystal

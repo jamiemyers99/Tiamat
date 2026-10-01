@@ -1,0 +1,32 @@
+id: crown_brann
+kind: interior
+name: The Tide Room
+floor: tile
+wall: blue
+music: crown
+
+layout:
+WWWWWWWWWWWWW
+WWWWWWWWWWWWW
+.............
+.pp.......pp.
+.pp.......pp.
+.pp..._...pp.
+.pp..._...pp.
+.pp..._...pp.
+.pp..._...pp.
+.pp..._...pp.
+.pp..._...pp.
+#############
+end
+
+objects:
+warp 6 1 to=crown_iskra:6,10 face=up door=1 cond=crown_won_brann locked="The door is sealed. Beat Warden Brann to open it."
+plate 6 1 on=crown_won_brann frame=spire_door onframe=spire_door_open
+npc 6 4 id=cw_brann sprite=brann face=down move=still script=crown.warden name=Brann
+furn 3 2 barrel
+furn 9 2 barrel
+furn 3 9 crate
+furn 9 9 crate
+furn 4 2 crate
+furn 8 2 barrel

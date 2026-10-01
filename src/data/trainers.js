@@ -30,20 +30,20 @@ const RIVAL = {
 };
 export const RIVAL_PICK = { spriglet: 'cindlet', cindlet: 'puddlet', puddlet: 'spriglet' };
 
-// ── The Crown Challenge (after the story): the six Wardens at full strength, one after another, then Wren ──
+// ── The Crown Challenge (after the story): the six Wardens at full strength, each in their own room of the Spire, then Wren ──
 export const CROWN_ORDER = ['mossa', 'brann', 'iskra', 'morrow', 'hale', 'seren'];
 function elite(id, o) { t(`elite_${id}`, { title: 'Warden', skill: 3, reward: 160, music: 'battle_trial', bg: 'arena', ...o }); }
-elite('mossa', { name: 'Mossa', sprite: 'mossa', items: ['full_tonic', 'full_tonic'], party: [['thornbur', 52], ['mycelord', 52], ['mothlume', 53], ['cairnite', 53], ['montolith', 54], ['mosswarden', 55]],
+elite('mossa', { bg: 'forest', name: 'Mossa', sprite: 'mossa', items: ['full_tonic', 'full_tonic'], party: [['thornbur', 52], ['mycelord', 52], ['mothlume', 53], ['cairnite', 53], ['montolith', 54], ['mosswarden', 55]],
   intro: "My garden has had years to grow, dear. So have I. Let's see how deep your roots go.", lose: 'Deep roots indeed. Go on — Brann is waiting.' });
-elite('brann', { title: 'Captain', name: 'Brann', sprite: 'brann', items: ['full_tonic', 'full_tonic'], party: [['stormgull', 53], ['pincerock', 53], ['medusheen', 54], ['blightoad', 54], ['thundeel', 55], ['maelstrand', 56]],
+elite('brann', { bg: 'coast', title: 'Captain', name: 'Brann', sprite: 'brann', items: ['full_tonic', 'full_tonic'], party: [['stormgull', 53], ['pincerock', 53], ['medusheen', 54], ['blightoad', 54], ['thundeel', 55], ['maelstrand', 56]],
   intro: "No pier to clear this time, {PLAYER}. Just the whole sea. Swim!", lose: "Ha! Still floating! Iskra's next — mind the sparks." });
 elite('iskra', { name: 'Iskra', sprite: 'iskra', items: ['full_tonic', 'full_tonic'], party: [['coilossus', 54], ['ferroclad', 54], ['juggernox', 55], ['thundeel', 55], ['gauntlord', 56], ['arcfowl', 57]],
   intro: "Version two of everyone. Faster, tougher, fewer bugs. Let's test them on you!", lose: 'Brilliant. Back to the workbench. Morrow is waiting in the dark.' });
-elite('morrow', { name: 'Morrow', sprite: 'morrow', items: ['full_tonic', 'full_tonic'], party: [['pookavar', 55], ['alloyena', 55], ['grimshroud', 56], ['oraclynx', 56], ['rimewraith', 57], ['noctheart', 58]],
+elite('morrow', { bg: 'night', name: 'Morrow', sprite: 'morrow', items: ['full_tonic', 'full_tonic'], party: [['pookavar', 55], ['alloyena', 55], ['grimshroud', 56], ['oraclynx', 56], ['rimewraith', 57], ['noctheart', 58]],
   intro: "Every legend needs a second chapter, {PLAYER}. This is yours.", lose: '...And the chapter ends with you standing. Hale is next.' });
-elite('hale', { name: 'Hale', sprite: 'hale', items: ['full_tonic', 'full_tonic'], party: [['flurrit', 56], ['rammoth', 56], ['glaciursa', 57], ['rimewraith', 57], ['aurovulpa', 58], ['maelstrand', 59]],
+elite('hale', { bg: 'snow', name: 'Hale', sprite: 'hale', items: ['full_tonic', 'full_tonic'], party: [['flurrit', 56], ['rammoth', 56], ['glaciursa', 57], ['rimewraith', 57], ['aurovulpa', 58], ['maelstrand', 59]],
   intro: 'The highest peak in the Reach is standing right here. Climb it!', lose: 'Summited again! Seren is the last Warden. Good luck.' });
-elite('seren', { name: 'Seren', sprite: 'seren', items: ['full_tonic', 'full_tonic', 'full_tonic'], party: [['strixage', 57], ['magmaw', 58], ['arcfowl', 58], ['aurovulpa', 58], ['skyrannox', 59], ['riftwyrm', 60]],
+elite('seren', { bg: 'rift', name: 'Seren', sprite: 'seren', items: ['full_tonic', 'full_tonic', 'full_tonic'], party: [['strixage', 57], ['magmaw', 58], ['arcfowl', 58], ['aurovulpa', 58], ['skyrannox', 59], ['riftwyrm', 60]],
   intro: 'The last Warden. The last Seal I ever kept was you, {PLAYER}. Show me what the Covenant can do.', lose: 'The Crown is yours to keep. But there is one more who wants to face you.' });
 for (const [yours, line] of Object.entries(RIVAL)) {
   t(`elite_wren_${yours}`, { title: 'Rival', name: 'Wren', sprite: 'wren', skill: 3, reward: 220, music: 'battle_rival', bg: 'arena', items: ['full_tonic', 'full_tonic', 'full_tonic'],
